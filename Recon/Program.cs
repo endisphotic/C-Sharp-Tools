@@ -44,11 +44,14 @@ namespace Recon
                 string choice = Console.ReadLine();
 
 
-                scanSelection(choice);
-                if(choice == "1" || choice == "2" || choice == "3")
+                while(choice != "exit")
                 {
-                    scanFunction(choice, strippedIP, subnet);
-                }               
+                    scanSelection(choice);
+                    if (choice == "1" || choice == "2" || choice == "3")
+                    {
+                        scanFunction(choice, strippedIP, subnet);
+                    }
+                }
 
             }
 		}
@@ -67,11 +70,11 @@ namespace Recon
                         if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
                         {
                             // connection failure
-                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
+                            //Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
                         }
                         else
                         {
-                            Console.WriteLine("Connection to " + hostname + " on port: " + port + " succeeded.");
+                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
                             results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
                             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
@@ -99,7 +102,7 @@ namespace Recon
                     if (!client.ConnectAsync(hostname, + port).Wait(1000))
                     {
                         // connection failure
-                        Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
+                        //Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
                     }
                     else
                     {
@@ -150,8 +153,6 @@ namespace Recon
                 choice = Console.ReadLine();
             }
         }
-
-        //Test
 
         //Scan functions
         public static void scanFunction(string choice, string strippedIP, string subnet)
@@ -241,7 +242,7 @@ namespace Recon
                 //Get port number from user
                 Console.WriteLine("Please enter port numbers separated by commas: ");
                 string ports = Console.ReadLine();
-
+                //Need to fix double message
                 while (ports == "")
                 {
                     Console.WriteLine("Please enter port numbers separated by commas: ");
@@ -290,7 +291,7 @@ namespace Recon
                         timer.Start();
                         foreach (var portNumber in fullList)
                         {
-                            Thread thread = new Thread(() => selectedScan(subnet, Convert.ToInt32(portNumber)));
+                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber)));
                             thread.Start();
                         }
                         DateTime finish = DateTime.Now;
