@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Management.Infrastructure;
+using Microsoft.Management.Infrastructure.Options;
+using System.Security;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using System.Net;
+using System.Management;
 
 namespace Recon
 {
@@ -39,22 +43,88 @@ namespace Recon
                     outputFile.WriteLine("Results of Recon: ");
                 }
 
-                //Get user selection for type of scan
-                Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, and 3 for selected port scan: ");
-                string choice = Console.ReadLine();
 
 
-                while(choice != "exit")
+                Console.WriteLine("Please select scan type: '1' for WMIC + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
+                string scanType = Console.ReadLine();
+
+                while(scanType != "1" && scanType != "2")
                 {
-                    scanSelection(choice);
-                    if (choice == "1" || choice == "2" || choice == "3")
-                    {
-                        scanFunction(choice, strippedIP, subnet);
-                    }
+                    scanType = Console.ReadLine();
+                }
+
+                if (scanType == "1")
+                {
+                    wmiFunction();
+                }
+                else if (scanType== "2")
+                {
+                    networkScan(strippedIP, subnet);
                 }
 
             }
 		}
+
+        public static void wmiFunction()
+        {
+            //string Namespace = @"root\cimv2";
+            //string OSQuery = "SELECT * FROM Win32_OperatingSystem";
+            //CimSession mySession = CimSession.Create("Computer_B");
+            //IEnumerable<CimInstance> queryInstance = mySession.QueryInstances(Namespace, "WQL", OSQuery);
+            //Console.WriteLine();
+            //Console.WriteLine("Please enter computer name");
+            //string computer = Console.ReadLine();
+            //Console.WriteLine("Please enter domain:");
+            //string domain = Console.ReadLine();
+            //Console.WriteLine("Please enter username");
+            //string userName = Console.ReadLine();
+
+            ConnectionOptions options = new ConnectionOptions();
+            options.Impersonation = ImpersonationLevel.Impersonate;
+
+
+            ManagementScope scope = new ManagementScope("\\\\192.168.0.148\\root\\cimv2", options);
+            scope.Connect();
+
+            //Query system for Operating System information
+            ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_OperatingSystem");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
+
+            ManagementObjectCollection queryCollection = searcher.Get();
+            foreach (ManagementObject m in queryCollection)
+            {
+                // Display the remote computer information
+                Console.WriteLine("Computer Name     : {0}", m["csname"]);
+                Console.WriteLine("Windows Directory : {0}", m["WindowsDirectory"]);
+                Console.WriteLine("Operating System  : {0}", m["Caption"]);
+                Console.WriteLine("Version           : {0}", m["Version"]);
+                Console.WriteLine("Manufacturer      : {0}", m["Manufacturer"]);
+            }
+
+        }
+
+
+        public static void networkScan(string strippedIP, string subnet)
+        {
+            //Get user selection for type of scan
+            Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan, or 'exit':");
+            string choice = Console.ReadLine();
+
+
+            while (choice != "exit")
+            {
+                scanSelection(choice);
+                if (choice == "1" || choice == "2" || choice == "3")
+                {
+                    scanFunction(choice, strippedIP, subnet);
+                }
+                else if(choice == "exit")
+                {
+                    Environment.Exit(0);
+                }
+            }
+        }
+
 
 
         public static void selectedScan(string hostname, int port)
@@ -174,7 +244,7 @@ namespace Recon
 
                 if (choice2 == "yes")
                 {
-                    Console.WriteLine("Starting full scan: ");
+                    Console.WriteLine("Starting full scan, please wait until message complete...");
                     try
                     {
 
@@ -211,12 +281,14 @@ namespace Recon
                     scanSelection(choice);
                 }
 
+                Console.WriteLine("Full scan complete");
+
 
             }
             //Run scan only on well-know ports
             else if (choice == "2")
             {
-                Console.WriteLine("Starting well-known scan: ");
+                Console.WriteLine("Starting well-known scan, please wait for scan complete message...");
                 try
                 {
                     Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257));
@@ -235,6 +307,7 @@ namespace Recon
                 {
 
                 }
+                Console.WriteLine("Well-known port scan complete");
             }
             //Run scan on ports chosen by user
             else if (choice == "3")
@@ -254,7 +327,7 @@ namespace Recon
                     {
                         //Replace any spaces
                         ports.Replace(" ", "");
-                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports) + " - please wait for scan complete message...");
                         //Add ports to list
                         List<int> portList = new List<int>();
                         //Split out data by comma values
@@ -304,6 +377,7 @@ namespace Recon
 
 
                 }
+                Console.WriteLine("Selected scan complete");
             }
         }
     }
