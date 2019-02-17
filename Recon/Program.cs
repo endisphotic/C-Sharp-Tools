@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
@@ -14,86 +15,147 @@ namespace Recon
 		static void Main(string[] args)
 		{
 
-            //DateTime now = DateTime.Now;
+            //Create stopwatch
+            Stopwatch timer = new Stopwatch();
 
-
+            //Get IP range
 			Console.WriteLine("Please enter the first three octects for the scan range, for example, '192.168.0.' :");
 			string computerName = Console.ReadLine();
 
+            //Create document for scan results
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
             {
                 outputFile.WriteLine("Results of Recon: ");
             }
 
+            //Get user selection for type of scan
             Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, and 3 for selected port scan: ");
             string choice = Console.ReadLine();
+
+            while (choice != "1" && choice != "2" && choice != "3" && choice != "exit")
+            {
+                Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, and 3 for selected port scan or 'exit': ");
+                choice = Console.ReadLine();
+            }
+            //Run scan on all ports
             if (choice == "1")
             {
                 Console.WriteLine("Starting full scan: ");
                 try
                 {
+                    timer.Start();
                     for (int i = 1; i < 256; i++)
                     {
                         for(int j = 1; j < 65536; j++)
 
                         fullScan(computerName + Convert.ToString(i), j);
                     }
-                    //string scanDuration = 
+                    DateTime finish = DateTime.Now;
+                    timer.Stop();
+                    TimeSpan ts = timer.Elapsed;
+                    string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
+                    File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
+
                 }
                 catch
                 {
 
                 }
             }
+            //Run scan only on well-know ports
             else if(choice == "2")
             {
                 Console.WriteLine("Starting well-known scan: ");
                 try
                 {
+                    timer.Start();
                     for (int i = 1; i < 256; i++)
                     {
                         for (int j = 1; j < 1024; j++)
 
                             fullScan(computerName + Convert.ToString(i), j);
                     }
+                    DateTime finish = DateTime.Now;
+                    timer.Stop();
+                    TimeSpan ts = timer.Elapsed;
+                    string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
+                    File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
                 }
                 catch
                 {
 
                 }
             }
+            //Run scan on ports chosen by user
             else if (choice == "3")
             {
                 //Get port number from user
                 Console.WriteLine("Please enter port numbers separated by commas: ");
                 string ports = Console.ReadLine();
 
-                if (ports == "")
+                while(ports == "")
                 {
                     Console.WriteLine("Please enter port numbers separated by commas: ");
+                    ports = Console.ReadLine();
                 }
-                else
+                if (ports != "")
                 {
-                    List<int> portList = new List<int>();
-                    string[] fullList = ports.Split(',');
-                    foreach(var portNumber in fullList)
+                    if(ports.Contains(" "))
                     {
-                        portList.Add(Convert.ToInt32(portNumber));
+                        //Replace any spaces
+                        ports.Replace(" ", "");
+                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                        //Add ports to list
+                        List<int> portList = new List<int>();
+                        //Split out data by comma values
+                        string[] fullList = ports.Split(',');
+                        //Iteratively add to list
+                        foreach (var portNumber in fullList)
+                        {
+                            portList.Add(Convert.ToInt32(portNumber));
+                        }
+                        //Run scan
+                        timer.Start();
+                        foreach (var portNumber in fullList)
+                        {
+                            Thread thread = new Thread(() => selectedScan(computerName, Convert.ToInt32(portNumber)));
+                            thread.Start();
+                        }
+                        DateTime finish = DateTime.Now;
+                        timer.Stop();
+                        TimeSpan ts = timer.Elapsed;
+                        //Write results out to file
+                        string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
+                        File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                        List<int> portList = new List<int>();
+                        string[] fullList = ports.Split(',');
+                        foreach (var portNumber in fullList)
+                        {
+                            portList.Add(Convert.ToInt32(portNumber));
+                        }
+                        //Run scan
+                        timer.Start();
+                        foreach (var portNumber in fullList)
+                        {
+                            Thread thread = new Thread(() => selectedScan(computerName, Convert.ToInt32(portNumber)));
+                            thread.Start();
+                        }
+                        DateTime finish = DateTime.Now;
+                        timer.Stop();
+                        TimeSpan ts = timer.Elapsed;
+                        //Write results out to file
+                        string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
+                        File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
                     }
 
-                    foreach(var portNumber in fullList)
-                    {
-                        Thread thread = new Thread(() => selectedScan(computerName, Convert.ToInt32(portNumber)));
-                        thread.Start();
-                    }
-                    
                     
                 }
-            }
-            else
-            {
-                Console.WriteLine("Closing");
+
             }
 		
 		}
@@ -101,13 +163,8 @@ namespace Recon
 
         public static void selectedScan(string hostname, int port)
         {
-
-            
             //string computerName = Console.ReadLine();
             string results = "";
-            Console.WriteLine("Starting selected scan on port: " + Convert.ToString(port));
-            //try
-            // {
             for (int i = 1; i < 256; i++)
             {
                 try
@@ -130,7 +187,6 @@ namespace Recon
                 }
                 catch (Exception)
                 {
-                    //Console.WriteLine(e);
                 }
             }
 
