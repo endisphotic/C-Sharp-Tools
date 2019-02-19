@@ -30,14 +30,17 @@ namespace Recon
             if (scanType == "1")
             {
 
-                //getIP();
-                //wmiFunction();
+                Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
+                string subnet = Console.ReadLine();
+                string type = "wmic";
+                networkScan(confirmIP(subnet), subnet, type);
             }
             else if (scanType == "2")
             {
                 Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
                 string subnet = Console.ReadLine();
-                networkScan(confirmIP(subnet), subnet);
+                string type = "";
+                networkScan(confirmIP(subnet), subnet, type);
             }
             //Create document for scan results
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -81,7 +84,7 @@ namespace Recon
             return strippedIP;
         }
 
-        public static void wmiFunction()
+        public static void wmiFunction(string hostname)
         {
 
             ConnectionOptions options = new ConnectionOptions();
@@ -99,9 +102,9 @@ namespace Recon
 
 
             Console.WriteLine("Enter target computer name");
-            string target = Console.ReadLine();
+            hostname = Console.ReadLine();
 
-            ManagementScope scope = new ManagementScope("\\\\" + target +"\\root\\cimv2", options);
+            ManagementScope scope = new ManagementScope("\\\\" + hostname + "\\root\\cimv2", options);
             scope.Connect();
 
             //Query system for Operating System information
@@ -130,7 +133,7 @@ namespace Recon
         }
 
 
-        public static void networkScan(string strippedIP, string subnet)
+        public static void networkScan(string strippedIP, string subnet, string type)
         {
             //Get user selection for type of scan
             Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan, or 'exit':");
@@ -142,7 +145,7 @@ namespace Recon
                 scanSelection(choice);
                 if (choice == "1" || choice == "2" || choice == "3")
                 {
-                    scanFunction(choice, strippedIP, subnet);
+                    scanFunction(choice, strippedIP, subnet, type);
                 }
                 else if(choice == "exit")
                 {
@@ -153,7 +156,7 @@ namespace Recon
 
 
 
-        public static void selectedScan(string hostname, int port)
+        public static void selectedScan(string hostname, int port, string type)
         {
             //string computerName = Console.ReadLine();
             string results = "";
@@ -185,34 +188,66 @@ namespace Recon
         }
 
         //Full port scan
-        public static void wideScan(string hostname, int port)
+        public static void wideScan(string hostname, int port, string type)
         {
 
-
-            //string computerName = Console.ReadLine();
-            string results = "";
-            try
+            if (type == "wmic")
             {
-                var client = new TcpClient();
+                string results = "";
+                try
                 {
-                    if (!client.ConnectAsync(hostname, + port).Wait(1000))
+                    var client = new TcpClient();
                     {
-                        // connection failure
-                        //Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
-                        results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
-                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                        File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
+                        if (!client.ConnectAsync(hostname, +port).Wait(1000))
+                        {
+                            // connection failure
+                            //Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
+                            results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
+                            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
+                            if (results.Contains("succeeded") && Convert.ToString(port) == "135")
+                            {
+                                wmiFunction(hostname);
+                            }
+                        }
                     }
                 }
+                catch (Exception)
+                {
+                    //Console.WriteLine(e);
+                }
             }
-            catch (Exception)
+            else
             {
-                //Console.WriteLine(e);
+                string results = "";
+                try
+                {
+                    var client = new TcpClient();
+                    {
+                        if (!client.ConnectAsync(hostname, +port).Wait(1000))
+                        {
+                            // connection failure
+                            //Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
+                            results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
+                            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    //Console.WriteLine(e);
+                }
             }
+            
             
 
         }
@@ -227,13 +262,13 @@ namespace Recon
 
 
         //Multithread IP Split 
-        public static void multiIP(string ip, int startIp, int stopIp, int portStart, int portStop)
+        public static void multiIP(string ip, int startIp, int stopIp, int portStart, int portStop, string type)
         {
             for (int i = startIp; i < stopIp; i++)
             {
                 for (int j = portStart; j < portStop; j++)
                 {
-                    wideScan(ip + Convert.ToString(i), j);
+                    wideScan(ip + Convert.ToString(i), j, type);
                 }
 
 
@@ -251,7 +286,7 @@ namespace Recon
         }
 
         //Scan functions
-        public static void scanFunction(string choice, string strippedIP, string subnet)
+        public static void scanFunction(string choice, string strippedIP, string subnet, string type)
         {
             //Create stopwatch
             Stopwatch timer = new Stopwatch();
@@ -275,16 +310,16 @@ namespace Recon
                     {
 
                         //Spool up threads
-                        Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 16385));
+                        Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 16385, type));
                         thread.Start();
 
-                        Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 16384, 32769));
+                        Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 16384, 32769, type));
                         thread2.Start();
 
-                        Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 32768, 49153));
+                        Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 32768, 49153, type));
                         thread3.Start();
 
-                        Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 49152, 65536));
+                        Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 49152, 65536, type));
                         thread4.Start();
 
                     }
@@ -317,16 +352,16 @@ namespace Recon
                 Console.WriteLine("Starting well-known scan, please wait for scan complete message...");
                 try
                 {
-                    Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257));
+                    Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257, type));
                     thread.Start();
 
-                    Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 256, 513));
+                    Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 256, 513, type));
                     thread2.Start();
 
-                    Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 512, 769));
+                    Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 512, 769, type));
                     thread3.Start();
 
-                    Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 768, 1024));
+                    Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 768, 1024, type));
                     thread4.Start();
                 }
                 catch
@@ -367,15 +402,15 @@ namespace Recon
                         timer.Start();
                         foreach (var portNumber in fullList)
                         {
-                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber)));
+                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type));
                             thread.Start();
                         }
-                        DateTime finish = DateTime.Now;
-                        timer.Stop();
-                        TimeSpan ts = timer.Elapsed;
-                        //Write results out to file
-                        string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
-                        File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
+                        //DateTime finish = DateTime.Now;
+                        //timer.Stop();
+                        //TimeSpan ts = timer.Elapsed;
+                        ////Write results out to file
+                        //string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
+                        //File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
                     }
                     else
                     {
@@ -390,15 +425,15 @@ namespace Recon
                         timer.Start();
                         foreach (var portNumber in fullList)
                         {
-                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber)));
+                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type));
                             thread.Start();
                         }
-                        DateTime finish = DateTime.Now;
-                        timer.Stop();
-                        TimeSpan ts = timer.Elapsed;
+                        //DateTime finish = DateTime.Now;
+                        //timer.Stop();
+                        //TimeSpan ts = timer.Elapsed;
                         //Write results out to file
-                        string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
-                        File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
+                        //string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
+                        //File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
                     }
 
 
