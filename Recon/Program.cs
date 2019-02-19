@@ -193,7 +193,7 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
-                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
+                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
                                 Console.WriteLine("Port 135 confirmed");
                             }
                         }
@@ -258,6 +258,10 @@ namespace Recon
                             results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
                             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
+                            if (results.Contains("succeeded") && Convert.ToString(port) == "135")
+                            {
+                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
+                            }
                         }
                     }
                 }
@@ -424,12 +428,6 @@ namespace Recon
                             Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL));
                             thread.Start();
                         }
-                        //DateTime finish = DateTime.Now;
-                        //timer.Stop();
-                        //TimeSpan ts = timer.Elapsed;
-                        ////Write results out to file
-                        //string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
-                        //File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
                     }
                     else
                     {
@@ -447,14 +445,7 @@ namespace Recon
                             Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL));
                             thread.Start();
                         }
-                        //DateTime finish = DateTime.Now;
-                        //timer.Stop();
-                        //TimeSpan ts = timer.Elapsed;
-                        //Write results out to file
-                        //string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n\r\n" + "Total scan time: " + Convert.ToString(ts);
-                        //File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
                     }
-
 
                 }
             }
