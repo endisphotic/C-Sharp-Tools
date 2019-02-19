@@ -112,32 +112,19 @@ namespace Recon
             ManagementObjectCollection queryCollection = searcher.Get();
             try
             {
-                Console.WriteLine("for each");
 
                 foreach (ManagementObject m in queryCollection)
                 {
-                    Console.WriteLine("Computer Name     : {0}", m["csname"]);
-                    Console.WriteLine("Windows Directory : {0}", m["WindowsDirectory"]);
-                    Console.WriteLine("Operating System  : {0}", m["Caption"]);
-                    Console.WriteLine("Version           : {0}", m["Version"]);
-                    Console.WriteLine("Manufacturer      : {0}", m["Manufacturer"]);
-                }
-                //{
-                //    // Display the remote computer information
-                //    Console.WriteLine("test");
-                //    //Console.WriteLine("Manufacturer      : {0}", m["Manufacturer"]);
 
-                //    string wmiScanResults = m;
-                //        //"Computer Name     : {0}" + m["csname"] +"\r\n"+
-                //        //"Operating System  : {0}" + m["Caption"] + "\r\n" +
-                //        //"Version           : {0}" + m["Version"] + "\r\n" +
-                //        //"Windows Directory : {0}" + m["WindowsDirectory"] + "\r\n" +
-                //        //"Manufacturer      : {0}" + m["Manufacturer"];
-                //    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                //    File.AppendAllText(docPath + "\\results.txt", wmiScanResults + Environment.NewLine);
-                //    Console.WriteLine(wmiScanResults);
-                    
-                //}
+                    string wmiScanResults = "Computer Name     : " + m["csname"] + "\r\n" +
+                    "Operating System  : " + m["Caption"] + "\r\n" +
+                    "Version           : " + m["Version"] + "\r\n" +
+                    "Windows Directory : " + m["WindowsDirectory"] + "\r\n" +
+                    "Manufacturer      : " + m["Manufacturer"];
+                    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    File.AppendAllText(docPath + "\\results.txt", wmiScanResults + Environment.NewLine);
+                    Console.WriteLine(wmiScanResults);
+                }
 
             }
             catch (Exception e)
