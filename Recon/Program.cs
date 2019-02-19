@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Management.Infrastructure;
-using Microsoft.Management.Infrastructure.Options;
 using System.Security;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -20,70 +18,90 @@ namespace Recon
 		static void Main(string[] args)
 		{
 
+            Console.WriteLine("Welcome to the recon scanner.");
+            Console.WriteLine("Please select scan type: type '1' for WMIC + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
+            string scanType = Console.ReadLine();
+
+            while (scanType != "1" && scanType != "2")
+            {
+                scanType = Console.ReadLine();
+            }
+
+            if (scanType == "1")
+            {
+
+                //getIP();
+                //wmiFunction();
+            }
+            else if (scanType == "2")
+            {
+                Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
+                string subnet = Console.ReadLine();
+                networkScan(confirmIP(subnet), subnet);
+            }
+            //Create document for scan results
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
+            {
+                outputFile.WriteLine("Results of Recon: ");
+            }
+
+            
+
+        
+		}
+
+        //Get Subnet
+        public static string getSubnet()
+        {
             //Get IP range
-			Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
-			string subnet = Console.ReadLine();
-            while(validateIP(subnet) == false)
+            Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
+            string subnet = Console.ReadLine();
+            return subnet;
+        }
+
+        //Validate IP
+        public static string confirmIP(string subnet)
+        {
+            
+            string strippedIP = "";
+            while (validateIP(subnet) == false)
             {
                 Console.WriteLine("Invalid IP. Please enter the subnet to be scanned, for example '192.168.0.1' :");
                 subnet = Console.ReadLine();
             }
-            if(validateIP(subnet) == true)
+            if (validateIP(subnet) == true)
             {
                 //Split IP into array
-                string [] splitAddress = subnet.Split('.');
+                string[] splitAddress = subnet.Split('.');
 
                 //Joins IP back together without the 4th octet
-                string strippedIP = string.Join(".", splitAddress, 0, 3) + ".";
-                
-                //Create document for scan results
-                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
-                {
-                    outputFile.WriteLine("Results of Recon: ");
-                }
-
-
-
-                Console.WriteLine("Please select scan type: '1' for WMIC + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
-                string scanType = Console.ReadLine();
-
-                while(scanType != "1" && scanType != "2")
-                {
-                    scanType = Console.ReadLine();
-                }
-
-                if (scanType == "1")
-                {
-                    wmiFunction();
-                }
-                else if (scanType== "2")
-                {
-                    networkScan(strippedIP, subnet);
-                }
-
+                strippedIP = string.Join(".", splitAddress, 0, 3) + ".";
             }
-		}
+            return strippedIP;
+        }
 
         public static void wmiFunction()
         {
-            //string Namespace = @"root\cimv2";
-            //string OSQuery = "SELECT * FROM Win32_OperatingSystem";
-            //CimSession mySession = CimSession.Create("Computer_B");
-            //IEnumerable<CimInstance> queryInstance = mySession.QueryInstances(Namespace, "WQL", OSQuery);
-            //Console.WriteLine();
-            //Console.WriteLine("Please enter computer name");
-            //string computer = Console.ReadLine();
-            //Console.WriteLine("Please enter domain:");
-            //string domain = Console.ReadLine();
-            //Console.WriteLine("Please enter username");
-            //string userName = Console.ReadLine();
 
             ConnectionOptions options = new ConnectionOptions();
             options.Impersonation = ImpersonationLevel.Impersonate;
+            //get and set user
+            Console.WriteLine("Enter user name:");
+            options.Username = Console.ReadLine();
+            //Password
+            Console.WriteLine("Enter password:");
+            options.Password = Console.ReadLine();
+            //Get computer domain
+            Console.WriteLine("Enter network domain:");
+            string domainURL = Console.ReadLine();
+            options.Authority = "ntlmdomain:" + domainURL;
 
 
-            ManagementScope scope = new ManagementScope("\\\\192.168.0.148\\root\\cimv2", options);
+            Console.WriteLine("Enter target computer name");
+            string target = Console.ReadLine();
+
+            ManagementScope scope = new ManagementScope("\\\\" + target +"\\root\\cimv2", options);
             scope.Connect();
 
             //Query system for Operating System information
@@ -91,16 +109,24 @@ namespace Recon
             ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
 
             ManagementObjectCollection queryCollection = searcher.Get();
-            foreach (ManagementObject m in queryCollection)
+            try
             {
-                // Display the remote computer information
-                Console.WriteLine("Computer Name     : {0}", m["csname"]);
-                Console.WriteLine("Windows Directory : {0}", m["WindowsDirectory"]);
-                Console.WriteLine("Operating System  : {0}", m["Caption"]);
-                Console.WriteLine("Version           : {0}", m["Version"]);
-                Console.WriteLine("Manufacturer      : {0}", m["Manufacturer"]);
-            }
+                foreach (ManagementObject m in queryCollection)
+                {
+                    // Display the remote computer information
+                    Console.WriteLine("Computer Name     : {0}", m["csname"]);
+                    Console.WriteLine("Windows Directory : {0}", m["WindowsDirectory"]);
+                    Console.WriteLine("Operating System  : {0}", m["Caption"]);
+                    Console.WriteLine("Version           : {0}", m["Version"]);
+                    Console.WriteLine("Manufacturer      : {0}", m["Manufacturer"]);
+                }
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            Console.ReadLine();
         }
 
 
@@ -353,7 +379,7 @@ namespace Recon
                     }
                     else
                     {
-                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports) + " - please wait for scan complete message...");
                         List<int> portList = new List<int>();
                         string[] fullList = ports.Split(',');
                         foreach (var portNumber in fullList)
