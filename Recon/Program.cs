@@ -124,7 +124,9 @@ namespace Recon
                         "Operating System  : " + m["Caption"] + "\r\n" +
                         "Version           : " + m["Version"] + "\r\n" +
                         "Windows Directory : " + m["WindowsDirectory"] + "\r\n" +
-                        "Manufacturer      : " + m["Manufacturer"];
+                        "Manufacturer      : " + m["Manufacturer"] + "\r\n" +
+                        "OS Architecture   : " + m["OSArchitecture"] + "\r\n";
+                        ;
                         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", wmiScanResults + Environment.NewLine);
                         Console.WriteLine(wmiScanResults);
@@ -135,7 +137,7 @@ namespace Recon
                 {
                     Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
-                catch (ManagementException e) when (e.Message.Contains("User credentials cannot be used for local connections"))
+                catch (Exception e)
                 {
 
                 }
@@ -152,12 +154,53 @@ namespace Recon
                 {
                     foreach (ManagementObject user in userCollection)
                     {
-                        string userResults = "User info: " + user;
+                        string userResults = "Account Type: " + user["AccountType"] + "\r\n" + 
+                           "Domain: " + user["Domain"] + "\r\n" +
+                           "Full Name: " + user["FullName"] + "\r\n" + 
+                           "SID: " + user["SID"] + "\r\n" + 
+                           "Password Expires: " + user["PasswordExpires"] + "\r\n" +
+                           "Password Changeable: " + user["PasswordChangeable"];
                         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", userResults + Environment.NewLine);
                         Console.WriteLine(userResults);
                         Console.WriteLine(user);
                     }
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+
+                //Logon Info
+                ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_UserAccount");
+                ManagementObjectSearcher logonInfo = new ManagementObjectSearcher(scope, logonQuery);
+
+                //User collection
+                ManagementObjectCollection logonCollection = logonInfo.Get();
+
+                try
+                {
+                    foreach (ManagementObject logon in logonCollection)
+                    {
+                        string logonResults = "Logon info: " + logon["Name"] + "\r\n" + 
+                            "Start: " + logon["StartTime"] + "\r\n" +
+                            "Status: " + logon["Status"] + "\r\n" + 
+                            "Authentication: " + logon["AuthenticationPackage"] + "\r\n" + 
+                            "Logon ID: " + logon["LogonId"] + "\r\n" +
+                            "Logon Type: " + logon["LogonType"];
+                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        File.AppendAllText(docPath + "\\results.txt", logonResults + Environment.NewLine);
+                        Console.WriteLine(logonResults);
+                    }
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
                 catch (Exception e)
                 {
