@@ -19,6 +19,22 @@ namespace Recon
 		{
 
             Console.WriteLine("Welcome to the recon scanner.");
+            //Create document for scan results
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
+            {
+                outputFile.WriteLine("Results of Recon: ");
+            }
+            Console.WriteLine("Conduct local system recon? Enter 'y' or 'n'");
+            string machineInfo = Console.ReadLine();
+            if(machineInfo == "y")
+            {
+                localMachine();
+            }
+            else
+            {
+
+            }
             Console.WriteLine("Please select scan type: type '1' for WMI + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
             string scanType = Console.ReadLine();
 
@@ -51,17 +67,44 @@ namespace Recon
                 string type = "";
                 networkScan(confirmIP(subnet), subnet, type, "", "", "");
             }
-            //Create document for scan results
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
-            {
-                outputFile.WriteLine("Results of Recon: ");
-            }
-
-
-            Console.WriteLine("Scanning complete.");
         
 		}
+
+        public static void localMachine()
+        {
+            try
+            {
+                string netDomain = "group \"domain admins\" /domain";
+
+                //Start new process
+                Process netProcess = new Process();
+                //Configure process
+                ProcessStartInfo netConfig = new ProcessStartInfo();
+                netConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                netConfig.CreateNoWindow = true;
+                //Launch cmd
+                netConfig.FileName = "net.exe";
+                //Enable reading output
+                netConfig.RedirectStandardOutput = true;
+                netConfig.UseShellExecute = false;
+                //Pass arguments
+                netConfig.Arguments = netDomain;
+                netProcess.StartInfo = netConfig;
+                netProcess.Start();
+
+                string netDomainResult = netProcess.StandardOutput.ReadLine();
+                //Append local machine info to results
+                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                File.AppendAllText(docPath + "\\results.txt", netDomainResult + Environment.NewLine);
+                Console.WriteLine(netDomainResult);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+        }
+
 
         //Get Subnet
         public static string getSubnet()
