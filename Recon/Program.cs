@@ -74,31 +74,42 @@ namespace Recon
         {
             try
             {
-                string netDomain = "group \"domain admins\" /domain";
+                //New array for commands
+                string[] netDomain = new string[5];
+                netDomain[0] = "accounts";
+                netDomain[1] = "group \"domain admins\" /domain";
+                netDomain[2] = "localgroup administrators";
+                netDomain[3] = "group \"domain controllers\" /domain";
 
-                //Start new process
-                Process netProcess = new Process();
-                //Configure process
-                ProcessStartInfo netConfig = new ProcessStartInfo();
-                netConfig.WindowStyle = ProcessWindowStyle.Hidden;
-                netConfig.CreateNoWindow = true;
-                //Launch cmd
-                netConfig.FileName = "net.exe";
-                //Enable reading output
-                netConfig.RedirectStandardOutput = true;
-                netConfig.RedirectStandardError = true;
-                netConfig.UseShellExecute = false;
-                //Pass arguments
-                netConfig.Arguments = netDomain;
-                netProcess.StartInfo = netConfig;
-                netProcess.Start();
 
-                string netDomainResult = netProcess.StandardOutput.ReadToEnd();
-                string netErr = netProcess.StandardError.ReadToEnd();
-                //Append local machine info to results
-                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                File.AppendAllText(docPath + "\\results.txt", netDomainResult + netErr + Environment.NewLine);
-                Console.WriteLine(netDomainResult);
+                
+                foreach(string argument in netDomain)
+                {
+                    //Start new process
+                    Process netProcess = new Process();
+                    //Configure process
+                    ProcessStartInfo netConfig = new ProcessStartInfo();
+                    netConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                    netConfig.CreateNoWindow = true;
+                    //Launch cmd
+                    netConfig.FileName = "net.exe";
+                    //Enable reading output
+                    netConfig.RedirectStandardOutput = true;
+                    netConfig.RedirectStandardError = true;
+                    netConfig.UseShellExecute = false;
+                    //Pass arguments
+                    //netConfig.Arguments = netDomain;
+                    netProcess.StartInfo = netConfig;
+                    netConfig.Arguments = argument;
+                    netProcess.Start();
+                    string netDomainResult = netProcess.StandardOutput.ReadToEnd();
+                    string netErr = netProcess.StandardError.ReadToEnd();
+                    //Append local machine info to results
+                    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    File.AppendAllText(docPath + "\\results.txt", netDomainResult + netErr + Environment.NewLine);
+                    Console.WriteLine(netDomainResult);
+                }
+                
             }
             catch(Exception e)
             {
@@ -217,7 +228,7 @@ namespace Recon
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                 }
 
 
@@ -249,7 +260,7 @@ namespace Recon
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                 }
 
 
