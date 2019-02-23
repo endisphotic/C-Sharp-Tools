@@ -72,6 +72,7 @@ namespace Recon
 
         public static void localMachine()
         {
+            //Net commands
             try
             {
                 //New array for commands
@@ -80,7 +81,7 @@ namespace Recon
                 netDomain[1] = "group \"domain admins\" /domain";
                 netDomain[2] = "localgroup administrators";
                 netDomain[3] = "group \"domain controllers\" /domain";
-
+                netDomain[4] = "start";
 
                 
                 foreach(string argument in netDomain)
@@ -115,7 +116,49 @@ namespace Recon
             {
                 Console.WriteLine(e);
             }
+            //CMD commands
+            try
+            {
+                //Array for commands
+                string[] cmdArgs = new string[5];
+                cmdArgs[0] = "c/ arp -a";
+                cmdArgs[1] = "c/ route print";
+                cmdArgs[2] = "/c netstat -ano";
+                cmdArgs[3] = "sc query";
+                cmdArgs[4] = "ipconfig /all";
+                cmdArgs[5] = "tasklist";
 
+                foreach (string argument in cmdArgs)
+                {
+                    //Start new process
+                    Process cmdProcess = new Process();
+                    //Configure process
+                    ProcessStartInfo cmdConfig = new ProcessStartInfo();
+                    cmdConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                    cmdConfig.CreateNoWindow = true;
+                    //Launch cmd
+                    cmdConfig.FileName = "net.exe";
+                    //Enable reading output
+                    cmdConfig.RedirectStandardOutput = true;
+                    cmdConfig.RedirectStandardError = true;
+                    cmdConfig.UseShellExecute = false;
+                    //Pass arguments
+                    //netConfig.Arguments = netDomain;
+                    cmdProcess.StartInfo = cmdConfig;
+                    cmdConfig.Arguments = argument;
+                    cmdProcess.Start();
+                    string cmdDomainResult = cmdProcess.StandardOutput.ReadToEnd();
+                    string cmdErr = cmdProcess.StandardError.ReadToEnd();
+                    //Append local machine info to results
+                    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    File.AppendAllText(docPath + "\\results.txt", cmdDomainResult + cmdErr + Environment.NewLine);
+                    Console.WriteLine(cmdDomainResult);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
 
