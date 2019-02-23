@@ -58,8 +58,8 @@ namespace Recon
                 outputFile.WriteLine("Results of Recon: ");
             }
 
-            
 
+            Console.WriteLine("Scanning complete.");
         
 		}
 
