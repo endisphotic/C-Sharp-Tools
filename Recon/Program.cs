@@ -113,14 +113,7 @@ namespace Recon
 
                 //OS collection
                 ManagementObjectCollection queryCollection = searcher.Get();
-
-                //AV Info
-                ObjectQuery avQuery = new ObjectQuery("SELECT * FROM AntiVriusProduct");
-                ManagementObjectSearcher avSearch = new ManagementObjectSearcher(scope, avQuery);
-
-                //AV collection
-                ManagementObjectCollection avCollection = avSearch.Get();
-
+                              
                 try
                 {
 
@@ -147,14 +140,24 @@ namespace Recon
 
                 }
 
+
+                 //User Info
+                ObjectQuery userQuery = new ObjectQuery("user account get /all");
+                ManagementObjectSearcher userInfoSearch = new ManagementObjectSearcher(scope, userQuery);
+
+                //User collection
+                ManagementObjectCollection userCollection = userInfoSearch.Get();
+
                 try
                 {
-                    foreach (ManagementObject av in avCollection)
+                    foreach (ManagementObject user in userCollection)
                     {
-                        string avResults = "Antivirus Info: " + av["displayName"] + "\r\n";
+                        string userResults = "Antivirus Info: " + user["displayName"] + "\r\n" +
+                            "Product State: " + user["productState"];
                         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                        File.AppendAllText(docPath + "\\results.txt", avResults + Environment.NewLine);
-                        Console.WriteLine(avResults);
+                        File.AppendAllText(docPath + "\\results.txt", userResults + Environment.NewLine);
+                        Console.WriteLine(userResults);
+                        Console.WriteLine(user);
                     }
                 }
                 catch(Exception e)
