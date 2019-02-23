@@ -95,42 +95,51 @@ namespace Recon
 
         public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL)
         {
-            Console.WriteLine("Establishing WMI");
-            ConnectionOptions options = new ConnectionOptions();
-            options.Impersonation = ImpersonationLevel.Impersonate;
-            options.Username = wmiUsername;
-            options.Password = wmiPassword;
-            options.Authority = "ntlmdomain:" + domainURL;
-
-            ManagementScope scope = new ManagementScope("\\\\" + hostname + "\\root\\cimv2", options);
-            scope.Connect();
-
-            //Query system for Operating System information
-            ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_OperatingSystem");
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
-
-            ManagementObjectCollection queryCollection = searcher.Get();
             try
             {
+                Console.WriteLine("Establishing WMI");
+                ConnectionOptions options = new ConnectionOptions();
+                options.Impersonation = ImpersonationLevel.Impersonate;
+                options.Username = wmiUsername;
+                options.Password = wmiPassword;
+                options.Authority = "ntlmdomain:" + domainURL;
 
-                foreach (ManagementObject m in queryCollection)
+                ManagementScope scope = new ManagementScope("\\\\" + hostname + "\\root\\cimv2", options);
+                scope.Connect();
+
+                //Query system for Operating System information
+                ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_OperatingSystem");
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
+
+                ManagementObjectCollection queryCollection = searcher.Get();
+                try
                 {
 
-                    string wmiScanResults = "Computer Name     : " + m["csname"] + "\r\n" +
-                    "Operating System  : " + m["Caption"] + "\r\n" +
-                    "Version           : " + m["Version"] + "\r\n" +
-                    "Windows Directory : " + m["WindowsDirectory"] + "\r\n" +
-                    "Manufacturer      : " + m["Manufacturer"];
-                    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    File.AppendAllText(docPath + "\\results.txt", wmiScanResults + Environment.NewLine);
-                    Console.WriteLine(wmiScanResults);
+                    foreach (ManagementObject m in queryCollection)
+                    {
+
+                        string wmiScanResults = "Computer Name     : " + m["csname"] + "\r\n" +
+                        "Operating System  : " + m["Caption"] + "\r\n" +
+                        "Version           : " + m["Version"] + "\r\n" +
+                        "Windows Directory : " + m["WindowsDirectory"] + "\r\n" +
+                        "Manufacturer      : " + m["Manufacturer"];
+                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        File.AppendAllText(docPath + "\\results.txt", wmiScanResults + Environment.NewLine);
+                        Console.WriteLine(wmiScanResults);
+                    }
+
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+            catch
+            {
 
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+
+            
         }
 
 
