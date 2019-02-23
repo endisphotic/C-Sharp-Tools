@@ -19,7 +19,7 @@ namespace Recon
 		{
 
             Console.WriteLine("Welcome to the recon scanner.");
-            Console.WriteLine("Please select scan type: type '1' for WMIC + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
+            Console.WriteLine("Please select scan type: type '1' for WMI + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
             string scanType = Console.ReadLine();
 
             while (scanType != "1" && scanType != "2")
@@ -134,9 +134,9 @@ namespace Recon
                     Console.WriteLine(e);
                 }
             }
-            catch
+            catch (Exception e)
             {
-
+                Console.WriteLine(e)
             }
 
             
@@ -189,8 +189,7 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
-                                Thread threadWMI2 = new Thread(() => wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL));
-                                threadWMI2.Start(); 
+                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
                                 Console.WriteLine("Port 135 confirmed");
                             }
                         }
@@ -227,8 +226,7 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
-                                Thread threadWMI = new Thread(() => wmiFunction(hostname, wmiUsername, wmiPassword, domainURL));
-                                threadWMI.Start();
+                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
                                 
                             }
                         }
