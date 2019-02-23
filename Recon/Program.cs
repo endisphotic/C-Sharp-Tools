@@ -151,8 +151,7 @@ namespace Recon
                 {
                     foreach (ManagementObject av in avCollection)
                     {
-                        string avResults = "Antivirus Info: " + av["displayName"] + "\r\n" +
-                            "Product State: " + av["productState"];
+                        string avResults = "Antivirus Info: " + av["displayName"] + "\r\n";
                         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", avResults + Environment.NewLine);
                         Console.WriteLine(avResults);
