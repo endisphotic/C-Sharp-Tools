@@ -180,8 +180,8 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
-                                Thread thread = new Thread(() => wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL));
-                                thread.Start(); 
+                                Thread threadWMI2 = new Thread(() => wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL));
+                                threadWMI2.Start(); 
                                 Console.WriteLine("Port 135 confirmed");
                             }
                         }
@@ -218,8 +218,8 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
-                                Thread thread = new Thread(() => wmiFunction(hostname, wmiUsername, wmiPassword, domainURL));
-                                thread.Start();
+                                Thread threadWMI = new Thread(() => wmiFunction(hostname, wmiUsername, wmiPassword, domainURL));
+                                threadWMI.Start();
                                 
                             }
                         }
