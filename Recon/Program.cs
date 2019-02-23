@@ -18,23 +18,112 @@ namespace Recon
 		static void Main(string[] args)
 		{
 
-            Console.WriteLine("Welcome to the recon scanner.");
+
+            Console.WriteLine("Welcome to the recon scanner." + "\r\n");
+
+
+            string shh = @"(#(((((#((#####%%%%#((((((#################%%#%###%%%%%
+((#((((#(#########(((((((((#((#%########%##%###%%#%###%
+((((###(((####(#(((#(((((((((((((#(#######%%##%%%##%#%%
+((((###%%%%%(((((((((#(,,***/(((#((#########%##########
+(###((########(((((((/,,**,****((((((#%###############%
+#####%%######%#%#((((,,,,,,/,**//((((##############%###
+##%%#########%######,,,,,,,****,**%%#%#################
+#%%%%%%%####%%%%%%%,,.,,.....,,****%%%#############%###
+%#%%%%#%%&%&%%%%%%%,.,.........,,,,/%%%#%#%%###%%%%%%%%
+%##%%##%%%%%#%%%%%(,.............,,,*%%%%%%%%%%%%%%%%%%
+#%%#######%%######,..............,,,(%%%%%%%%%%%%%%%%%%
+####%%%##########(,.......&......,,#%%%%%%%%%%%%%%%%%%%
+%%#####%%%####(/*.,.. .../%......,,,*(%%%%%%%%%%%%###%%
+(((%#%####(*.............##,,...,,...,,,,,(%%%##%######
+(((#######....   ......,%##%#&*..,....,,,,,*###########
+////(####*.....    ..../%#%&((((......,.,,***###(((((((
+////((##(.    .     ../###*/*.,.......,.,,*,*(##%((((((
+//////(/...      . ....,#*...,..........,*,.,,((#((((((
+//////(*...  .....  .,. .................,..,,,((###(((
+//(#((*.... ..%%################((((((((((((((,/(///(((
+/(#//(       .#####################(((((((((((.,((((//(
+(##(#/        ###################(((((((((////..,//(///
+/((#(*        ################(((((((((//////*...*/////
+**////.      .############((((((((((/////////,...//////
+//(****//*****######((((((((((((/////////////...///////
+******//////**#((((((///////////////********/..*///////";
+            Console.WriteLine(shh);
+            
+
             //Create document for scan results
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
             {
                 outputFile.WriteLine("Results of Recon: ");
             }
-            Console.WriteLine("Conduct local system recon? Enter 'y' or 'n'");
+            Console.WriteLine("Conduct local system recon? Enter 'y' or 'n' or 'exit':");
             string machineInfo = Console.ReadLine();
-            if(machineInfo == "y")
+
+            while(machineInfo != "y" && machineInfo != "n")
+            {
+                Console.WriteLine("Invalid selection. Would you like to conduct local system recon? Enter 'y' or 'n' or 'exit': ");
+                machineInfo = Console.ReadLine();
+            }
+
+            if (machineInfo == "y")
             {
                 localMachine();
-            }
-            else
-            {
+                Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n' or 'exit' :");
+                string networkScan = Console.ReadLine();
+
+                while (networkScan != "y" && networkScan != "n")
+                {
+                    Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n' or 'exit': ");
+                    networkScan = Console.ReadLine();
+                    
+                }
+                if (networkScan == "y")
+                {
+                    userSelection();
+                }
+                else if (networkScan == "n")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
+                }
+                else if (networkScan == "exit")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
+                }
 
             }
+            else if(machineInfo == "n")
+            {
+                Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
+                string networkScan = Console.ReadLine();
+                while (networkScan != "y" && networkScan != "n")
+                {
+                    Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
+                    networkScan = Console.ReadLine();
+                    
+                }
+                if (networkScan == "y")
+                {
+                    userSelection();
+                }
+                else if (networkScan == "n")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
+                }
+                else if (networkScan == "exit")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
+                }
+            }
+            
+		}
+
+        public static void userSelection()
+        {
             Console.WriteLine("Please select scan type: type '1' for WMI + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
             string scanType = Console.ReadLine();
 
@@ -67,8 +156,7 @@ namespace Recon
                 string type = "";
                 networkScan(confirmIP(subnet), subnet, type, "", "", "");
             }
-        
-		}
+        }
 
         public static void localMachine()
         {
@@ -120,7 +208,7 @@ namespace Recon
             try
             {
                 //Array for commands
-                string[] cmdArgs = new string[5];
+                string[] cmdArgs = new string[6];
                 cmdArgs[0] = "c/ arp -a";
                 cmdArgs[1] = "c/ route print";
                 cmdArgs[2] = "/c netstat -ano";
@@ -327,15 +415,15 @@ namespace Recon
             while (choice != "exit")
             {
                 scanSelection(choice);
-                if (choice == "1" || choice == "2" || choice == "3")
-                {
-                    scanFunction(choice, strippedIP, subnet, type, wmiUsername, wmiPassword, domainURL);
+            }
+            if (choice == "1" || choice == "2" || choice == "3")
+            {
+                scanFunction(choice, strippedIP, subnet, type, wmiUsername, wmiPassword, domainURL);
 
-                }
-                else if(choice == "exit")
-                {
-                    Environment.Exit(0);
-                }
+            }
+            else if (choice == "exit")
+            {
+                Environment.Exit(0);
             }
         }
 
