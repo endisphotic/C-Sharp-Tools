@@ -134,9 +134,9 @@ namespace Recon
                     Console.WriteLine(e);
                 }
             }
-            catch
+            catch (Exception e)
             {
-
+                Console.WriteLine(e);
             }
 
             
