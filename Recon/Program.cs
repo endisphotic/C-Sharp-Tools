@@ -111,7 +111,16 @@ namespace Recon
                 ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_OperatingSystem");
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
 
+                //OS collection
                 ManagementObjectCollection queryCollection = searcher.Get();
+
+                //AV Info
+                ObjectQuery avQuery = new ObjectQuery("SELECT * FROM AntiVriusProduct");
+                ManagementObjectSearcher avSearch = new ManagementObjectSearcher(scope, avQuery);
+
+                //AV collection
+                ManagementObjectCollection avCollection = avSearch.Get();
+
                 try
                 {
 
@@ -137,6 +146,23 @@ namespace Recon
                 {
 
                 }
+
+                try
+                {
+                    foreach (ManagementObject av in avCollection)
+                    {
+                        string avResults = "Antivirus Info: " + av["AntiVirusName"] + "\r\n";
+                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        File.AppendAllText(docPath + "\\results.txt", avResults + Environment.NewLine);
+                        Console.WriteLine(avResults);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+
             }
             catch (Exception e)
             {
