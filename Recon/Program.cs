@@ -142,7 +142,7 @@ namespace Recon
                 {
                     Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
-                catch(ManagementException)
+                catch(ManagementException e) when (e.Message.Contains("User credentials cannot be used for local connections"))
                 {
 
                 }
@@ -151,7 +151,8 @@ namespace Recon
                 {
                     foreach (ManagementObject av in avCollection)
                     {
-                        string avResults = "Antivirus Info: " + av["AntiVirusName"] + "\r\n";
+                        string avResults = "Antivirus Info: " + av["displayName"] + "\r\n" +
+                            "Product State: " + av["productState"];
                         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", avResults + Environment.NewLine);
                         Console.WriteLine(avResults);
@@ -186,7 +187,7 @@ namespace Recon
                 if (choice == "1" || choice == "2" || choice == "3")
                 {
                     scanFunction(choice, strippedIP, subnet, type, wmiUsername, wmiPassword, domainURL);
-                    Console.WriteLine("Scanning completed");
+
                 }
                 else if(choice == "exit")
                 {
