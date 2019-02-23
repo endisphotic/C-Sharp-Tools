@@ -142,7 +142,7 @@ namespace Recon
 
 
                 //User Info
-                ObjectQuery userQuery = new ObjectQuery("user account get /all");
+                ObjectQuery userQuery = new ObjectQuery("Win32_UserAccount");
                 ManagementObjectSearcher userInfoSearch = new ManagementObjectSearcher(scope, userQuery);
 
                 //User collection
