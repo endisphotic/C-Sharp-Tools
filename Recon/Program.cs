@@ -202,7 +202,7 @@ namespace Recon
                            "Full Name: " + user["FullName"] + "\r\n" + 
                            "SID: " + user["SID"] + "\r\n" + 
                            "Password Expires: " + user["PasswordExpires"] + "\r\n" +
-                           "Password Changeable: " + user["PasswordChangeable"];
+                           "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
                         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", userResults + Environment.NewLine);
                         Console.WriteLine(userResults);
