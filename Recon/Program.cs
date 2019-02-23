@@ -86,16 +86,18 @@ namespace Recon
                 netConfig.FileName = "net.exe";
                 //Enable reading output
                 netConfig.RedirectStandardOutput = true;
+                netConfig.RedirectStandardError = true;
                 netConfig.UseShellExecute = false;
                 //Pass arguments
                 netConfig.Arguments = netDomain;
                 netProcess.StartInfo = netConfig;
                 netProcess.Start();
 
-                string netDomainResult = netProcess.StandardOutput.ReadLine();
+                string netDomainResult = netProcess.StandardOutput.ReadToEnd();
+                string netErr = netProcess.StandardError.ReadToEnd();
                 //Append local machine info to results
                 string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                File.AppendAllText(docPath + "\\results.txt", netDomainResult + Environment.NewLine);
+                File.AppendAllText(docPath + "\\results.txt", netDomainResult + netErr + Environment.NewLine);
                 Console.WriteLine(netDomainResult);
             }
             catch(Exception e)
