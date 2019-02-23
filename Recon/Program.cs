@@ -111,7 +111,16 @@ namespace Recon
                 ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_OperatingSystem");
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query);
 
+                //OS collection
                 ManagementObjectCollection queryCollection = searcher.Get();
+
+                //AV Info
+                ObjectQuery avQuery = new ObjectQuery("SELECT * FROM AntiVriusProduct");
+                ManagementObjectSearcher avSearch = new ManagementObjectSearcher(scope, avQuery);
+
+                //AV collection
+                ManagementObjectCollection avCollection = avSearch.Get();
+
                 try
                 {
 
@@ -129,10 +138,31 @@ namespace Recon
                     }
 
                 }
-                catch (Exception e)
+                catch (UnauthorizedAccessException e)
+                {
+                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                }
+                catch(ManagementException)
+                {
+
+                }
+
+                try
+                {
+                    foreach (ManagementObject av in avCollection)
+                    {
+                        string avResults = "Antivirus Info: " + av["AntiVirusName"] + "\r\n";
+                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        File.AppendAllText(docPath + "\\results.txt", avResults + Environment.NewLine);
+                        Console.WriteLine(avResults);
+                    }
+                }
+                catch(Exception e)
                 {
                     Console.WriteLine(e);
                 }
+
+
             }
             catch (Exception e)
             {
@@ -156,6 +186,7 @@ namespace Recon
                 if (choice == "1" || choice == "2" || choice == "3")
                 {
                     scanFunction(choice, strippedIP, subnet, type, wmiUsername, wmiPassword, domainURL);
+                    Console.WriteLine("Scanning completed");
                 }
                 else if(choice == "exit")
                 {
@@ -189,8 +220,9 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
-                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
                                 Console.WriteLine("Port 135 confirmed");
+                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
+                                
                             }
                         }
                     }
@@ -226,6 +258,7 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
+                                Console.WriteLine("Port 135 confirmed");
                                 wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
                                 
                             }
@@ -257,6 +290,7 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
+                                Console.WriteLine("Port 135 confirmed");
                                 wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
                             }
                         }
