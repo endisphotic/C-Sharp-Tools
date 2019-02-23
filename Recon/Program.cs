@@ -113,7 +113,7 @@ namespace Recon
 
                 //OS collection
                 ManagementObjectCollection queryCollection = searcher.Get();
-                              
+
                 try
                 {
 
@@ -135,13 +135,13 @@ namespace Recon
                 {
                     Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
-                catch(ManagementException e) when (e.Message.Contains("User credentials cannot be used for local connections"))
+                catch (ManagementException e) when (e.Message.Contains("User credentials cannot be used for local connections"))
                 {
 
                 }
 
 
-                 //User Info
+                //User Info
                 ObjectQuery userQuery = new ObjectQuery("user account get /all");
                 ManagementObjectSearcher userInfoSearch = new ManagementObjectSearcher(scope, userQuery);
 
@@ -152,15 +152,14 @@ namespace Recon
                 {
                     foreach (ManagementObject user in userCollection)
                     {
-                        string userResults = "Antivirus Info: " + user["displayName"] + "\r\n" +
-                            "Product State: " + user["productState"];
+                        string userResults = "User info: " + user;
                         string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", userResults + Environment.NewLine);
                         Console.WriteLine(userResults);
                         Console.WriteLine(user);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
@@ -172,7 +171,7 @@ namespace Recon
                 Console.WriteLine(e);
             }
 
-            
+
         }
 
 
