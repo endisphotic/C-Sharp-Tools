@@ -129,9 +129,13 @@ namespace Recon
                     }
 
                 }
-                catch (Exception e)
+                catch (UnauthorizedAccessException e)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                }
+                catch(ManagementException)
+                {
+
                 }
             }
             catch (Exception e)
@@ -189,8 +193,9 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
-                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
                                 Console.WriteLine("Port 135 confirmed");
+                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
+                                
                             }
                         }
                     }
@@ -226,6 +231,7 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
+                                Console.WriteLine("Port 135 confirmed");
                                 wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
                                 
                             }
@@ -257,6 +263,7 @@ namespace Recon
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
+                                Console.WriteLine("Port 135 confirmed");
                                 wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
                             }
                         }
