@@ -220,7 +220,7 @@ namespace Recon
 
 
                 //Logon Info
-                ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_UserAccount");
+                ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
                 ManagementObjectSearcher logonInfo = new ManagementObjectSearcher(scope, logonQuery);
 
                 //User collection
