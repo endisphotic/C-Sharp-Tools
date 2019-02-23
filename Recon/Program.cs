@@ -186,6 +186,7 @@ namespace Recon
                 if (choice == "1" || choice == "2" || choice == "3")
                 {
                     scanFunction(choice, strippedIP, subnet, type, wmiUsername, wmiPassword, domainURL);
+                    Console.WriteLine("Scanning completed");
                 }
                 else if(choice == "exit")
                 {
