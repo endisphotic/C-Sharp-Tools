@@ -22,8 +22,7 @@ namespace Recon
             Console.WriteLine("Welcome to the recon scanner." + "\r\n");
 
 
-            string shh = @"(#(((((#((#####%%%%#((((((#################%%#%###%%%%%
-((#((((#(#########(((((((((#((#%########%##%###%%#%###%
+            string shh = @"((#((((#(#########(((((((((#((#%########%##%###%%#%###%
 ((((###(((####(#(((#(((((((((((((#(#######%%##%%%##%#%%
 ((((###%%%%%(((((((((#(,,***/(((#((#########%##########
 (###((########(((((((/,,**,****((((((#%###############%
@@ -47,7 +46,7 @@ namespace Recon
 /((#(*        ################(((((((((//////*...*/////
 **////.      .############((((((((((/////////,...//////
 //(****//*****######((((((((((((/////////////...///////
-******//////**#((((((///////////////********/..*///////";
+******//////**#((((((///////////////********/..*///////" + "\r\n";
             Console.WriteLine(shh);
             
 
@@ -412,9 +411,10 @@ namespace Recon
             string choice = Console.ReadLine();
 
 
-            while (choice != "exit")
+            while (choice != "exit" && choice != "1" && choice != "2" && choice != "3")
             {
                 scanSelection(choice);
+                
             }
             if (choice == "1" || choice == "2" || choice == "3")
             {
@@ -613,14 +613,6 @@ namespace Recon
                     {
 
                     }
-                    //finally Need to fix this later
-                    //{
-                    //    DateTime finish = DateTime.Now;
-                    //    timer.Stop();
-                    //    TimeSpan ts = timer.Elapsed;
-                    //    string totalTime = "Scanning finished at: " + Convert.ToString(finish) + "\r\n" + "Total scan time: " + Convert.ToString(ts);
-                    //    File.AppendAllText(docPath + "\\results.txt", totalTime + Environment.NewLine);
-                    //}
                 }
                 else if (choice2 == "back")
                 {
@@ -663,11 +655,11 @@ namespace Recon
                 Console.WriteLine("Please enter port numbers separated by commas: ");
                 string ports = Console.ReadLine();
                 //Need to fix double message
-                while (ports == "")
-                {
-                    Console.WriteLine("Please enter port numbers separated by commas: ");
-                    ports = Console.ReadLine();
-                }
+                //while (ports == "")
+                //{
+                //    Console.WriteLine("Please enter port numbers separated by commas: ");
+                //    ports = Console.ReadLine();
+                //}
                 if (ports != "")
                 {
                     if (ports.Contains(" "))
