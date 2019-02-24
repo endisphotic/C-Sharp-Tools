@@ -92,22 +92,6 @@ namespace Recon
                     Environment.Exit(0);
                 }
             }
-
-            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-            string targetWmi = Console.ReadLine();
-
-            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
-            {
-                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-                targetWmi = Console.ReadLine();
-            }
-            if (targetWmi == "y")
-            {
-                foreach(string target in wmiTargets(""))
-                {
-                    Console.WriteLine(target);
-                }
-            }
             
 		}
 
@@ -399,7 +383,7 @@ namespace Recon
         {
             try
             {
-                Console.WriteLine("Establishing WMI");
+                Console.WriteLine("Establishing WMI..");
                 ConnectionOptions options = new ConnectionOptions();
                 options.Impersonation = ImpersonationLevel.Impersonate;
                 options.Username = wmiUsername;
@@ -547,38 +531,71 @@ namespace Recon
 
         public static void selectedScan(string hostname, int port, string type, string wmiUsername, string wmiPassword, string domainURL)
         {
-            //string computerName = Console.ReadLine();
-            string results = "";
-            for (int i = 1; i < 256; i++)
+            //WMI
+            if (type == "wmic")
             {
-                try
+                string results = "";
+                for (int i = 1; i < 256; i++)
                 {
-                    var client = new TcpClient();
+                    try
                     {
-                        if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
+                        var client = new TcpClient();
                         {
-                            // connection failure
-                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
-                            results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
-                            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                            if (results.Contains("succeeded") && Convert.ToString(port) == "135")
+                            if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
                             {
-                                Console.WriteLine("Port 135 confirmed");
-                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
-                                
+                                // connection failure
+                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
+                                results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
+                                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                                File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                if (results.Contains("succeeded") && Convert.ToString(port) == "135")
+                                {
+                                    Console.WriteLine("Port 135 confirmed");
+                                    wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
+
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception)
-                {
+                    catch (Exception)
+                    {
+                    }
                 }
             }
+            //Network only
+            else
+            {
+                string results = "";
+                for (int i = 1; i < 256; i++)
+                {
+                    try
+                    {
+                        var client = new TcpClient();
+                        {
+                            if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
+                            {
+                                // connection failure
+                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
+                                results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
+                                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                                File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+            
 
         }
 
@@ -608,7 +625,7 @@ namespace Recon
                             {
                                 Console.WriteLine("Port 135 confirmed");
                                 wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
-                                
+                                wmiTargets(hostname);
                             }
                         }
                     }
@@ -636,12 +653,12 @@ namespace Recon
                             results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
                             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                            if (results.Contains("succeeded") && Convert.ToString(port) == "135")
-                            {
-                                Console.WriteLine("Port 135 confirmed");
-                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
-                                wmiTargets(hostname);
-                            }
+                            //if (results.Contains("succeeded") && Convert.ToString(port) == "135")
+                            //{
+                            //    Console.WriteLine("Port 135 confirmed");
+                            //    wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
+                            //    wmiTargets(hostname);
+                            //}
                         }
                     }
                 }
@@ -691,8 +708,7 @@ namespace Recon
         //Scan functions
         public static void scanFunction(string choice, string strippedIP, string subnet, string type, string wmiUsername, string wmiPassword, string domainURL)
         {
-            //Create stopwatch
-            Stopwatch timer = new Stopwatch();
+
             //Path for document saving
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             if (choice == "1")
@@ -737,7 +753,6 @@ namespace Recon
                     scanSelection(choice);
                 }
 
-                Console.WriteLine("Full scan complete");
 
 
             }
@@ -763,7 +778,7 @@ namespace Recon
                 {
 
                 }
-                Console.WriteLine("Well-known port scan complete");
+
             }
             //Run scan on ports chosen by user
             else if (choice == "3")
@@ -771,12 +786,6 @@ namespace Recon
                 //Get port number from user
                 Console.WriteLine("Please enter port numbers separated by commas: ");
                 string ports = Console.ReadLine();
-                //Need to fix double message
-                //while (ports == "")
-                //{
-                //    Console.WriteLine("Please enter port numbers separated by commas: ");
-                //    ports = Console.ReadLine();
-                //}
                 if (ports != "")
                 {
                     if (ports.Contains(" "))
@@ -828,6 +837,26 @@ namespace Recon
             wmiRange.Add(wmiTarget);
 
             return wmiRange;
+        }
+
+        //For attacking found WMI targets later
+        public static void attackWMI()
+        {
+            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+            string targetWmi = Console.ReadLine();
+
+            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
+            {
+                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                targetWmi = Console.ReadLine();
+            }
+            if (targetWmi == "y")
+            {
+                foreach (string target in wmiTargets(""))
+                {
+                    Console.WriteLine(target);
+                }
+            }
         }
     }
 }
