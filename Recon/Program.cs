@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using System.Management;
+using System.Text.RegularExpressions;
 
 namespace Recon
 {
@@ -170,8 +171,8 @@ namespace Recon
                 netDomain[3] = "group \"domain controllers\" /domain";
                 netDomain[4] = "start";
 
-                
-                foreach(string argument in netDomain)
+
+                foreach (string argument in netDomain)
                 {
                     //Start new process
                     Process netProcess = new Process();
@@ -197,9 +198,9 @@ namespace Recon
                     File.AppendAllText(docPath + "\\results.txt", netDomainResult + netErr + Environment.NewLine);
                     Console.WriteLine(netDomainResult);
                 }
-                
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e);
             }
@@ -207,13 +208,13 @@ namespace Recon
             try
             {
                 //Array for commands
-                string[] cmdArgs = new string[6];
+                string[] cmdArgs = new string[5];
                 cmdArgs[0] = "/c arp -a";
                 cmdArgs[1] = "/c route print";
                 cmdArgs[2] = "/c netstat -ano | find /i \"listening\"";
-                cmdArgs[3] = "/c sc query";
-                cmdArgs[4] = "/c ipconfig /all";
-                cmdArgs[5] = "/c tasklist";
+                cmdArgs[3] = "/c ipconfig /all";
+                cmdArgs[4] = "/c tasklist";
+                //cmdArgs[3] = "/c sc query";
 
                 foreach (string argument in cmdArgs)
                 {
@@ -241,6 +242,78 @@ namespace Recon
                     File.AppendAllText(docPath + "\\results.txt", cmdDomainResult + cmdErr + Environment.NewLine);
                     Console.WriteLine(cmdDomainResult);
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            //Get service permissions
+            try
+            {
+                //Command
+                string scArg = "/c sc query";
+                Process scProcess = new Process();
+                //Configure process
+                ProcessStartInfo scConfig = new ProcessStartInfo();
+                scConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                scConfig.CreateNoWindow = true;
+                //Launch cmd
+                scConfig.FileName = "cmd.exe";
+                //Enable reading output
+                scConfig.RedirectStandardOutput = true;
+                scConfig.RedirectStandardError = true;
+                scConfig.UseShellExecute = false;
+                //Pass arguments
+                //netConfig.Arguments = netDomain;
+                scProcess.StartInfo = scConfig;
+                scConfig.Arguments = scArg;
+                scProcess.Start();
+                string scResult = scProcess.StandardOutput.ReadToEnd();
+                string scErr = scProcess.StandardError.ReadToEnd();
+                //Append local machine info to results
+                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                File.AppendAllText(docPath + "\\results.txt", scResult + scErr + Environment.NewLine);
+                Console.WriteLine(scResult);
+
+                //Regex matching pattern for SERVICE_NAME:
+                string pattern = @"(?<=\SERVICE_NAME:\s)(\w+)";
+
+                //Create list for matched values
+                List<string> serviceList = new List<string>();
+
+                //Match regex pattern
+                MatchCollection matches = Regex.Matches(scResult, pattern);
+                for (int i = 0; i< matches.Count; i++)
+                {
+                    //Console.WriteLine(matches[i].ToString());
+                    //serviceList.Add(matches[i].ToString());
+                    string services = matches[i].ToString();
+                    Console.WriteLine(services);
+                    File.AppendAllText(docPath + "\\results.txt", services + Environment.NewLine);
+                    string scSDSHOW = "/c sc sdshow " + services;
+                    Process scSdProcess = new Process();
+                    //Configure process
+                    ProcessStartInfo scSdConfig = new ProcessStartInfo();
+                    scSdConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                    scSdConfig.CreateNoWindow = true;
+                    //Launch cmd
+                    scSdConfig.FileName = "cmd.exe";
+                    //Enable reading output
+                    scSdConfig.RedirectStandardOutput = true;
+                    scSdConfig.RedirectStandardError = true;
+                    scSdConfig.UseShellExecute = false;
+                    //Pass arguments
+                    //netConfig.Arguments = netDomain;
+                    scSdProcess.StartInfo = scSdConfig;
+                    scSdConfig.Arguments = scSDSHOW;
+                    scSdProcess.Start();
+                    string scSD = scSdProcess.StandardOutput.ReadToEnd();
+                    string scSdErr = scSdProcess.StandardError.ReadToEnd();
+                    //Append local machine info to results
+                    File.AppendAllText(docPath + "\\results.txt", scSD + scSdErr + Environment.NewLine);
+                    Console.WriteLine(scSD);
+                }
+
             }
             catch (Exception e)
             {
@@ -397,7 +470,7 @@ namespace Recon
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                //Console.WriteLine(e);
             }
 
 
