@@ -208,12 +208,12 @@ namespace Recon
             {
                 //Array for commands
                 string[] cmdArgs = new string[6];
-                cmdArgs[0] = "c/ arp -a";
-                cmdArgs[1] = "c/ route print";
-                cmdArgs[2] = "/c netstat -ano";
-                cmdArgs[3] = "sc query";
-                cmdArgs[4] = "ipconfig /all";
-                cmdArgs[5] = "tasklist";
+                cmdArgs[0] = "/c arp -a";
+                cmdArgs[1] = "/c route print";
+                cmdArgs[2] = "/c netstat -ano | find /i \"listening\"";
+                cmdArgs[3] = "/c sc query";
+                cmdArgs[4] = "/c ipconfig /all";
+                cmdArgs[5] = "/c tasklist";
 
                 foreach (string argument in cmdArgs)
                 {
@@ -224,7 +224,7 @@ namespace Recon
                     cmdConfig.WindowStyle = ProcessWindowStyle.Hidden;
                     cmdConfig.CreateNoWindow = true;
                     //Launch cmd
-                    cmdConfig.FileName = "net.exe";
+                    cmdConfig.FileName = "cmd.exe";
                     //Enable reading output
                     cmdConfig.RedirectStandardOutput = true;
                     cmdConfig.RedirectStandardError = true;
@@ -449,7 +449,7 @@ namespace Recon
                             Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
                             results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
                             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
+                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
                                 Console.WriteLine("Port 135 confirmed");
@@ -487,7 +487,7 @@ namespace Recon
                             Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
                             results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
                             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
+                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
                                 Console.WriteLine("Port 135 confirmed");
@@ -519,7 +519,7 @@ namespace Recon
                             Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
                             results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
                             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine);
+                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
                                 Console.WriteLine("Port 135 confirmed");
