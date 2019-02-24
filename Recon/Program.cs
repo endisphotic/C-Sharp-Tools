@@ -11,6 +11,7 @@ using System.Threading;
 using System.Net;
 using System.Management;
 using System.Text.RegularExpressions;
+using System.Net.NetworkInformation;
 
 namespace Recon
 {
@@ -22,34 +23,6 @@ namespace Recon
 
             Console.WriteLine("Welcome to the recon scanner." + "\r\n");
 
-
-            string shh = @"((#((((#(#########(((((((((#((#%########%##%###%%#%###%
-((((###(((####(#(((#(((((((((((((#(#######%%##%%%##%#%%
-((((###%%%%%(((((((((#(,,***/(((#((#########%##########
-(###((########(((((((/,,**,****((((((#%###############%
-#####%%######%#%#((((,,,,,,/,**//((((##############%###
-##%%#########%######,,,,,,,****,**%%#%#################
-#%%%%%%%####%%%%%%%,,.,,.....,,****%%%#############%###
-%#%%%%#%%&%&%%%%%%%,.,.........,,,,/%%%#%#%%###%%%%%%%%
-%##%%##%%%%%#%%%%%(,.............,,,*%%%%%%%%%%%%%%%%%%
-#%%#######%%######,..............,,,(%%%%%%%%%%%%%%%%%%
-####%%%##########(,.......&......,,#%%%%%%%%%%%%%%%%%%%
-%%#####%%%####(/*.,.. .../%......,,,*(%%%%%%%%%%%%###%%
-(((%#%####(*.............##,,...,,...,,,,,(%%%##%######
-(((#######....   ......,%##%#&*..,....,,,,,*###########
-////(####*.....    ..../%#%&((((......,.,,***###(((((((
-////((##(.    .     ../###*/*.,.......,.,,*,*(##%((((((
-//////(/...      . ....,#*...,..........,*,.,,((#((((((
-//////(*...  .....  .,. .................,..,,,((###(((
-//(#((*.... ..%%################((((((((((((((,/(///(((
-/(#//(       .#####################(((((((((((.,((((//(
-(##(#/        ###################(((((((((////..,//(///
-/((#(*        ################(((((((((//////*...*/////
-**////.      .############((((((((((/////////,...//////
-//(****//*****######((((((((((((/////////////...///////
-******//////**#((((((///////////////********/..*///////" + "\r\n";
-            Console.WriteLine(shh);
-            
 
             //Create document for scan results
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -119,6 +92,22 @@ namespace Recon
                     Environment.Exit(0);
                 }
             }
+
+            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+            string targetWmi = Console.ReadLine();
+
+            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
+            {
+                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                targetWmi = Console.ReadLine();
+            }
+            if (targetWmi == "y")
+            {
+                foreach(string target in wmiTargets(""))
+                {
+                    Console.WriteLine(target);
+                }
+            }
             
 		}
 
@@ -135,26 +124,69 @@ namespace Recon
             if (scanType == "1")
             {
 
-                Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
-                string subnet = Console.ReadLine();
-                string type = "wmic";
-                //get and set user
-                Console.WriteLine("Enter user name:");
-                string wmiUsername = Console.ReadLine();
-                //Password
-                Console.WriteLine("Enter password:");
-                string wmiPassword = Console.ReadLine();
-                //Get computer domain
-                Console.WriteLine("Enter network domain:");
-                string domainURL = Console.ReadLine();
-                networkScan(confirmIP(subnet), subnet, type, wmiUsername, wmiPassword, domainURL);
+                string defaultGateway = Convert.ToString(GetDefaultGateway());
+                Console.WriteLine("Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+                string whichNetwork = Console.ReadLine();
+                while (whichNetwork != "y" && whichNetwork != "n")
+                {
+                    Console.WriteLine("Invalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+                    whichNetwork = Console.ReadLine();
+                }
+                if (whichNetwork == "y")
+                {
+                    string subnet = defaultGateway;
+                    string type = "wmic";
+                    //get and set user
+                    Console.WriteLine("Enter user name:");
+                    string wmiUsername = Console.ReadLine();
+                    //Password
+                    Console.WriteLine("Enter password:");
+                    string wmiPassword = Console.ReadLine();
+                    //Get computer domain
+                    Console.WriteLine("Enter network domain:");
+                    string domainURL = Console.ReadLine();
+                    networkScan(confirmIP(subnet), subnet, type, wmiUsername, wmiPassword, domainURL);
+                }
+                else if(whichNetwork == "n")
+                {
+                    Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
+                    string subnet = Console.ReadLine();
+                    string type = "wmic";
+                    //get and set user
+                    Console.WriteLine("Enter user name:");
+                    string wmiUsername = Console.ReadLine();
+                    //Password
+                    Console.WriteLine("Enter password:");
+                    string wmiPassword = Console.ReadLine();
+                    //Get computer domain
+                    Console.WriteLine("Enter network domain:");
+                    string domainURL = Console.ReadLine();
+                    networkScan(confirmIP(subnet), subnet, type, wmiUsername, wmiPassword, domainURL);
+                }
             }
+                
             else if (scanType == "2")
             {
-                Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
-                string subnet = Console.ReadLine();
+                string defaultGateway = Convert.ToString(GetDefaultGateway());
+                Console.WriteLine("Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+                string whichNetwork = Console.ReadLine();
                 string type = "";
-                networkScan(confirmIP(subnet), subnet, type, "", "", "");
+                while (whichNetwork != "y" && whichNetwork != "n")
+                {
+                    Console.WriteLine("Invalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+                    whichNetwork = Console.ReadLine();
+                }
+                if (whichNetwork == "y")
+                {
+                    string subnet = defaultGateway;
+                    networkScan(confirmIP(subnet), subnet, type, "", "", "");
+                }
+                else if (whichNetwork == "n")
+                {
+                    Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
+                    string subnet = Console.ReadLine();
+                    networkScan(confirmIP(subnet), subnet, type, "", "", "");
+                }
             }
         }
 
@@ -321,6 +353,17 @@ namespace Recon
             }
         }
 
+        public static IPAddress GetDefaultGateway()
+        {
+            return NetworkInterface
+                .GetAllNetworkInterfaces()
+                .Where(n => n.OperationalStatus == OperationalStatus.Up)
+                .Where(n => n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .SelectMany(n => n.GetIPProperties()?.GatewayAddresses)
+                .Select(g => g?.Address)
+                .Where(a => a != null)
+                .FirstOrDefault();
+        }
 
         //Get Subnet
         public static string getSubnet()
@@ -461,14 +504,14 @@ namespace Recon
                 {
                     Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //Console.WriteLine(e);
                 }
 
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //Console.WriteLine(e);
             }
@@ -515,7 +558,7 @@ namespace Recon
                         if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
                         {
                             // connection failure
-                            //Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
+                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
                         }
                         else
                         {
@@ -553,7 +596,7 @@ namespace Recon
                         if (!client.ConnectAsync(hostname, +port).Wait(1000))
                         {
                             // connection failure
-                            //Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
+                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
                         }
                         else
                         {
@@ -585,7 +628,7 @@ namespace Recon
                         if (!client.ConnectAsync(hostname, +port).Wait(1000))
                         {
                             // connection failure
-                            //Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
+                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
                         }
                         else
                         {
@@ -597,6 +640,7 @@ namespace Recon
                             {
                                 Console.WriteLine("Port 135 confirmed");
                                 wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
+                                wmiTargets(hostname);
                             }
                         }
                     }
@@ -777,6 +821,13 @@ namespace Recon
 
                 }
             }
+        }
+        public static List<string> wmiTargets(string wmiTarget)
+        {
+            List<string> wmiRange = new List<string>();
+            wmiRange.Add(wmiTarget);
+
+            return wmiRange;
         }
     }
 }
