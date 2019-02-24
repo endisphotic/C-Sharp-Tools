@@ -803,7 +803,6 @@ namespace Recon
                             portList.Add(Convert.ToInt32(portNumber));
                         }
                         //Run scan
-                        timer.Start();
                         foreach (var portNumber in fullList)
                         {
                             Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL));
@@ -820,7 +819,6 @@ namespace Recon
                             portList.Add(Convert.ToInt32(portNumber));
                         }
                         //Run scan
-                        timer.Start();
                         foreach (var portNumber in fullList)
                         {
                             Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL));
