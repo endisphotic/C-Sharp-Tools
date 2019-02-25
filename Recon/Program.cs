@@ -41,69 +41,65 @@ namespace Recon
 
             bool scanComplete = false;
 
-            while (scanComplete != true)
+            
+            if (machineInfo == "y")
             {
-                if (machineInfo == "y")
+                localMachine();
+                Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n' or 'exit' :");
+                string networkScan = Console.ReadLine();
+
+                while (networkScan != "y" && networkScan != "n")
                 {
-                    localMachine();
-                    Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n' or 'exit' :");
-                    string networkScan = Console.ReadLine();
-
-                    while (networkScan != "y" && networkScan != "n")
-                    {
-                        Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n' or 'exit': ");
-                        networkScan = Console.ReadLine();
-
-                    }
-                    if (networkScan == "y")
-                    {
-                        userSelection(scanComplete);
-                    }
-                    else if (networkScan == "n")
-                    {
-                        Console.WriteLine("Exiting..");
-                        Environment.Exit(0);
-                    }
-                    else if (networkScan == "exit")
-                    {
-                        Console.WriteLine("Exiting..");
-                        Environment.Exit(0);
-                    }
+                    Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n' or 'exit': ");
+                    networkScan = Console.ReadLine();
 
                 }
-                else if (machineInfo == "n")
+                if (networkScan == "y")
                 {
-                    Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
-                    string networkScan = Console.ReadLine();
-                    while (networkScan != "y" && networkScan != "n")
-                    {
-                        Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
-                        networkScan = Console.ReadLine();
+                    userSelection(scanComplete);
+                }
+                else if (networkScan == "n")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
+                }
+                else if (networkScan == "exit")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
+                }
 
-                    }
-                    if (networkScan == "y")
-                    {
-                        userSelection(scanComplete);
-                    }
-                    else if (networkScan == "n")
-                    {
-                        Console.WriteLine("Exiting..");
-                        Environment.Exit(0);
-                    }
-                    else if (networkScan == "exit")
-                    {
-                        Console.WriteLine("Exiting..");
-                        Environment.Exit(0);
-                    }
+            }
+            else if (machineInfo == "n")
+            {
+                Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
+                string networkScan = Console.ReadLine();
+                while (networkScan != "y" && networkScan != "n")
+                {
+                    Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
+                    networkScan = Console.ReadLine();
+
+                }
+                if (networkScan == "y")
+                {
+                    userSelection(scanComplete);
+                }
+                else if (networkScan == "n")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
+                }
+                else if (networkScan == "exit")
+                {
+                    Console.WriteLine("Exiting..");
+                    Environment.Exit(0);
                 }
             }
-
-            if (scanComplete == true)
+            
+            if(scanComplete == true)
             {
-                Console.WriteLine("Scanning completed");
+                Console.WriteLine("Second test");
             }
-
-
             
 		}
 
@@ -577,6 +573,10 @@ namespace Recon
                     {
                     }
                     scanComplete = true;
+                    if (scanComplete == true)
+                    {
+                        Console.WriteLine("Scanning finished.");
+                    }
                 }
                 return scanComplete;
             }
@@ -609,6 +609,10 @@ namespace Recon
                     }
                 }
                 scanComplete = true;
+                if (scanComplete == true)
+                {
+                    Console.WriteLine("Scanning finished.");
+                }
             }
             return scanComplete;
 
