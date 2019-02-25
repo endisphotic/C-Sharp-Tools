@@ -40,8 +40,78 @@ namespace Recon
             }
 
             bool scanComplete = false;
+            if(machineInfo == "yes")
+            {
+                Console.WriteLine("Scan started");
+                scanTest(machineInfo, scanComplete);
+                Console.WriteLine("Scan complete");
+            }
+            Console.WriteLine("Dunno");
 
+
+            //if (machineInfo == "y")
+            //{
+            //    localMachine();
+            //    Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n' or 'exit' :");
+            //    string networkScan = Console.ReadLine();
+
+            //    while (networkScan != "y" && networkScan != "n")
+            //    {
+            //        Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n' or 'exit': ");
+            //        networkScan = Console.ReadLine();
+
+            //    }
+            //    if (networkScan == "y")
+            //    {
+            //        userSelection(scanComplete);
+            //    }
+            //    else if (networkScan == "n")
+            //    {
+            //        Console.WriteLine("Exiting..");
+            //        Environment.Exit(0);
+            //    }
+            //    else if (networkScan == "exit")
+            //    {
+            //        Console.WriteLine("Exiting..");
+            //        Environment.Exit(0);
+            //    }
+
+            //}
+            //else if (machineInfo == "n")
+            //{
+            //    Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
+            //    string networkScan = Console.ReadLine();
+            //    while (networkScan != "y" && networkScan != "n")
+            //    {
+            //        Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
+            //        networkScan = Console.ReadLine();
+
+            //    }
+            //    if (networkScan == "y")
+            //    {
+            //        userSelection(scanComplete);
+            //    }
+            //    else if (networkScan == "n")
+            //    {
+            //        Console.WriteLine("Exiting..");
+            //        Environment.Exit(0);
+            //    }
+            //    else if (networkScan == "exit")
+            //    {
+            //        Console.WriteLine("Exiting..");
+            //        Environment.Exit(0);
+            //    }
+            //}
             
+            //if(scanComplete == true)
+            //{
+            //    Console.WriteLine("Second test");
+            //}
+            
+		}
+
+        public static bool scanTest(string machineInfo, bool scanComplete)
+        {
             if (machineInfo == "y")
             {
                 localMachine();
@@ -95,13 +165,14 @@ namespace Recon
                     Environment.Exit(0);
                 }
             }
-            
-            if(scanComplete == true)
+
+            if (scanComplete == true)
             {
                 Console.WriteLine("Second test");
             }
-            
-		}
+            return scanComplete;
+        }
+
 
         public static void userSelection(bool scanComplete)
         {
