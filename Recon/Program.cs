@@ -40,17 +40,16 @@ namespace Recon
             }
 
             bool scanComplete = false;
-            if(machineInfo == "yes")
+
+            while(scanComplete != true)
             {
-                while(scanComplete != true)
+                Console.WriteLine("Scan started");
+                if(scanTest(machineInfo, scanComplete) == true)
                 {
-                    Console.WriteLine("Scan started");
-                    scanTest(machineInfo, scanComplete);
-                    Console.WriteLine("Scan complete");
+                    Console.WriteLine("Scan finished?");
                 }
-                
             }
-            Console.WriteLine("Dunno");
+            Console.WriteLine("Scan complete?");
 
 
             //if (machineInfo == "y")
