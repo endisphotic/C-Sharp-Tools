@@ -43,7 +43,6 @@ namespace Recon
 
             while(scanComplete != true)
             {
-                Console.WriteLine("Scan started");
                 if(scanTest(machineInfo, scanComplete) == true)
                 {
                     Console.WriteLine("Scan finished?");
@@ -109,11 +108,7 @@ namespace Recon
                     Environment.Exit(0);
                 }
             }
-
-            if (scanComplete == true)
-            {
-                Console.WriteLine("Second test");
-            }
+            scanComplete = true;
             return scanComplete;
         }
 
@@ -402,7 +397,7 @@ namespace Recon
             return strippedIP;
         }
 
-        public static bool wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
+        public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
         {
             try
             {
@@ -522,7 +517,6 @@ namespace Recon
             {
                 //Console.WriteLine(e);
             }
-            return scanComplete = true;
 
         }
 
@@ -625,7 +619,8 @@ namespace Recon
                 }
 
             }
-            return scanComplete = true;
+            scanComplete = true;
+            return scanComplete;
 
         }
 
@@ -699,8 +694,8 @@ namespace Recon
                 }
 
             }
-
-            return scanComplete = true;
+            scanComplete = true;
+            return scanComplete;
 
         }
 
