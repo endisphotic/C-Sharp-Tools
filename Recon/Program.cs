@@ -51,65 +51,6 @@ namespace Recon
             }
             Console.WriteLine("Scan complete?");
 
-
-            //if (machineInfo == "y")
-            //{
-            //    localMachine();
-            //    Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n' or 'exit' :");
-            //    string networkScan = Console.ReadLine();
-
-            //    while (networkScan != "y" && networkScan != "n")
-            //    {
-            //        Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n' or 'exit': ");
-            //        networkScan = Console.ReadLine();
-
-            //    }
-            //    if (networkScan == "y")
-            //    {
-            //        userSelection(scanComplete);
-            //    }
-            //    else if (networkScan == "n")
-            //    {
-            //        Console.WriteLine("Exiting..");
-            //        Environment.Exit(0);
-            //    }
-            //    else if (networkScan == "exit")
-            //    {
-            //        Console.WriteLine("Exiting..");
-            //        Environment.Exit(0);
-            //    }
-
-            //}
-            //else if (machineInfo == "n")
-            //{
-            //    Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
-            //    string networkScan = Console.ReadLine();
-            //    while (networkScan != "y" && networkScan != "n")
-            //    {
-            //        Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
-            //        networkScan = Console.ReadLine();
-
-            //    }
-            //    if (networkScan == "y")
-            //    {
-            //        userSelection(scanComplete);
-            //    }
-            //    else if (networkScan == "n")
-            //    {
-            //        Console.WriteLine("Exiting..");
-            //        Environment.Exit(0);
-            //    }
-            //    else if (networkScan == "exit")
-            //    {
-            //        Console.WriteLine("Exiting..");
-            //        Environment.Exit(0);
-            //    }
-            //}
-            
-            //if(scanComplete == true)
-            //{
-            //    Console.WriteLine("Second test");
-            //}
             
 		}
 
@@ -461,7 +402,7 @@ namespace Recon
             return strippedIP;
         }
 
-        public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL)
+        public static bool wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
         {
             try
             {
@@ -581,7 +522,7 @@ namespace Recon
             {
                 //Console.WriteLine(e);
             }
-
+            return scanComplete = true;
 
         }
 
@@ -637,7 +578,7 @@ namespace Recon
                                 if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                                 {
                                     Console.WriteLine("Port 135 confirmed");
-                                    wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL);
+                                    wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, scanComplete);
 
                                 }
                             }
@@ -717,7 +658,7 @@ namespace Recon
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
                                 Console.WriteLine("Port 135 confirmed");
-                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
+                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL, scanComplete);
                                 wmiTargets(hostname);
                             }
                         }
