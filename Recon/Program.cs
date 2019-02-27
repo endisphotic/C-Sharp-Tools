@@ -623,13 +623,9 @@ namespace Recon
                     {
                     }
                 }
-                scanComplete = true;
-                if (scanComplete == true)
-                {
-                    Console.WriteLine("Scanning finished.");
-                }
+
             }
-            return scanComplete;
+            return scanComplete = true;
 
         }
 
@@ -668,7 +664,7 @@ namespace Recon
                 {
                     //Console.WriteLine(e);
                 }
-                scanComplete = true;
+                
             }
             else
             {
@@ -701,10 +697,10 @@ namespace Recon
                 {
                     //Console.WriteLine(e);
                 }
-                scanComplete = true;
+
             }
 
-            return scanComplete;
+            return scanComplete = true;
 
         }
 
