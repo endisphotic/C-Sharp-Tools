@@ -53,7 +53,7 @@ namespace Recon
             
 		}
 
-        public static bool scanTest(string machineInfo, bool scanComplete)
+        public static void scanTest(string machineInfo, bool scanComplete)
         {
             if (machineInfo == "y")
             {
@@ -108,8 +108,6 @@ namespace Recon
                     Environment.Exit(0);
                 }
             }
-            scanComplete = true;
-            return scanComplete;
         }
 
 
