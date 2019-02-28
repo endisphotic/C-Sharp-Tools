@@ -75,11 +75,14 @@ namespace Recon
             var strippedIp = stripIP(ipChoice);
 
             //Get user info if WMI
-            if(scanning(scanType, portChoice, strippedIp,ipChoice) == false)
+            while (scanning(scanType, portChoice, strippedIp, ipChoice) == true)
             {
-                Console.WriteLine("Scanning Finished. Exiting.");
+                if (scanning(scanType, portChoice, strippedIp, ipChoice) == false)
+                {
+                    Console.WriteLine("Scanning Finished. Exiting.");
+                    break;
+                }
             }
-
 
         }
 
@@ -576,7 +579,7 @@ namespace Recon
 
             }
             scanning = false;
-            return false;
+            return scanning;
         }
 
         //Full port scan
