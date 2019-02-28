@@ -74,21 +74,16 @@ namespace Recon
             //Get stripped IP from ip Choice
             var strippedIp = stripIP(ipChoice);
 
-            //Get user info if WMI
-            while (scanning(scanType, portChoice, strippedIp, ipChoice) == true)
-            {
-                if (scanning(scanType, portChoice, strippedIp, ipChoice) == false)
-                {
-                    Console.WriteLine("Scanning Finished. Exiting.");
-                    break;
-                }
-            }
+            //Get user info if WMI (Perhaps background worker)
+            scanning(scanType, portChoice, strippedIp, ipChoice);
+
+
 
         }
 
 
         //Function to start scanning
-        public static bool scanning(string scanType, string portChoice, string strippedIp, string ipChoice)
+        public static void scanning(string scanType, string portChoice, string strippedIp, string ipChoice)
         {
             bool scanning = true;
             if (scanType == "1")
@@ -112,7 +107,6 @@ namespace Recon
                 string type = "network";
                 scanFunction(portChoice, strippedIp, ipChoice, type, "", "", "", scanning);
             }
-            return scanning;
         }
 
         //Function for port selection
@@ -662,18 +656,16 @@ namespace Recon
 
 
         //Multithread IP Split 
-        public static bool multiIP(string ip, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
+        public static void multiIP(string ip, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
             for (int i = startIp; i < stopIp; i++)
             {
                 for (int j = portStart; j < portStop; j++)
                 {
                     wideScan(ip + Convert.ToString(i), j, type, wmiUsername, wmiPassword, domainURL, scanning);
-                    scanning = false;
                     
                 }
             }
-            return scanning;
         }
 
         //User scan selection
