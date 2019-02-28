@@ -33,85 +33,145 @@ namespace Recon
             Console.WriteLine("Conduct local system recon? Enter 'y' or 'n' or 'exit':");
             string machineInfo = Console.ReadLine();
 
+            //Determine if user wants to do a local recon scan
             while(machineInfo != "y" && machineInfo != "n")
             {
                 Console.WriteLine("Invalid selection. Would you like to conduct local system recon? Enter 'y' or 'n' or 'exit': ");
                 machineInfo = Console.ReadLine();
             }
 
-            bool scanComplete = false;
-
-            while(scanComplete != true)
-            {
-                if(scanTest(machineInfo, scanComplete) == true)
-                {
-                    Console.WriteLine("Scan finished?");
-                }
-            }
-            Console.WriteLine("Scan complete?");
-
-            
-		}
-
-        public static void scanTest(string machineInfo, bool scanComplete)
-        {
+            //Run local recon if user selects yes
             if (machineInfo == "y")
             {
                 localMachine();
-                Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n' or 'exit' :");
-                string networkScan = Console.ReadLine();
-
-                while (networkScan != "y" && networkScan != "n")
-                {
-                    Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n' or 'exit': ");
-                    networkScan = Console.ReadLine();
-
-                }
-                if (networkScan == "y")
-                {
-                    userSelection(scanComplete);
-                }
-                else if (networkScan == "n")
-                {
-                    Console.WriteLine("Exiting..");
-                    Environment.Exit(0);
-                }
-                else if (networkScan == "exit")
-                {
-                    Console.WriteLine("Exiting..");
-                    Environment.Exit(0);
-                }
-
             }
-            else if (machineInfo == "n")
+            else if (machineInfo == "exit")
             {
-                Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
-                string networkScan = Console.ReadLine();
-                while (networkScan != "y" && networkScan != "n")
-                {
-                    Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
-                    networkScan = Console.ReadLine();
-
-                }
-                if (networkScan == "y")
-                {
-                    userSelection(scanComplete);
-                }
-                else if (networkScan == "n")
-                {
-                    Console.WriteLine("Exiting..");
-                    Environment.Exit(0);
-                }
-                else if (networkScan == "exit")
-                {
-                    Console.WriteLine("Exiting..");
-                    Environment.Exit(0);
-                }
+                Environment.Exit(0);
             }
+
+            //See if user wants to do a network scan
+            var networkScan = networkChoice();
+            //If they select yes, get type
+            if (networkScan == "n")
+            {
+                Environment.Exit(0);
+            }
+
+            //Continue with scan if not exited
+            //Get type of scan
+            var scanType = userSelection();
+
+            //Get Default gateway
+            string localIp = Convert.ToString(GetDefaultGateway());
+
+            //Get choice whether user wants to use default gateway or different subnet, then valid
+            var ipChoice = userIpChoice(localIp);
+
+            //Get port type selection
+            var portChoice = portSelection();
+
+            //Get stripped IP from ip Choice
+            var strippedIp = stripIP(ipChoice);
+
+            //Get user info if WMI
+            if(scanning(scanType, portChoice, strippedIp,ipChoice) == false)
+            {
+                Console.WriteLine("Scanning Finished. Exiting.");
+            }
+
+
         }
 
 
-        public static void userSelection(bool scanComplete)
+        //Function to start scanning
+        public static bool scanning(string scanType, string portChoice, string strippedIp, string ipChoice)
+        {
+            bool scanning = true;
+            if (scanType == "1")
+            {
+                string type = "wmic";
+                //get and set user
+                Console.WriteLine("Enter user name:");
+                string wmiUsername = Console.ReadLine();
+                //Password
+                Console.WriteLine("Enter password:");
+                string wmiPassword = Console.ReadLine();
+                //Get computer domain
+                Console.WriteLine("Enter network domain:");
+                string domainURL = Console.ReadLine();
+                //Network plus WMI scan starts
+                Console.WriteLine("Scanning started");
+                scanFunction(portChoice, strippedIp, ipChoice, type, wmiUsername, wmiPassword, domainURL, scanning);
+            }
+            else if (scanType == "2")
+            {
+                string type = "network";
+                scanFunction(portChoice, strippedIp, ipChoice, type, "", "", "", scanning);
+            }
+            return scanning;
+        }
+
+        //Function for port selection
+        public static string portSelection()
+        {
+            //Get user selection for type of scan
+            Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan:");
+            string portChoice = Console.ReadLine();
+            while (portChoice != "1" && portChoice != "2" && portChoice != "3")
+            {
+                Console.WriteLine("Invalid selection. Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan:");
+                portChoice = Console.ReadLine();
+            }
+            return portChoice;
+        }
+
+
+        //Function to check IP user wants to use
+        public static string userIpChoice(string defaultGateway)
+        {
+            Console.WriteLine("Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+            string whichNetwork = Console.ReadLine();
+            string subnet = "";
+            while (whichNetwork != "y" && whichNetwork != "n")
+            {
+                Console.WriteLine("Invalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+                whichNetwork = Console.ReadLine(); 
+            }
+            if (whichNetwork == "y")
+            {
+                subnet = defaultGateway;
+                validateIP(subnet);
+            }
+            else if (whichNetwork == "n")
+            {
+                Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
+                subnet = Console.ReadLine();
+                if (validateIP(subnet) == false)
+                {
+                    Console.WriteLine("Invalid IP. Please enter a subnet to scan. For example, '192.168.0.1':");
+                }
+            }
+            return subnet;
+        }
+
+        //Function for checking if user wants to run network scan
+        public static string networkChoice()
+        {
+            Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
+            string networkChoice = Console.ReadLine();
+
+            while (networkChoice != "y" && networkChoice != "n")
+            {
+                Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
+                networkChoice = Console.ReadLine();
+            }
+            return networkChoice;
+             
+        }
+
+        //Function for what type of scan
+        public static string userSelection()
         {
             Console.WriteLine("Please select scan type: type '1' for WMI + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
             string scanType = Console.ReadLine();
@@ -120,75 +180,9 @@ namespace Recon
             {
                 scanType = Console.ReadLine();
             }
-
-            if (scanType == "1")
-            {
-
-                string defaultGateway = Convert.ToString(GetDefaultGateway());
-                Console.WriteLine("Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
-                string whichNetwork = Console.ReadLine();
-                while (whichNetwork != "y" && whichNetwork != "n")
-                {
-                    Console.WriteLine("Invalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
-                    whichNetwork = Console.ReadLine();
-                }
-                if (whichNetwork == "y")
-                {
-                    string subnet = defaultGateway;
-                    string type = "wmic";
-                    //get and set user
-                    Console.WriteLine("Enter user name:");
-                    string wmiUsername = Console.ReadLine();
-                    //Password
-                    Console.WriteLine("Enter password:");
-                    string wmiPassword = Console.ReadLine();
-                    //Get computer domain
-                    Console.WriteLine("Enter network domain:");
-                    string domainURL = Console.ReadLine();
-                    networkScan(confirmIP(subnet), subnet, type, wmiUsername, wmiPassword, domainURL, scanComplete);
-                }
-                else if(whichNetwork == "n")
-                {
-                    Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
-                    string subnet = Console.ReadLine();
-                    string type = "wmic";
-                    //get and set user
-                    Console.WriteLine("Enter user name:");
-                    string wmiUsername = Console.ReadLine();
-                    //Password
-                    Console.WriteLine("Enter password:");
-                    string wmiPassword = Console.ReadLine();
-                    //Get computer domain
-                    Console.WriteLine("Enter network domain:");
-                    string domainURL = Console.ReadLine();
-                    networkScan(confirmIP(subnet), subnet, type, wmiUsername, wmiPassword, domainURL, scanComplete);
-                }
-            }
-                
-            else if (scanType == "2")
-            {
-                string defaultGateway = Convert.ToString(GetDefaultGateway());
-                Console.WriteLine("Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
-                string whichNetwork = Console.ReadLine();
-                string type = "";
-                while (whichNetwork != "y" && whichNetwork != "n")
-                {
-                    Console.WriteLine("Invalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
-                    whichNetwork = Console.ReadLine();
-                }
-                if (whichNetwork == "y")
-                {
-                    string subnet = defaultGateway;
-                    networkScan(confirmIP(subnet), subnet, type, "", "", "", scanComplete);
-                }
-                else if (whichNetwork == "n")
-                {
-                    Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
-                    string subnet = Console.ReadLine();
-                    networkScan(confirmIP(subnet), subnet, type, "", "", "", scanComplete);
-                }
-            }
+            return scanType;
         }
+
 
         public static void localMachine()
         {
@@ -375,27 +369,17 @@ namespace Recon
         }
 
         //Validate IP
-        public static string confirmIP(string subnet)
+        public static string stripIP(string subnet)
         {
-            
-            string strippedIP = "";
-            while (validateIP(subnet) == false)
-            {
-                Console.WriteLine("Invalid IP. Please enter the subnet to be scanned, for example '192.168.0.1' :");
-                subnet = Console.ReadLine();
-            }
-            if (validateIP(subnet) == true)
-            {
-                //Split IP into array
-                string[] splitAddress = subnet.Split('.');
+            //Split IP into array
+            string[] splitAddress = subnet.Split('.');
 
-                //Joins IP back together without the 4th octet
-                strippedIP = string.Join(".", splitAddress, 0, 3) + ".";
-            }
+            //Joins IP back together without the 4th octet
+            string strippedIP = string.Join(".", splitAddress, 0, 3) + ".";
             return strippedIP;
         }
 
-        public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
+        public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
             try
             {
@@ -519,32 +503,9 @@ namespace Recon
         }
 
 
-        public static void networkScan(string strippedIP, string subnet, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
-        {
-            //Get user selection for type of scan
-            Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan, or 'exit':");
-            string choice = Console.ReadLine();
 
-
-            while (choice != "exit" && choice != "1" && choice != "2" && choice != "3")
-            {
-                scanSelection(choice);
-                
-            }
-            if (choice == "1" || choice == "2" || choice == "3")
-            {
-                scanFunction(choice, strippedIP, subnet, type, wmiUsername, wmiPassword, domainURL, scanComplete);
-
-            }
-            else if (choice == "exit")
-            {
-                Environment.Exit(0);
-            }
-        }
-
-
-
-        public static bool selectedScan(string hostname, int port, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
+        //Function for selected IP scan
+        public static bool selectedScan(string hostname, int port, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
             //WMI
             if (type == "wmic")
@@ -570,7 +531,7 @@ namespace Recon
                                 if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                                 {
                                     Console.WriteLine("Port 135 confirmed");
-                                    wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, scanComplete);
+                                    wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, scanning);
 
                                 }
                             }
@@ -578,14 +539,11 @@ namespace Recon
                     }
                     catch (Exception)
                     {
+
                     }
-                    scanComplete = true;
-                    if (scanComplete == true)
-                    {
-                        Console.WriteLine("Scanning finished.");
-                    }
+
                 }
-                return scanComplete;
+
             }
             //Network only
             else
@@ -617,13 +575,12 @@ namespace Recon
                 }
 
             }
-            scanComplete = true;
-            return scanComplete;
-
+            scanning = false;
+            return false;
         }
 
         //Full port scan
-        public static bool wideScan(string hostname, int port, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
+        public static bool wideScan(string hostname, int port, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
 
             if (type == "wmic")
@@ -647,7 +604,7 @@ namespace Recon
                             if (results.Contains("succeeded") && Convert.ToString(port) == "135")
                             {
                                 Console.WriteLine("Port 135 confirmed");
-                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL, scanComplete);
+                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL, scanning);
                                 wmiTargets(hostname);
                             }
                         }
@@ -659,7 +616,7 @@ namespace Recon
                 }
                 
             }
-            else
+            else if(type == "network")
             {
                 string results = "";
                 try
@@ -677,12 +634,7 @@ namespace Recon
                             results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
                             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                             File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                            //if (results.Contains("succeeded") && Convert.ToString(port) == "135")
-                            //{
-                            //    Console.WriteLine("Port 135 confirmed");
-                            //    wmiFunction(hostname, wmiUsername, wmiPassword, domainURL);
-                            //    wmiTargets(hostname);
-                            //}
+
                         }
                     }
                 }
@@ -692,8 +644,8 @@ namespace Recon
                 }
 
             }
-            scanComplete = true;
-            return scanComplete;
+            scanning = false;
+            return scanning;
 
         }
 
@@ -707,17 +659,18 @@ namespace Recon
 
 
         //Multithread IP Split 
-        public static void multiIP(string ip, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
+        public static bool multiIP(string ip, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
             for (int i = startIp; i < stopIp; i++)
             {
                 for (int j = portStart; j < portStop; j++)
                 {
-                    wideScan(ip + Convert.ToString(i), j, type, wmiUsername, wmiPassword, domainURL, scanComplete);
+                    wideScan(ip + Convert.ToString(i), j, type, wmiUsername, wmiPassword, domainURL, scanning);
+                    scanning = false;
+                    
                 }
-
-
             }
+            return scanning;
         }
 
         //User scan selection
@@ -731,7 +684,7 @@ namespace Recon
         }
 
         //Scan functions
-        public static void scanFunction(string choice, string strippedIP, string subnet, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanComplete)
+        public static void scanFunction(string choice, string strippedIP, string subnet, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
 
             //Path for document saving
@@ -754,16 +707,16 @@ namespace Recon
                     {
 
                         //Spool up threads
-                        Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 16385, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                        Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 16385, type, wmiUsername, wmiPassword, domainURL, scanning));
                         thread.Start();
 
-                        Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 16384, 32769, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                        Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 16384, 32769, type, wmiUsername, wmiPassword, domainURL, scanning));
                         thread2.Start();
 
-                        Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 32768, 49153, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                        Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 32768, 49153, type, wmiUsername, wmiPassword, domainURL, scanning));
                         thread3.Start();
 
-                        Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 49152, 65536, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                        Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 49152, 65536, type, wmiUsername, wmiPassword, domainURL, scanning));
                         thread4.Start();
 
                     }
@@ -787,16 +740,16 @@ namespace Recon
                 Console.WriteLine("Starting well-known scan, please wait for scan complete message...");
                 try
                 {
-                    Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                    Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257, type, wmiUsername, wmiPassword, domainURL, scanning));
                     thread.Start();
 
-                    Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 256, 513, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                    Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 256, 513, type, wmiUsername, wmiPassword, domainURL, scanning));
                     thread2.Start();
 
-                    Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 512, 769, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                    Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 512, 769, type, wmiUsername, wmiPassword, domainURL, scanning));
                     thread3.Start();
 
-                    Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 768, 1024, type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                    Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 768, 1024, type, wmiUsername, wmiPassword, domainURL, scanning));
                     thread4.Start();
                 }
                 catch
@@ -830,7 +783,7 @@ namespace Recon
                         //Run scan
                         foreach (var portNumber in fullList)
                         {
-                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL, scanning));
                             thread.Start();
                         }
                     }
@@ -846,7 +799,7 @@ namespace Recon
                         //Run scan
                         foreach (var portNumber in fullList)
                         {
-                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL, scanComplete));
+                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL, scanning));
                             thread.Start();
                         }
                     }
