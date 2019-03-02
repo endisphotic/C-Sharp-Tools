@@ -426,7 +426,7 @@ namespace Recon
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine(e);
                 }
 
 
@@ -459,7 +459,7 @@ namespace Recon
                 }
                 catch (Exception e)
                 {
-                    //Console.WriteLine(e);
+                    Console.WriteLine(e);
                 }
 
 
@@ -491,14 +491,14 @@ namespace Recon
                 }
                 catch (Exception)
                 {
-                    //Console.WriteLine(e);
+                    Console.WriteLine(e);
                 }
 
 
             }
             catch (Exception)
             {
-                //Console.WriteLine(e);
+                Console.WriteLine(e);
             }
 
         }
