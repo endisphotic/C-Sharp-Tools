@@ -170,7 +170,7 @@ namespace Recon
         //Function for what type of scan
         public static string userSelection()
         {
-            Console.WriteLine("Please select scan type: type '1' for WMI + Network (REQUIRES Domain User Credentials) or '2' for Network ONLY:");
+            Console.WriteLine("Please select scan type: type '1' for WMI + Network (REQUIRES Administrative Domain Credentials) or '2' for Network ONLY:");
             string scanType = Console.ReadLine();
 
             while (scanType != "1" && scanType != "2")
