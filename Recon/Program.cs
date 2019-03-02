@@ -74,40 +74,44 @@ namespace Recon
             //Get stripped IP from ip Choice
             var strippedIp = stripIP(ipChoice);
 
-            //Get user info if WMI (Perhaps background worker)
-            scanning(scanType, portChoice, strippedIp, ipChoice);
+            //WMI user information
+            string wmiUsername = "";
+            string wmiPassword = "";
+            string domainURL = "";
 
+            //Bool for scanning
+            bool scanning = false;
 
-
-        }
-
-
-        //Function to start scanning
-        public static void scanning(string scanType, string portChoice, string strippedIp, string ipChoice)
-        {
-            bool scanning = true;
-            if (scanType == "1")
+            if(scanType == "1")
             {
+                //WMI
                 string type = "wmic";
                 //get and set user
                 Console.WriteLine("Enter user name:");
-                string wmiUsername = Console.ReadLine();
+                wmiUsername = Console.ReadLine();
                 //Password
                 Console.WriteLine("Enter password:");
-                string wmiPassword = Console.ReadLine();
+                wmiPassword = Console.ReadLine();
                 //Get computer domain
                 Console.WriteLine("Enter network domain:");
-                string domainURL = Console.ReadLine();
+                domainURL = Console.ReadLine();
                 //Network plus WMI scan starts
                 Console.WriteLine("Scanning started");
                 scanFunction(portChoice, strippedIp, ipChoice, type, wmiUsername, wmiPassword, domainURL, scanning);
             }
-            else if (scanType == "2")
+            else if(scanType == "2")
             {
+                //Network Only
                 string type = "network";
                 scanFunction(portChoice, strippedIp, ipChoice, type, "", "", "", scanning);
             }
+
+            Console.WriteLine(wmiUsername);
+
         }
+
+
+ 
 
         //Function for port selection
         public static string portSelection()
