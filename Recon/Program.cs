@@ -489,14 +489,14 @@ namespace Recon
                 {
                     Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
 
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 Console.WriteLine(e);
             }
