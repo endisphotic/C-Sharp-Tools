@@ -74,13 +74,16 @@ namespace Recon
             //Get stripped IP from ip Choice
             var strippedIp = stripIP(ipChoice);
 
-            //Start scanning
-            scanning(scanType, portChoice, strippedIp, ipChoice, docPath);
+            //Get user info if WMI (Perhaps background worker)
+            scanning(scanType, portChoice, strippedIp, ipChoice);
+
+
 
         }
 
+
         //Function to start scanning
-        public static void scanning(string scanType, string portChoice, string strippedIp, string ipChoice, string docPath)
+        public static void scanning(string scanType, string portChoice, string strippedIp, string ipChoice)
         {
             bool scanning = true;
             if (scanType == "1")
@@ -97,12 +100,12 @@ namespace Recon
                 string domainURL = Console.ReadLine();
                 //Network plus WMI scan starts
                 Console.WriteLine("Scanning started");
-                scanFunction(portChoice, strippedIp, ipChoice, type, wmiUsername, wmiPassword, domainURL, scanning, docPath);
+                scanFunction(portChoice, strippedIp, ipChoice, type, wmiUsername, wmiPassword, domainURL, scanning);
             }
             else if (scanType == "2")
             {
                 string type = "network";
-                scanFunction(portChoice, strippedIp, ipChoice, type, "", "", "", scanning, docPath);
+                scanFunction(portChoice, strippedIp, ipChoice, type, "", "", "", scanning);
             }
         }
 
@@ -135,16 +138,16 @@ namespace Recon
             if (whichNetwork == "y")
             {
                 subnet = defaultGateway;
-                //validateIP(subnet);
+                validateIP(subnet);
             }
             else if (whichNetwork == "n")
             {
                 Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
                 subnet = Console.ReadLine();
-                //if (validateIP(subnet) == false)
-                //{
-                //    Console.WriteLine("Invalid IP. Please enter a subnet to scan. For example, '192.168.0.1':");
-                //}
+                if (validateIP(subnet) == false)
+                {
+                    Console.WriteLine("Invalid IP. Please enter a subnet to scan. For example, '192.168.0.1':");
+                }
             }
             return subnet;
         }
@@ -375,9 +378,6 @@ namespace Recon
 
         public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
-
-
-
             try
             {
                 Console.WriteLine("Establishing WMI..");
@@ -422,7 +422,7 @@ namespace Recon
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+
                 }
 
 
@@ -455,7 +455,7 @@ namespace Recon
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                 }
 
 
@@ -485,16 +485,16 @@ namespace Recon
                 {
                     Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                 }
 
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
+                //Console.WriteLine(e);
             }
 
         }
@@ -611,9 +611,9 @@ namespace Recon
                 {
                     //Console.WriteLine(e);
                 }
-
+                
             }
-            else if (type == "network")
+            else if(type == "network")
             {
                 string results = "";
                 try
@@ -646,7 +646,7 @@ namespace Recon
 
         }
 
-        ////Checks if IP address is valid
+        //Checks if IP address is valid
         public static bool validateIP(string ipString)
         {
             if (ipString.Count(c => c == '.') != 3) return false;
@@ -655,7 +655,7 @@ namespace Recon
         }
 
 
-        ////Multithread IP Split 
+        //Multithread IP Split 
         public static void multiIP(string ip, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
             for (int i = startIp; i < stopIp; i++)
@@ -663,12 +663,12 @@ namespace Recon
                 for (int j = portStart; j < portStop; j++)
                 {
                     wideScan(ip + Convert.ToString(i), j, type, wmiUsername, wmiPassword, domainURL, scanning);
-
+                    
                 }
             }
         }
 
-        ////User scan selection
+        //User scan selection
         public static void scanSelection(string choice)
         {
             while (choice != "1" && choice != "2" && choice != "3" && choice != "exit")
@@ -679,11 +679,11 @@ namespace Recon
         }
 
         //Scan functions
-        public static void scanFunction(string choice, string strippedIP, string subnet, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning, string docPath)
+        public static void scanFunction(string choice, string strippedIP, string subnet, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
         {
 
             //Path for document saving
-            //string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             if (choice == "1")
             {
 
@@ -697,7 +697,28 @@ namespace Recon
 
                 if (choice2 == "yes")
                 {
-                    fullPortScan(choice, strippedIP, wmiUsername, wmiPassword, domainURL, scanning);
+                    Console.WriteLine("Starting full scan, please wait until message complete...");
+                    try
+                    {
+
+                        //Spool up threads
+                        Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 16385, type, wmiUsername, wmiPassword, domainURL, scanning));
+                        thread.Start();
+
+                        Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 16384, 32769, type, wmiUsername, wmiPassword, domainURL, scanning));
+                        thread2.Start();
+
+                        Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 32768, 49153, type, wmiUsername, wmiPassword, domainURL, scanning));
+                        thread3.Start();
+
+                        Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 49152, 65536, type, wmiUsername, wmiPassword, domainURL, scanning));
+                        thread4.Start();
+
+                    }
+                    catch
+                    {
+
+                    }
                 }
                 else if (choice2 == "back")
                 {
@@ -711,45 +732,29 @@ namespace Recon
             //Run scan only on well-know ports
             else if (choice == "2")
             {
-                wellKnownPorts(choice, strippedIP, wmiUsername, wmiPassword, domainURL, scanning);
+                Console.WriteLine("Starting well-known scan, please wait for scan complete message...");
+                try
+                {
+                    Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257, type, wmiUsername, wmiPassword, domainURL, scanning));
+                    thread.Start();
+
+                    Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 256, 513, type, wmiUsername, wmiPassword, domainURL, scanning));
+                    thread2.Start();
+
+                    Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 512, 769, type, wmiUsername, wmiPassword, domainURL, scanning));
+                    thread3.Start();
+
+                    Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 768, 1024, type, wmiUsername, wmiPassword, domainURL, scanning));
+                    thread4.Start();
+                }
+                catch
+                {
+
+                }
+
             }
             //Run scan on ports chosen by user
             else if (choice == "3")
-            {
-                selectedPorts(choice, strippedIP, wmiUsername, wmiPassword, domainURL, scanning);
-            }
-        }
-        public static List<string> wmiTargets(string wmiTarget)
-        {
-            List<string> wmiRange = new List<string>();
-            wmiRange.Add(wmiTarget);
-
-            return wmiRange;
-        }
-
-        //For attacking found WMI targets later
-        public static void attackWMI()
-        {
-            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-            string targetWmi = Console.ReadLine();
-
-            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
-            {
-                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-                targetWmi = Console.ReadLine();
-            }
-            if (targetWmi == "y")
-            {
-                foreach (string target in wmiTargets(""))
-                {
-                    Console.WriteLine(target);
-                }
-            }
-        }
-
-        //Function for selected port scan
-        public static void selectedPorts(string strippedIP, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
-        {
             {
                 //Get port number from user
                 Console.WriteLine("Please enter port numbers separated by commas: ");
@@ -797,58 +802,32 @@ namespace Recon
                 }
             }
         }
-
-        //Well known ports scan
-        public static void wellKnownPorts(string type, string strippedIP, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
+        public static List<string> wmiTargets(string wmiTarget)
         {
-            Console.WriteLine("Starting well-known scan, please wait for scan complete message...");
-            try
-            {
-                Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread.Start();
+            List<string> wmiRange = new List<string>();
+            wmiRange.Add(wmiTarget);
 
-                Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 256, 513, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread2.Start();
-
-                Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 512, 769, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread3.Start();
-
-                Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 768, 1024, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread4.Start();
-            }
-            catch
-            {
-
-            }
+            return wmiRange;
         }
 
-        ////full portscan function
-        public static void fullPortScan(string type, string strippedIP, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
+        //For attacking found WMI targets later
+        public static void attackWMI()
         {
-            Console.WriteLine("Starting full scan, please wait until message complete...");
-            try
+            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+            string targetWmi = Console.ReadLine();
+
+            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
             {
-
-                //Spool up threads
-                Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 16385, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread.Start();
-
-                Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 16384, 32769, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread2.Start();
-
-                Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 32768, 49153, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread3.Start();
-
-                Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 49152, 65536, type, wmiUsername, wmiPassword, domainURL, scanning));
-                thread4.Start();
-
+                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                targetWmi = Console.ReadLine();
             }
-            catch
+            if (targetWmi == "y")
             {
-
+                foreach (string target in wmiTargets(""))
+                {
+                    Console.WriteLine(target);
+                }
             }
         }
-
     }
-
 }
