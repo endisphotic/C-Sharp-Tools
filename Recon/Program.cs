@@ -26,10 +26,7 @@ namespace Recon
 
             //Create document for scan results
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
-            {
-                outputFile.WriteLine("Results of Recon: ");
-            }
+
             Console.WriteLine("Conduct local system recon? Enter 'y' or 'n' or 'exit':");
             string machineInfo = Console.ReadLine();
 
@@ -92,6 +89,7 @@ namespace Recon
 
             }
 
+
             //Get Default gateway
             string localIp = Convert.ToString(GetDefaultGateway());
 
@@ -104,54 +102,36 @@ namespace Recon
             //Get stripped IP from ip Choice
             var strippedIp = stripIP(ipChoice);
 
-
-            //Initiate scan
-            if(scanType == "1")
+            //Create text file for results
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
             {
-                //WMI Scan
-                if(portChoice == "1")
-                {
-                    //Full port scan
-                    fullPorts(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath);
-                }
-                else if(portChoice == "2")
-                {
-                    //Well known port scan
-                    wellKownPorts(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath);
-                }
-                else if(portChoice == "3")
-                {
-                    //Slected port scan
-                    wmiSelectedScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath);
-                }
-
-            }
-            //Network only
-            else if (scanType == "2")
-            {
-                //Network only scan
-                if (portChoice == "1")
-                {
-                    //Full port scan
-                    fullPorts(strippedIp, scanType, "", "", "", docPath);
-                }
-                else if (portChoice == "2")
-                {
-                    //Well known port scan
-                    wellKownPorts(strippedIp, scanType, "", "", "", docPath);
-                }
-                else if (portChoice == "3")
-                {
-                    //Slected port scan
-                    networkUserSelect(strippedIp, scanType, "", "", "", docPath);
-                }
-
+                outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
             }
 
 
+            if(portChoice == "1" || portChoice == "2")
+            {
+                bool scanning = (multithreadScan(strippedIp, portChoice, scanType, wmiUsername, wmiPassword, domainURL, docPath));
+                {
+                    while (scanning == true)
+                    {
+
+                    }
+                }
+            }
+            //Selected port scan
+            else if(portChoice == "3")
+            {
+                while (selectedPortScan(strippedIp, docPath) == true)
+                {
+
+                }
+            }
+
+            Console.WriteLine("Scanning finished");
+
+     
         }
-
-
  
 
         //Function for port selection
@@ -401,15 +381,6 @@ namespace Recon
                 .Where(a => a != null)
                 .FirstOrDefault();
         }
-
-        //Get Subnet
-        //public static string getSubnet()
-        //{
-        //    //Get IP range
-        //    Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
-        //    string subnet = Console.ReadLine();
-        //    return subnet;
-        //}
 
         //Validate IP
         public static string stripIP(string subnet)
@@ -703,6 +674,7 @@ namespace Recon
                     thread.Start();
                 }
             }
+
         }
 
 
@@ -767,7 +739,7 @@ namespace Recon
         }
 
 
-        //function for WMI scanning
+        //Method for WMI scanning
         public static void wmiScanFunction(string hostname, int port, string wmiUsername, string wmiPassword, string domainURL, string docPath)
         {
             string results = "";
@@ -803,6 +775,7 @@ namespace Recon
             }
         }
 
+        //Method for TCP connection
         public static void scanHosts(string hostname, int port, string wmiUsername, string wmiPassword, string domainURL, string docPath)
         {
             string results = "";
@@ -834,5 +807,205 @@ namespace Recon
                 //Console.WriteLine(e);
             }
         }
+
+
+        //well known ports methods
+        public static bool multithreadScan(string strippedIP, string portChoice, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        {
+
+
+            if(portChoice == "1")
+            {
+                Console.WriteLine("Starting full port scan, this will take a while, please wait for scan finished message...");
+                try
+                {
+                    Thread thread = new Thread(() => ports(strippedIP, 1, 65, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread.Start();
+
+                    Thread thread2 = new Thread(() => ports(strippedIP, 64, 129, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread2.Start();
+
+                    Thread thread3 = new Thread(() => ports(strippedIP, 128, 193, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread3.Start();
+
+                    Thread thread4 = new Thread(() => ports(strippedIP, 192, 256, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread4.Start();
+
+                    while (thread4.IsAlive == true)
+                    {
+
+                    }
+
+                }
+                catch
+                {
+
+                }
+            }
+            else if(portChoice == "2")
+            {
+                Console.WriteLine("Starting well-known scan, this will take a while, please wait for scan finished message...");
+                try
+                {
+                    Thread thread = new Thread(() => ports(strippedIP, 1, 65, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread.Start();
+
+                    Thread thread2 = new Thread(() => ports(strippedIP, 64, 129, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread2.Start();
+
+                    Thread thread3 = new Thread(() => ports(strippedIP, 128, 193, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread3.Start();
+
+                    Thread thread4 = new Thread(() => ports(strippedIP, 192, 256, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath));
+                    thread4.Start();
+
+                    while (thread4.IsAlive == true)
+                    {
+
+                    }
+
+                }
+                catch
+                {
+
+                }
+            }
+            return false;
+        }
+
+        //well known ports
+        public static void ports(string strippedIP, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        {
+            // WMI Scan
+            if (type == "1")
+            {
+                for (int i = startIp; i < stopIp; i++)
+                {
+                    for (int j = portStart; j < portStop; j++)
+                    {
+                        string results = "";
+                        try
+                        {
+                            var client = new TcpClient();
+                            {
+                                if (!client.ConnectAsync(strippedIP + Convert.ToString(i), +j).Wait(1000))
+                                {
+                                    // connection failure
+                                    Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " failed.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
+                                    results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
+                                    File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                    if (results.Contains("succeeded") && Convert.ToString(j) == "135")
+                                    {
+                                        Console.WriteLine("Port 135 confirmed");
+                                        wmiFunction(strippedIP + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
+                                        wmiTargets(strippedIP + Convert.ToString(i));
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //Console.WriteLine(e);
+                        }
+                    }
+                }
+            }
+            //Network only
+            else if (type == "2")
+            {
+
+                for (int i = startIp; i < stopIp; i++)
+                {
+                    for (int j = portStart; j < portStop; j++)
+                    {
+                        string results = "";
+                        try
+                        {
+                            var client = new TcpClient();
+                            {
+                                if (!client.ConnectAsync(strippedIP + Convert.ToString(i), +j).Wait(1000))
+                                {
+                                    // connection failure
+                                    Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " failed.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
+                                    results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
+                                    File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //Console.WriteLine(e);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        //selected port scan method
+        public static bool selectedPortScan(string strippedIp, string docPath)
+        {
+
+            string results = "";
+            //Get port number from user
+            Console.WriteLine("Please enter port numbers separated by commas: ");
+            string ports = Console.ReadLine();
+            if (ports != "")
+            {
+                if (ports.Contains(" "))
+                {
+                    ports.Replace(" ", "");
+                }
+                Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                //Add ports to list
+                List<int> portList = new List<int>();
+                //Split out data by comma values
+                string[] fullList = ports.Split(',');
+                //Iteratively add to list
+                foreach (var portNumber in fullList)
+                {
+                    portList.Add(Convert.ToInt32(portNumber));
+                }
+                //Run scan
+                foreach (var portNumber in fullList)
+                {
+                    for (int i = 1; i < 257; i++)
+                    {
+                        try
+                        {
+                            var client = new TcpClient();
+                            {
+                                if (!client.ConnectAsync(strippedIp + Convert.ToString(i), Convert.ToInt32(portNumber)).Wait(1000))
+                                {
+                                    // connection failure
+                                    Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " failed.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
+                                    results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
+                                    File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+                }
+
+            }
+            return false;
+        }
+
     }
 }
