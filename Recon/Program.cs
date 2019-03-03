@@ -130,7 +130,7 @@ namespace Recon
 
             Console.WriteLine("Scanning finished");
 
-
+            attackWMI();
      
         }
  
@@ -548,106 +548,6 @@ namespace Recon
                 {
                     Console.WriteLine(target);
                 }
-            }
-        }
-
-        //Function for network only scanning
-        public static void networkOnly(string hostname, int port, string docPath)
-        {
-            string results = "";
-            for (int i = 1; i < 256; i++)
-            {
-                try
-                {
-                    var client = new TcpClient();
-                    {
-                        if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
-                        {
-                            // connection failure
-                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
-                            results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-
-                }
-            }
-        }
-
-
-        //Method for WMI scanning
-        public static void wmiScanFunction(string hostname, int port, string wmiUsername, string wmiPassword, string domainURL, string docPath)
-        {
-            string results = "";
-            for (int i = 1; i < 256; i++)
-            {
-                try
-                {
-                    var client = new TcpClient();
-                    {
-                        if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
-                        {
-                            // connection failure
-                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
-                            results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                            if (results.Contains("succeeded") && Convert.ToString(port) == "135")
-                            {
-                                Console.WriteLine("Port 135 confirmed");
-                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
-
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-
-                }
-            }
-        }
-
-        //Method for TCP connection
-        public static void scanHosts(string hostname, int port, string wmiUsername, string wmiPassword, string domainURL, string docPath)
-        {
-            string results = "";
-            try
-            {
-                var client = new TcpClient();
-                {
-                    if (!client.ConnectAsync(hostname, +port).Wait(1000))
-                    {
-                        // connection failure
-                        Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
-                        results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
-                        File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                        if (results.Contains("succeeded") && Convert.ToString(port) == "135")
-                        {
-                            Console.WriteLine("Port 135 confirmed");
-                            wmiFunction(hostname, wmiUsername, wmiPassword, domainURL, docPath);
-                            wmiTargets(hostname);
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                //Console.WriteLine(e);
             }
         }
 
