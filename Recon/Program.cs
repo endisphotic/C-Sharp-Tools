@@ -62,6 +62,36 @@ namespace Recon
             //Get type of scan
             var scanType = userSelection();
 
+
+            //WMI user information
+            string wmiUsername = "";
+            string wmiPassword = "";
+            string domainURL = "";
+
+            // Get WMI User Info
+            if (scanType == "1")
+            {
+                Console.WriteLine("This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                string hasDomain = Console.ReadLine();
+                while (hasDomain != "y" && hasDomain != "n")
+                {
+                    Console.WriteLine("Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                    hasDomain = Console.ReadLine();
+                }
+                if (hasDomain == "y")
+                {
+                    Console.WriteLine("Enter user name:");
+                    wmiUsername = Console.ReadLine();
+                    //Password
+                    Console.WriteLine("Enter password:");
+                    wmiPassword = Console.ReadLine();
+                    //Get computer domain
+                    Console.WriteLine("Enter network domain:");
+                    domainURL = Console.ReadLine();
+                }
+
+            }
+
             //Get Default gateway
             string localIp = Convert.ToString(GetDefaultGateway());
 
@@ -74,39 +104,50 @@ namespace Recon
             //Get stripped IP from ip Choice
             var strippedIp = stripIP(ipChoice);
 
-            //WMI user information
-            string wmiUsername = "";
-            string wmiPassword = "";
-            string domainURL = "";
 
-            //Bool for scanning
-            bool scanning = false;
-
+            //Initiate scan
             if(scanType == "1")
             {
-                //WMI
-                string type = "wmic";
-                //get and set user
-                Console.WriteLine("Enter user name:");
-                wmiUsername = Console.ReadLine();
-                //Password
-                Console.WriteLine("Enter password:");
-                wmiPassword = Console.ReadLine();
-                //Get computer domain
-                Console.WriteLine("Enter network domain:");
-                domainURL = Console.ReadLine();
-                //Network plus WMI scan starts
-                Console.WriteLine("Scanning started");
-                scanFunction(portChoice, strippedIp, ipChoice, type, wmiUsername, wmiPassword, domainURL, scanning);
+                //WMI Scan
+                if(portChoice == "1")
+                {
+                    //Full port scan
+                    fullPorts(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath);
+                }
+                else if(portChoice == "2")
+                {
+                    //Well known port scan
+                    wellKownPorts(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath);
+                }
+                else if(portChoice == "3")
+                {
+                    //Slected port scan
+                    wmiSelectedScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath);
+                }
+
             }
-            else if(scanType == "2")
+            //Network only
+            else if (scanType == "2")
             {
-                //Network Only
-                string type = "network";
-                scanFunction(portChoice, strippedIp, ipChoice, type, "", "", "", scanning);
+                //Network only scan
+                if (portChoice == "1")
+                {
+                    //Full port scan
+                    fullPorts(strippedIp, scanType, "", "", "", docPath);
+                }
+                else if (portChoice == "2")
+                {
+                    //Well known port scan
+                    wellKownPorts(strippedIp, scanType, "", "", "", docPath);
+                }
+                else if (portChoice == "3")
+                {
+                    //Slected port scan
+                    networkUserSelect(strippedIp, scanType, "", "", "", docPath);
+                }
+
             }
 
-            Console.WriteLine(wmiUsername);
 
         }
 
@@ -348,6 +389,7 @@ namespace Recon
             }
         }
 
+        //Get default network gateway
         public static IPAddress GetDefaultGateway()
         {
             return NetworkInterface
@@ -361,13 +403,13 @@ namespace Recon
         }
 
         //Get Subnet
-        public static string getSubnet()
-        {
-            //Get IP range
-            Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
-            string subnet = Console.ReadLine();
-            return subnet;
-        }
+        //public static string getSubnet()
+        //{
+        //    //Get IP range
+        //    Console.WriteLine("Please enter the subnet to be scanned, for example '192.168.0.1' :");
+        //    string subnet = Console.ReadLine();
+        //    return subnet;
+        //}
 
         //Validate IP
         public static string stripIP(string subnet)
@@ -380,7 +422,9 @@ namespace Recon
             return strippedIP;
         }
 
-        public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
+
+        //WMI recon function
+        public static void wmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, string docPath)
         {
             try
             {
@@ -414,7 +458,6 @@ namespace Recon
                         "Manufacturer      : " + m["Manufacturer"] + "\r\n" +
                         "OS Architecture   : " + m["OSArchitecture"] + "\r\n";
                         ;
-                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", wmiScanResults + Environment.NewLine);
                         Console.WriteLine(wmiScanResults);
                     }
@@ -447,21 +490,15 @@ namespace Recon
                            "SID: " + user["SID"] + "\r\n" + 
                            "Password Expires: " + user["PasswordExpires"] + "\r\n" +
                            "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
-                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", userResults + Environment.NewLine);
                         Console.WriteLine(userResults);
-                        Console.WriteLine(user);
                     }
                 }
-                catch (UnauthorizedAccessException e)
+                catch 
                 {
-                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                    
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
+                
 
                 //Logon Info
                 ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
@@ -480,173 +517,26 @@ namespace Recon
                             "Authentication: " + logon["AuthenticationPackage"] + "\r\n" + 
                             "Logon ID: " + logon["LogonId"] + "\r\n" +
                             "Logon Type: " + logon["LogonType"];
-                        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                         File.AppendAllText(docPath + "\\results.txt", logonResults + Environment.NewLine);
                         Console.WriteLine(logonResults);
                     }
                 }
-                catch (UnauthorizedAccessException e)
+                catch 
                 {
-                    Console.WriteLine(e + "Access Denied, insufficient privileges");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
+
                 }
 
 
+
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Console.WriteLine(e + "Access Denied, insufficient privileges");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-
-        }
-
-
-
-        //Function for selected IP scan
-        public static bool selectedScan(string hostname, int port, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
-        {
-            //WMI
-            if (type == "wmic")
-            {
-                string results = "";
-                for (int i = 1; i < 256; i++)
-                {
-                    try
-                    {
-                        var client = new TcpClient();
-                        {
-                            if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
-                            {
-                                // connection failure
-                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
-                                results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
-                                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                                File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                                if (results.Contains("succeeded") && Convert.ToString(port) == "135")
-                                {
-                                    Console.WriteLine("Port 135 confirmed");
-                                    wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, scanning);
-
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                }
-
-            }
-            //Network only
-            else
-            {
-                string results = "";
-                for (int i = 1; i < 256; i++)
-                {
-                    try
-                    {
-                        var client = new TcpClient();
-                        {
-                            if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
-                            {
-                                // connection failure
-                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
-                                results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
-                                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                                File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-
-            }
-            scanning = false;
-            return scanning;
-        }
-
-        //Full port scan
-        public static bool wideScan(string hostname, int port, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
-        {
-
-            if (type == "wmic")
-            {
-                string results = "";
-                try
-                {
-                    var client = new TcpClient();
-                    {
-                        if (!client.ConnectAsync(hostname, +port).Wait(1000))
-                        {
-                            // connection failure
-                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
-                            results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
-                            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                            if (results.Contains("succeeded") && Convert.ToString(port) == "135")
-                            {
-                                Console.WriteLine("Port 135 confirmed");
-                                wmiFunction(hostname, wmiUsername, wmiPassword, domainURL, scanning);
-                                wmiTargets(hostname);
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    //Console.WriteLine(e);
-                }
-                
-            }
-            else if(type == "network")
-            {
-                string results = "";
-                try
-                {
-                    var client = new TcpClient();
-                    {
-                        if (!client.ConnectAsync(hostname, +port).Wait(1000))
-                        {
-                            // connection failure
-                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
-                            results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
-                            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    //Console.WriteLine(e);
-                }
-
-            }
-            scanning = false;
-            return scanning;
 
         }
 
@@ -659,15 +549,31 @@ namespace Recon
         }
 
 
-        //Multithread IP Split 
-        public static void multiIP(string ip, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
+        //Network only multithread IP Split 
+        public static void ipScan(string ip, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath)
         {
-            for (int i = startIp; i < stopIp; i++)
+            // WMI Scan
+            if (type == "1")
             {
-                for (int j = portStart; j < portStop; j++)
+                for (int i = startIp; i < stopIp; i++)
                 {
-                    wideScan(ip + Convert.ToString(i), j, type, wmiUsername, wmiPassword, domainURL, scanning);
-                    
+                    for (int j = portStart; j < portStop; j++)
+                    {
+                        //wideScan(ip + Convert.ToString(i), j, type, wmiUsername, wmiPassword, domainURL, scanning); 
+                        scanHosts(ip + Convert.ToString(i), j, wmiUsername, wmiPassword, domainURL, docPath);
+                    }
+                }
+            }
+            //Network only
+            else if(type == "2")
+            {
+
+                for (int i = startIp; i < stopIp; i++)
+                {
+                    for (int j = portStart; j < portStop; j++)
+                    {
+                        scanHosts(ip + Convert.ToString(i), j, "", "", "", docPath);
+                    }
                 }
             }
         }
@@ -682,130 +588,126 @@ namespace Recon
             }
         }
 
-        //Scan functions
-        public static void scanFunction(string choice, string strippedIP, string subnet, string type, string wmiUsername, string wmiPassword, string domainURL, bool scanning)
+
+        //full ports scan
+        public static void fullPorts(string strippedIP, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath)
         {
-
-            //Path for document saving
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            if (choice == "1")
+            Console.WriteLine("Starting full scan, please wait until message complete...");
+            try
             {
 
-                Console.WriteLine("Caution: Full scanning may fire alerts on network intrusion detection systems, type 'yes' to proceed or 'back' to select a different option: ");
-                string choice2 = Console.ReadLine();
+                //Spool up threads
+                Thread thread = new Thread(() => ipScan(strippedIP, 1, 65, 1, 16385, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread.Start();
 
-                while (choice2 != "yes" && choice2 != "back")
-                {
-                    choice2 = Console.ReadLine();
-                }
+                Thread thread2 = new Thread(() => ipScan(strippedIP, 64, 129, 16384, 32769, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread2.Start();
 
-                if (choice2 == "yes")
-                {
-                    Console.WriteLine("Starting full scan, please wait until message complete...");
-                    try
-                    {
+                Thread thread3 = new Thread(() => ipScan(strippedIP, 128, 193, 32768, 49153, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread3.Start();
 
-                        //Spool up threads
-                        Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 16385, type, wmiUsername, wmiPassword, domainURL, scanning));
-                        thread.Start();
-
-                        Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 16384, 32769, type, wmiUsername, wmiPassword, domainURL, scanning));
-                        thread2.Start();
-
-                        Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 32768, 49153, type, wmiUsername, wmiPassword, domainURL, scanning));
-                        thread3.Start();
-
-                        Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 49152, 65536, type, wmiUsername, wmiPassword, domainURL, scanning));
-                        thread4.Start();
-
-                    }
-                    catch
-                    {
-
-                    }
-                }
-                else if (choice2 == "back")
-                {
-                    choice = "0";
-                    scanSelection(choice);
-                }
-
-
+                Thread thread4 = new Thread(() => ipScan(strippedIP, 192, 256, 49152, 65536, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread4.Start();
 
             }
-            //Run scan only on well-know ports
-            else if (choice == "2")
+            catch
             {
-                Console.WriteLine("Starting well-known scan, please wait for scan complete message...");
-                try
+
+            }
+        }
+
+
+        //well known ports scan
+        public static void wellKownPorts(string strippedIP, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        {
+            Console.WriteLine("Starting well-known scan, please wait for scan complete message...");
+            try
+            {
+                Thread thread = new Thread(() => ipScan(strippedIP, 1, 65, 1, 257, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread.Start();
+
+                Thread thread2 = new Thread(() => ipScan(strippedIP, 64, 129, 256, 513, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread2.Start();
+
+                Thread thread3 = new Thread(() => ipScan(strippedIP, 128, 193, 512, 769, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread3.Start();
+
+                Thread thread4 = new Thread(() => ipScan(strippedIP, 192, 256, 768, 1024, type, wmiUsername, wmiPassword, domainURL, docPath));
+                thread4.Start();
+            }
+            catch
+            {
+
+            }
+        }
+
+
+        //WMI user selected port scan
+        public static void wmiSelectedScan(string strippedIP, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        {
+            //Get port number from user
+            Console.WriteLine("Please enter port numbers separated by commas: ");
+            string ports = Console.ReadLine();
+            if (ports != "")
+            {
+                if (ports.Contains(" "))
                 {
-                    Thread thread = new Thread(() => multiIP(strippedIP, 1, 65, 1, 257, type, wmiUsername, wmiPassword, domainURL, scanning));
+                    ports.Replace(" ", "");
+                }
+                Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                //Add ports to list
+                List<int> portList = new List<int>();
+                //Split out data by comma values
+                string[] fullList = ports.Split(',');
+                //Iteratively add to list
+                foreach (var portNumber in fullList)
+                {
+                    portList.Add(Convert.ToInt32(portNumber));
+                }
+                //Run scan
+                foreach (var portNumber in fullList)
+                {
+                    Thread thread = new Thread(() => wmiScanFunction(strippedIP, Convert.ToInt32(portNumber), wmiUsername, wmiPassword, domainURL, docPath));
                     thread.Start();
-
-                    Thread thread2 = new Thread(() => multiIP(strippedIP, 64, 129, 256, 513, type, wmiUsername, wmiPassword, domainURL, scanning));
-                    thread2.Start();
-
-                    Thread thread3 = new Thread(() => multiIP(strippedIP, 128, 193, 512, 769, type, wmiUsername, wmiPassword, domainURL, scanning));
-                    thread3.Start();
-
-                    Thread thread4 = new Thread(() => multiIP(strippedIP, 192, 256, 768, 1024, type, wmiUsername, wmiPassword, domainURL, scanning));
-                    thread4.Start();
-                }
-                catch
-                {
-
-                }
-
-            }
-            //Run scan on ports chosen by user
-            else if (choice == "3")
-            {
-                //Get port number from user
-                Console.WriteLine("Please enter port numbers separated by commas: ");
-                string ports = Console.ReadLine();
-                if (ports != "")
-                {
-                    if (ports.Contains(" "))
-                    {
-                        //Replace any spaces
-                        ports.Replace(" ", "");
-                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
-                        //Add ports to list
-                        List<int> portList = new List<int>();
-                        //Split out data by comma values
-                        string[] fullList = ports.Split(',');
-                        //Iteratively add to list
-                        foreach (var portNumber in fullList)
-                        {
-                            portList.Add(Convert.ToInt32(portNumber));
-                        }
-                        //Run scan
-                        foreach (var portNumber in fullList)
-                        {
-                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL, scanning));
-                            thread.Start();
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
-                        List<int> portList = new List<int>();
-                        string[] fullList = ports.Split(',');
-                        foreach (var portNumber in fullList)
-                        {
-                            portList.Add(Convert.ToInt32(portNumber));
-                        }
-                        //Run scan
-                        foreach (var portNumber in fullList)
-                        {
-                            Thread thread = new Thread(() => selectedScan(strippedIP, Convert.ToInt32(portNumber), type, wmiUsername, wmiPassword, domainURL, scanning));
-                            thread.Start();
-                        }
-                    }
-
                 }
             }
         }
+
+
+        //Network only user selected port scan function
+        public static void networkUserSelect(string strippedIP, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        {
+            //Get port number from user
+            Console.WriteLine("Please enter port numbers separated by commas: ");
+            string ports = Console.ReadLine();
+            if (ports != "")
+            {
+                if (ports.Contains(" "))
+                {
+                    ports.Replace(" ", "");
+                }
+                Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                //Add ports to list
+                List<int> portList = new List<int>();
+                //Split out data by comma values
+                string[] fullList = ports.Split(',');
+                //Iteratively add to list
+                foreach (var portNumber in fullList)
+                {
+                    portList.Add(Convert.ToInt32(portNumber));
+                }
+                //Run scan
+                foreach (var portNumber in fullList)
+                {
+                    Thread thread = new Thread(() => networkOnly(strippedIP, Convert.ToInt32(portNumber), docPath));
+                    thread.Start();
+                }
+            }
+        }
+
+
+
+        //Adds found WMI to array for later use
         public static List<string> wmiTargets(string wmiTarget)
         {
             List<string> wmiRange = new List<string>();
@@ -831,6 +733,105 @@ namespace Recon
                 {
                     Console.WriteLine(target);
                 }
+            }
+        }
+
+        //Function for network only scanning
+        public static void networkOnly(string hostname, int port, string docPath)
+        {
+            string results = "";
+            for (int i = 1; i < 256; i++)
+            {
+                try
+                {
+                    var client = new TcpClient();
+                    {
+                        if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
+                        {
+                            // connection failure
+                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
+                            results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
+                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        }
+
+
+        //function for WMI scanning
+        public static void wmiScanFunction(string hostname, int port, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        {
+            string results = "";
+            for (int i = 1; i < 256; i++)
+            {
+                try
+                {
+                    var client = new TcpClient();
+                    {
+                        if (!client.ConnectAsync(hostname + Convert.ToString(i), port).Wait(1000))
+                        {
+                            // connection failure
+                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " failed.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.");
+                            results = "Connection to " + hostname + Convert.ToString(i) + " on port: " + port + " succeeded.";
+                            File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                            if (results.Contains("succeeded") && Convert.ToString(port) == "135")
+                            {
+                                Console.WriteLine("Port 135 confirmed");
+                                wmiFunction(hostname + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
+
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+        }
+
+        public static void scanHosts(string hostname, int port, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        {
+            string results = "";
+            try
+            {
+                var client = new TcpClient();
+                {
+                    if (!client.ConnectAsync(hostname, +port).Wait(1000))
+                    {
+                        // connection failure
+                        Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " failed.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.");
+                        results = "Connection to " + hostname + " on port: " + Convert.ToString(port) + " succeeded.";
+                        File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                        if (results.Contains("succeeded") && Convert.ToString(port) == "135")
+                        {
+                            Console.WriteLine("Port 135 confirmed");
+                            wmiFunction(hostname, wmiUsername, wmiPassword, domainURL, docPath);
+                            wmiTargets(hostname);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //Console.WriteLine(e);
             }
         }
     }
