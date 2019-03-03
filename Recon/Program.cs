@@ -15,10 +15,10 @@ using System.Net.NetworkInformation;
 
 namespace Recon
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
+    class Program
+    {
+        static void Main(string[] args)
+        {
 
 
             Console.WriteLine("Welcome to the recon scanner." + "\r\n");
@@ -31,7 +31,7 @@ namespace Recon
             string machineInfo = Console.ReadLine();
 
             //Determine if user wants to do a local recon scan
-            while(machineInfo != "y" && machineInfo != "n")
+            while (machineInfo != "y" && machineInfo != "n")
             {
                 Console.WriteLine("Invalid selection. Would you like to conduct local system recon? Enter 'y' or 'n' or 'exit': ");
                 machineInfo = Console.ReadLine();
@@ -109,7 +109,7 @@ namespace Recon
             }
 
             //Initiate scanning functions
-            if(portChoice == "1" || portChoice == "2")
+            if (portChoice == "1" || portChoice == "2")
             {
                 bool scanning = (multithreadScan(strippedIp, portChoice, scanType, wmiUsername, wmiPassword, domainURL, docPath));
                 {
@@ -120,7 +120,7 @@ namespace Recon
                 }
             }
             //Selected port scan
-            else if(portChoice == "3")
+            else if (portChoice == "3")
             {
                 while (selectedPortScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath) == true)
                 {
@@ -130,10 +130,8 @@ namespace Recon
 
             Console.WriteLine("Scanning finished");
 
-            attackWMI();
-     
         }
- 
+
 
         //Function for port selection
         public static string portSelection()
@@ -159,7 +157,7 @@ namespace Recon
             while (whichNetwork != "y" && whichNetwork != "n")
             {
                 Console.WriteLine("Invalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
-                whichNetwork = Console.ReadLine(); 
+                whichNetwork = Console.ReadLine();
             }
             if (whichNetwork == "y")
             {
@@ -181,16 +179,16 @@ namespace Recon
         //Function for checking if user wants to run network scan
         public static string networkChoice()
         {
-            Console.WriteLine("Would you like to complete a network scan? Enter 'y' or 'n':");
+            Console.WriteLine("Would you like to complete a network recon scan? Enter 'y' or 'n':");
             string networkChoice = Console.ReadLine();
 
             while (networkChoice != "y" && networkChoice != "n")
             {
-                Console.WriteLine("Invalid selection. Would you like to complete a network scan? Enter 'y' or 'n': ");
+                Console.WriteLine("Invalid selection. Would you like to complete a network recon scan? Enter 'y' or 'n': ");
                 networkChoice = Console.ReadLine();
             }
             return networkChoice;
-             
+
         }
 
         //Function for what type of scan
@@ -332,7 +330,7 @@ namespace Recon
 
                 //Match regex pattern
                 MatchCollection matches = Regex.Matches(scResult, pattern);
-                for (int i = 0; i< matches.Count; i++)
+                for (int i = 0; i < matches.Count; i++)
                 {
                     //Console.WriteLine(matches[i].ToString());
                     //serviceList.Add(matches[i].ToString());
@@ -456,21 +454,21 @@ namespace Recon
                 {
                     foreach (ManagementObject user in userCollection)
                     {
-                        string userResults = "Account Type: " + user["AccountType"] + "\r\n" + 
+                        string userResults = "Account Type: " + user["AccountType"] + "\r\n" +
                            "Domain: " + user["Domain"] + "\r\n" +
-                           "Full Name: " + user["FullName"] + "\r\n" + 
-                           "SID: " + user["SID"] + "\r\n" + 
+                           "Full Name: " + user["FullName"] + "\r\n" +
+                           "SID: " + user["SID"] + "\r\n" +
                            "Password Expires: " + user["PasswordExpires"] + "\r\n" +
                            "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
                         File.AppendAllText(docPath + "\\results.txt", userResults + Environment.NewLine);
                         Console.WriteLine(userResults);
                     }
                 }
-                catch 
+                catch
                 {
-                    
+
                 }
-                
+
 
                 //Logon Info
                 ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
@@ -483,17 +481,17 @@ namespace Recon
                 {
                     foreach (ManagementObject logon in logonCollection)
                     {
-                        string logonResults = "Logon info: " + logon["Name"] + "\r\n" + 
+                        string logonResults = "Logon info: " + logon["Name"] + "\r\n" +
                             "Start: " + logon["StartTime"] + "\r\n" +
-                            "Status: " + logon["Status"] + "\r\n" + 
-                            "Authentication: " + logon["AuthenticationPackage"] + "\r\n" + 
+                            "Status: " + logon["Status"] + "\r\n" +
+                            "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
                             "Logon ID: " + logon["LogonId"] + "\r\n" +
                             "Logon Type: " + logon["LogonType"];
                         File.AppendAllText(docPath + "\\results.txt", logonResults + Environment.NewLine);
                         Console.WriteLine(logonResults);
                     }
                 }
-                catch 
+                catch
                 {
 
                 }
@@ -525,35 +523,34 @@ namespace Recon
         }
 
 
-
         //Adds found WMI to array for later use
         public static List<string> wmiTargets(string wmiTarget)
         {
-            List<string> wmiRange = new List<string>();
-            wmiRange.Add(wmiTarget);
+            List<string> wmiList = new List<string>();
+            wmiList.Add(wmiTarget);
 
-            return wmiRange;
+            return wmiList;
         }
 
         //For attacking found WMI targets later
-        public static void attackWMI()
-        {
-            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-            string targetWmi = Console.ReadLine();
+        //public static void AttackWMI()
+        //{
+        //    Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+        //    string targetWmi = Console.ReadLine();
 
-            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
-            {
-                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-                targetWmi = Console.ReadLine();
-            }
-            if (targetWmi == "y")
-            {
-                foreach (string target in wmiTargets(""))
-                {
-                    Console.WriteLine(target);
-                }
-            }
-        }
+        //    while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
+        //    {
+        //        Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+        //        targetWmi = Console.ReadLine();
+        //    }
+        //    if (targetWmi == "y")
+        //    {
+        //        foreach (string target in wmiList)
+        //        {
+        //            Console.WriteLine(target);
+        //        }
+        //    }
+        //}
 
 
         //well known ports methods
@@ -561,7 +558,7 @@ namespace Recon
         {
 
 
-            if(portChoice == "1")
+            if (portChoice == "1")
             {
                 Console.WriteLine("Starting full port scan, this will take a while, please wait for scan finished message...");
                 try
@@ -589,7 +586,7 @@ namespace Recon
 
                 }
             }
-            else if(portChoice == "2")
+            else if (portChoice == "2")
             {
                 Console.WriteLine("Starting well-known scan, this will take a while, please wait for scan finished message...");
                 try
@@ -700,7 +697,7 @@ namespace Recon
         //selected port scan method
         public static bool selectedPortScan(string strippedIp, string scanType, string wmiUsername, string wmiPassword, string domainURL, string docPath)
         {
-            if(scanType == "1")
+            if (scanType == "1")
             {
                 string results = "";
                 //Get port number from user
@@ -760,7 +757,7 @@ namespace Recon
 
                 }
             }
-            else if(scanType == "2")
+            else if (scanType == "2")
             {
                 string results = "";
                 //Get port number from user
