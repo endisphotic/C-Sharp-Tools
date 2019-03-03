@@ -694,7 +694,7 @@ namespace Recon
 
 
         //selected port scan method
-        public static bool selectedPortScan(string strippedIp, string scanType, string docPath, string wmiUsername, string wmiPassword, string domainURL)
+        public static bool selectedPortScan(string strippedIp, string scanType, string wmiUsername, string wmiPassword, string domainURL, string docPath)
         {
             if(scanType == "1")
             {
