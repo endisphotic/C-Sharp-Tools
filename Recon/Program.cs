@@ -641,7 +641,7 @@ namespace Recon
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
                                     File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                                    if (results.Contains("succeeded") && Convert.ToString(j) == "135")
+                                    if (results.Contains("succeeded") && (j) == 135)
                                     {
                                         Console.WriteLine("Port 135 confirmed");
                                         wmiFunction(strippedIP + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
@@ -737,7 +737,7 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
-                                        if (results.Contains("succeeded") && Convert.ToString(portNumber) == "135")
+                                        if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
                                             wmiFunction(strippedIp + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
