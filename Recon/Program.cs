@@ -130,6 +130,8 @@ namespace Recon
 
             Console.WriteLine("Scanning finished");
 
+
+
         }
 
 
@@ -743,7 +745,10 @@ namespace Recon
                                             Console.WriteLine("Port 135 confirmed");
                                             wmiFunction(strippedIp + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
                                             wmiTargets(strippedIp + Convert.ToString(i));
+                                            WmiTargetList wmiTest = new WmiTargetList();
+                                            wmiTest.wmiHost = strippedIp + Convert.ToString(i);
 
+                                            Console.WriteLine(wmiTest);
                                         }
                                     }
                                 }
@@ -811,5 +816,19 @@ namespace Recon
             }
             return false;
         }
+
+    }
+    class WmiTargetList
+    {
+        //public static List<string> wmiTargets(string wmiTarget)
+        //{
+        //    List<string> wmiList = new List<string>();
+        //    wmiList.Add(wmiTarget);
+
+        //    return wmiList;
+        //}
+
+        public string wmiHost { set; get; }
+
     }
 }
