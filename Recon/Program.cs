@@ -776,18 +776,18 @@ namespace Recon
                     }
                     Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
                     //Add ports to list
-                    List<int> portList = new List<int>();
+                    //List<int> portList = new List<int>();
                     //Split out data by comma values
                     string[] fullList = ports.Split(',');
                     //Iteratively add to list
-                    foreach (var portNumber in fullList)
-                    {
-                        portList.Add(Convert.ToInt32(portNumber));
-                    }
+                    //foreach (var portNumber in fullList)
+                    //{
+                    //    portList.Add(Convert.ToInt32(portNumber));
+                    //}
                     //Run scan
                     foreach (var portNumber in fullList)
                     {
-                        for (int i = 1; i < 256; i++)
+                        for (int i = 1; i < 5; i++)
                         {
                             try
                             {
