@@ -138,7 +138,12 @@ namespace Recon
             Console.WriteLine("Scanning finished");
 
             Console.WriteLine(wmiTest.wmiHost);
-            Console.WriteLine(wmiList);
+
+            foreach(var targets in wmiList)
+            {
+                Console.WriteLine(wmiList);
+
+            }
 
         }
 
