@@ -108,6 +108,10 @@ namespace Recon
                 outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
             }
 
+            //Create list for found hosts
+            WmiTargetList wmiTest = new WmiTargetList();
+            //wmiTest.wmiHost = "";
+
             //Initiate scanning functions
             if (portChoice == "1" || portChoice == "2")
             {
@@ -122,7 +126,7 @@ namespace Recon
             //Selected port scan
             else if (portChoice == "3")
             {
-                while (selectedPortScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath) == true)
+                while (selectedPortScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath, wmiTest) == true)
                 {
 
                 }
@@ -130,7 +134,7 @@ namespace Recon
 
             Console.WriteLine("Scanning finished");
 
-
+            Console.WriteLine(wmiTest.wmiHost);
 
         }
 
@@ -697,7 +701,7 @@ namespace Recon
 
 
         //selected port scan method
-        public static bool selectedPortScan(string strippedIp, string scanType, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        public static bool selectedPortScan(string strippedIp, string scanType, string wmiUsername, string wmiPassword, string domainURL, string docPath, WmiTargetList wmiTest)
         {
             if (scanType == "1")
             {
@@ -743,12 +747,12 @@ namespace Recon
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
-                                            wmiFunction(strippedIp + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
-                                            wmiTargets(strippedIp + Convert.ToString(i));
-                                            WmiTargetList wmiTest = new WmiTargetList();
-                                            wmiTest.wmiHost = strippedIp + Convert.ToString(i);
+                                            //wmiFunction(strippedIp + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
+                                            //wmiTargets(strippedIp + Convert.ToString(i));
 
-                                            Console.WriteLine(wmiTest);
+                                            wmiTest.wmiHost += strippedIp + Convert.ToString(i);
+
+                                            Console.WriteLine(wmiTest.wmiHost);
                                         }
                                     }
                                 }
@@ -776,14 +780,9 @@ namespace Recon
                     }
                     Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
                     //Add ports to list
-                    //List<int> portList = new List<int>();
-                    //Split out data by comma values
+
                     string[] fullList = ports.Split(',');
-                    //Iteratively add to list
-                    //foreach (var portNumber in fullList)
-                    //{
-                    //    portList.Add(Convert.ToInt32(portNumber));
-                    //}
+
                     //Run scan
                     foreach (var portNumber in fullList)
                     {
