@@ -139,9 +139,9 @@ namespace Recon
 
             Console.WriteLine(wmiTest.wmiHost);
 
-            foreach(var targets in wmiList)
+            foreach(string targets in wmiList)
             {
-                Console.WriteLine(wmiList);
+                Console.WriteLine(targets);
 
             }
 
@@ -752,6 +752,7 @@ namespace Recon
 
                                             Console.WriteLine(wmiTest.wmiHost);
                                             wmiList.Add(strippedIp + Convert.ToString(i));
+                                            wmiList.Add(wmiTest.wmiHost);
                                         }
                                     }
                                 }
