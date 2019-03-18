@@ -12,6 +12,7 @@ using System.Net;
 using System.Management;
 using System.Text.RegularExpressions;
 using System.Net.NetworkInformation;
+using System.DirectoryServices;
 
 namespace Recon
 {
@@ -22,7 +23,7 @@ namespace Recon
 
             Console.ForegroundColor = ConsoleColor.Blue;
 
-            Console.WriteLine("Welcome to Neko. \r\n" );
+            Console.WriteLine("Welcome to Neko. \r\n");
 
 
 
@@ -48,6 +49,10 @@ namespace Recon
             {
                 Environment.Exit(0);
             }
+
+            //Active Directory Recon
+            adRecon();
+
 
             //See if user wants to do a network scan
             var networkScan = NetworkChoice();
@@ -115,7 +120,7 @@ namespace Recon
 
             //Create list for WMI hosts
             List<string> wmiList = new List<string>();
-            
+
 
             //Initiate scanning functions
             if (portChoice == "1" || portChoice == "2")
@@ -613,7 +618,7 @@ namespace Recon
                 ManagementBaseObject outParams = processClass.InvokeMethod("Create", inParams, null);
 
                 //Convert return value to string and see if it's 0, which indicates success
-                if(Convert.ToString(outParams["returnValue"]) == "0")
+                if (Convert.ToString(outParams["returnValue"]) == "0")
                 {
                     Console.WriteLine("Remote process successfully created.");
                     Console.WriteLine("Process ID: " + outParams["processId"]);
@@ -633,7 +638,7 @@ namespace Recon
             //Catch local machine error.
             catch (ManagementException e)
             {
-                if(e.Message.Contains("User credentials"))
+                if (e.Message.Contains("User credentials"))
                 {
                     Console.WriteLine("Cannot use on local machine");
                 }
@@ -642,9 +647,9 @@ namespace Recon
             {
                 Console.WriteLine(e);
             }
-            
 
-            
+
+
         }
 
 
@@ -914,7 +919,46 @@ namespace Recon
             return false;
         }
 
+        //LDAP Directory
+        static DirectoryEntry createDirectoryEntry()
+        {
+            //Configure LDAP connection
+            DirectoryEntry ldapConnection = new DirectoryEntry("RainierSecurityLab.net");
+            ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
+            return ldapConnection;
+        }
+
+        public static void adRecon()
+        {
+            Console.WriteLine("Enter property: ");
+            string property = Console.ReadLine();
+
+            try
+            {
+                DirectoryEntry myLdapConnection = createDirectoryEntry();
+
+                DirectorySearcher search = new DirectorySearcher(myLdapConnection);
+                search.PropertiesToLoad.Add("cn");
+                search.PropertiesToLoad.Add(property);
+
+                SearchResultCollection allUsers = search.FindAll();
+
+                foreach(SearchResult result in allUsers)
+                {
+                    if(result.Properties["cn"].Count > 0 && result.Properties[property].Count > 0)
+                    {
+                        Console.WriteLine(String.Format("{0,-20} ; {1}", result.Properties["cn"][0].ToString(),result.Properties[property][0].ToString()));
+                    }
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
     }
+
     //class WmiTargetList
     //{
     //    public string WmiHost { set; get; }
