@@ -91,9 +91,12 @@ namespace Recon
             }
 
             //Active Directory Recon
-            var users = ADUser.GetUsers("LDAP://" + domainURL);
-            //+ ".local/DC=RainierSecurityLab,DC=local");
-            Console.WriteLine(users);
+            //var users = ADUser.GetUsers("LDAP://" + domainURL);
+            foreach (var userAccount in ADUser.GetUsers("LDAP://" + domainURL))
+            {
+                Console.WriteLine(userAccount);
+            }
+
 
             //Get Default gateway
             string localIp = Convert.ToString(GetDefaultGateway());
