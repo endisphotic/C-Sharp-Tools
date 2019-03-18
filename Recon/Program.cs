@@ -182,6 +182,7 @@ namespace Recon
         //Function to check IP user wants to use
         public static string UserIpChoice(string defaultGateway)
         {
+            //Tell user thier gatway and check if they want to use that or a specified network
             Console.WriteLine("Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
             string whichNetwork = Console.ReadLine();
             string subnet = "";
@@ -193,12 +194,14 @@ namespace Recon
             if (whichNetwork == "y")
             {
                 subnet = defaultGateway;
+                //Validate that the IP is correct format
                 ValidateIP(subnet);
             }
             else if (whichNetwork == "n")
             {
                 Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
                 subnet = Console.ReadLine();
+                //Validate that the IP is in correct format
                 if (ValidateIP(subnet) == false)
                 {
                     Console.WriteLine("Invalid IP. Please enter a subnet to scan. For example, '192.168.0.1':");
@@ -430,12 +433,17 @@ namespace Recon
             try
             {
                 Console.WriteLine("Establishing WMI..");
+                //Set connection options
                 ConnectionOptions options = new ConnectionOptions();
+                //Set impersonation level
                 options.Impersonation = ImpersonationLevel.Impersonate;
+                //Set username
                 options.Username = wmiUsername;
+                //Set password
                 options.Password = wmiPassword;
                 options.Authority = "ntlmdomain:" + domainURL;
 
+                //Set scope
                 ManagementScope scope = new ManagementScope("\\\\" + hostname + "\\root\\cimv2", options);
                 scope.Connect();
 
@@ -446,6 +454,7 @@ namespace Recon
                 //OS collection
                 ManagementObjectCollection queryCollection = searcher.Get();
 
+                //Get OS information
                 try
                 {
 
@@ -481,6 +490,7 @@ namespace Recon
                 //User collection
                 ManagementObjectCollection userCollection = userInfoSearch.Get();
 
+                //Get user info
                 try
                 {
                     foreach (ManagementObject user in userCollection)
@@ -508,6 +518,7 @@ namespace Recon
                 //User collection
                 ManagementObjectCollection logonCollection = logonInfo.Get();
 
+                //Get logon info
                 try
                 {
                     foreach (ManagementObject logon in logonCollection)
@@ -530,13 +541,18 @@ namespace Recon
 
 
             }
+            //Catch access denied error
             catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine(e + "Access Denied, insufficient privileges");
+                Console.WriteLine(e + "Access Denied, insufficient privileges. Confirm domain admin privileges.");
             }
-            catch (ManagementException)
+            //Catch local machine error
+            catch (ManagementException e)
             {
-
+                if (e.Message.Contains("User credentials"))
+                {
+                    Console.WriteLine("Cannot use on local machine");
+                }
             }
             catch (Exception e)
             {
@@ -562,15 +578,22 @@ namespace Recon
             try
             {
                 Console.WriteLine("Attacking " + hostname + " via WMI..");
+                //Set connection options
                 ConnectionOptions options = new ConnectionOptions();
+                //Set impersonation level
                 options.Impersonation = ImpersonationLevel.Impersonate;
+                //Pipe in and set username
                 options.Username = wmiUsername;
+                //Set password
                 options.Password = wmiPassword;
+                //Set authority
                 options.Authority = "ntlmdomain:" + domainURL;
 
+                //Define scope
                 ManagementScope scope = new ManagementScope("\\\\" + hostname + "\\root\\cimv2", options);
                 scope.Connect();
 
+                //Set options
                 ObjectGetOptions objectGetOptions = new ObjectGetOptions();
                 //Management path
                 ManagementPath managementPath = new ManagementPath("Win32_Process");
@@ -580,12 +603,37 @@ namespace Recon
                 //Create method parameters
                 ManagementBaseObject inParams = processClass.GetMethodParameters("Create");
 
+                //Set command line from previously entered value
                 inParams["CommandLine"] = commandFile;
 
+                //Create the process
                 ManagementBaseObject outParams = processClass.InvokeMethod("Create", inParams, null);
 
-                Console.WriteLine("Creation of the process return: " + outParams["returnValue"]);
-                Console.WriteLine("Process ID: " + outParams["processId"]);
+                //Convert return value to string and see if it's 0, which indicates success
+                if(Convert.ToString(outParams["returnValue"]) == "0")
+                {
+                    Console.WriteLine("Remote process successfully created.");
+                    Console.WriteLine("Process ID: " + outParams["processId"]);
+                }
+                else
+                {
+                    Console.WriteLine("Creation of remote process returned " + outParams["returnValue"] + " - failed");
+                }
+
+
+            }
+            //Catch access denied error
+            catch (UnauthorizedAccessException e)
+            {
+                Console.WriteLine(e + "Access Denied, insufficient privileges. Confirm that account is domain admin.");
+            }
+            //Catch local machine error.
+            catch (ManagementException e)
+            {
+                if(e.Message.Contains("User credentials"))
+                {
+                    Console.WriteLine("Cannot use on local machine");
+                }
             }
             catch (Exception e)
             {
@@ -601,10 +649,11 @@ namespace Recon
         public static bool MultithreadScan(string strippedIP, string portChoice, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath, List<string> wmiList)
         {
 
-
+            //Full port scan
             if (portChoice == "1")
             {
                 Console.WriteLine("Starting full port scan, this will take a while, please wait for scan finished message...");
+                //Spool up multiple threads split by ports
                 try
                 {
                     Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
@@ -630,9 +679,11 @@ namespace Recon
 
                 }
             }
+            //Well-known scan
             else if (portChoice == "2")
             {
                 Console.WriteLine("Starting well-known scan, this will take a while, please wait for scan finished message...");
+                //Spool up multiple threads based on ports
                 try
                 {
                     Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
@@ -685,11 +736,14 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
+                                    //Append results to text file
                                     File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
                                     if (results.Contains("succeeded") && (j) == 135)
                                     {
                                         Console.WriteLine("Port 135 confirmed");
+                                        //Launch WMI recon info
                                         WmiFunction(strippedIP + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
+                                        //Add to WMI list
                                         wmiList.Add(strippedIP + Convert.ToString(i));
 
                                     }
@@ -725,6 +779,7 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
+                                    //Append results to text file
                                     File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
                                 }
                             }
@@ -745,11 +800,12 @@ namespace Recon
             if (scanType == "1")
             {
                 string results = "";
-                //Get port number from user
+                //Get port numbers from user
                 Console.WriteLine("Please enter port numbers separated by commas: ");
                 string ports = Console.ReadLine();
                 if (ports != "")
                 {
+                    //Remove any spaces
                     if (ports.Contains(" "))
                     {
                         ports.Replace(" ", "");
@@ -782,11 +838,14 @@ namespace Recon
                                     {
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
+                                        //Append results to text file
                                         File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
+                                            //Launch WMI recon
                                             WmiFunction(strippedIp + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
+                                            //Add host to WMI list
                                             wmiList.Add(strippedIp + Convert.ToString(i));
                                         }
                                     }
@@ -809,13 +868,13 @@ namespace Recon
                 string ports = Console.ReadLine();
                 if (ports != "")
                 {
+                    //Remove spaces
                     if (ports.Contains(" "))
                     {
                         ports.Replace(" ", "");
                     }
                     Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
-                    //Add ports to list
-
+                    //Add ports to list array
                     string[] fullList = ports.Split(',');
 
                     //Run scan
@@ -836,6 +895,7 @@ namespace Recon
                                     {
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
+                                        //Append results to text document
                                         File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
                                     }
                                 }
