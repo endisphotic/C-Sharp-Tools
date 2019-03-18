@@ -148,10 +148,16 @@ namespace Recon
             }
             if (targetWmi == "y")
             {
+
+                string commandFile = "";
+                Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
+                //Get command from user
+                commandFile = Console.ReadLine();
+
                 // Attack targets
                 foreach (string target in wmiList)
                 {
-                    AttackWMI(wmiUsername, wmiPassword, domainURL, target);
+                    AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
                 }
             }
 
@@ -549,37 +555,9 @@ namespace Recon
 
 
         //For attacking found WMI targets later
-        public static void AttackWMI(string wmiUsername, string wmiPassword, string domainURL, string hostname)
+        public static void AttackWMI(string wmiUsername, string wmiPassword, string domainURL, string hostname, string commandFile)
         {
-            //Get commands for attack
-            string commandFile = "\\" + hostname + "\\c$\\process.bat";
 
-            try
-            {
-                //Delete the file if it exists already
-                if (File.Exists(commandFile))
-                {
-                    File.Delete(commandFile);
-                }
-
-                StreamWriter sw = new StreamWriter(commandFile);
-
-                //Command
-                string command = "DIR > <a>\\\\</a>" + hostname + "\\c$\\output.txt";
-                Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
-                //Get command from user
-                command = Console.ReadLine();
-                if (command.Trim() == string.Empty)
-                {
-                    Console.WriteLine("No command entered, using default command for test: " + command);
-                }
-                sw.WriteLine(command);
-                sw.Close();
-            }
-            catch
-            {
-
-            }
 
             try
             {
