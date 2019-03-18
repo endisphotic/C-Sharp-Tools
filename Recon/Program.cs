@@ -21,8 +21,6 @@ namespace Recon
         static void Main(string[] args)
         {
 
-            Console.ForegroundColor = ConsoleColor.Blue;
-
             Console.WriteLine("Welcome to Neko. \r\n");
 
 
@@ -49,10 +47,6 @@ namespace Recon
             {
                 Environment.Exit(0);
             }
-
-            //Active Directory Recon
-            adRecon();
-
 
             //See if user wants to do a network scan
             var networkScan = NetworkChoice();
@@ -96,6 +90,9 @@ namespace Recon
 
             }
 
+            //Active Directory Recon
+            var users = ADUser.GetUsers("LDAP://" + domainURL);
+            //+ ".local/DC=RainierSecurityLab,DC=local");
 
             //Get Default gateway
             string localIp = Convert.ToString(GetDefaultGateway());
@@ -919,44 +916,75 @@ namespace Recon
             return false;
         }
 
-        //LDAP Directory
-        static DirectoryEntry createDirectoryEntry()
-        {
-            //Configure LDAP connection
-            DirectoryEntry ldapConnection = new DirectoryEntry("RainierSecurityLab.net");
-            ldapConnection.AuthenticationType = AuthenticationTypes.Secure;
-            return ldapConnection;
-        }
 
-        public static void adRecon()
+        /// <summary>
+        /// Active Directory Users
+        /// </summary>
+        public class ADUser
         {
-            Console.WriteLine("Enter property: ");
-            string property = Console.ReadLine();
+            /// <summary>
+            /// Property of sAM account name
+            /// </summary>
+            public const string SamAccountNameProperty = "sAMAccountName";
 
-            try
+            /// <summary>
+            /// Property of name CN
+            /// </summary>
+            public const string CanonicalNameProperty = "CN";
+
+            /// <summary>
+            /// Gets or sets the CN of the user
+            /// </summary>
+            public string CN { get; set; }
+
+            /// <summary>
+            /// Gets or sets the sAM Account name
+            /// </summary>
+            public string SamAccountName { get; set; }
+
+
+            /// <summary>
+            /// Gets users of domain
+            /// </summary>
+            /// <param name="domainURL"></param>
+            /// <returns></returns>
+            public static List<ADUser> GetUsers(string domainURL)
             {
-                DirectoryEntry myLdapConnection = createDirectoryEntry();
+                List<ADUser> users = new List<ADUser>();
 
-                DirectorySearcher search = new DirectorySearcher(myLdapConnection);
-                search.PropertiesToLoad.Add("cn");
-                search.PropertiesToLoad.Add(property);
-
-                SearchResultCollection allUsers = search.FindAll();
-
-                foreach(SearchResult result in allUsers)
+                using (DirectoryEntry searchRoot = new DirectoryEntry(domainURL))
+                using (DirectorySearcher directorySearcher = new DirectorySearcher(searchRoot))
                 {
-                    if(result.Properties["cn"].Count > 0 && result.Properties[property].Count > 0)
+                    //Set filter
+                    directorySearcher.Filter = "(&(objectCategory=person)(objectClass=user))";
+
+                    //Set properties to load
+                    directorySearcher.PropertiesToLoad.Add(CanonicalNameProperty);
+                    directorySearcher.PropertiesToLoad.Add(SamAccountNameProperty);
+
+                    using(SearchResultCollection searchResultCollection = directorySearcher.FindAll())
                     {
-                        Console.WriteLine(String.Format("{0,-20} ; {1}", result.Properties["cn"][0].ToString(),result.Properties[property][0].ToString()));
+                        foreach(SearchResult searchResult in searchResultCollection)
+                        {
+                            //Create new AD user instance
+                            var user = new ADUser();
+
+                            //Set CN if avail
+                            if (searchResult.Properties[CanonicalNameProperty].Count > 0) user.CN = searchResult.Properties[CanonicalNameProperty][0].ToString();
+
+                            //Set samaccount if available
+                            if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
+
+                            //Add use to users list
+                            users.Add(user);
+                        }
                     }
                 }
-                
+                return users;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+
         }
+
     }
 
     //class WmiTargetList
