@@ -91,11 +91,15 @@ namespace Recon
             }
 
             //Active Directory Recon
-            //var users = ADUser.GetUsers("LDAP://" + domainURL);
-            foreach (var userAccount in ADUser.GetUsers("LDAP://" + domainURL))
+            var usersList = ADUser.GetUsers("LDAP://" + domainURL);
+            foreach (var userAccount in usersList)
             {
-                Console.WriteLine(userAccount);
+                Console.WriteLine(usersList.Count());
+                Console.WriteLine(userAccount.SamAccountName);
             }
+            //ADUser adList = new ADUser();
+
+            //List<string> calledList = adList.
 
 
             //Get Default gateway
@@ -946,7 +950,7 @@ namespace Recon
             /// </summary>
             public string SamAccountName { get; set; }
 
-
+            //public static List<string> myList = new List<string>();
             /// <summary>
             /// Gets users of domain
             /// </summary>
@@ -981,6 +985,7 @@ namespace Recon
 
                             //Add use to users list
                             users.Add(user);
+                            //myList.Add(user);
                         }
                     }
                 }
@@ -990,11 +995,4 @@ namespace Recon
         }
 
     }
-
-    //class WmiTargetList
-    //{
-    //    public string WmiHost { set; get; }
-
-
-    //}
 }
