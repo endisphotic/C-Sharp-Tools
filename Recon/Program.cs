@@ -85,6 +85,7 @@ namespace Recon
                 {
                     //Active Directory Recon
                     var usersList = ADUser.GetUsers("LDAP://" + domainURL);
+                    Console.WriteLine("Found users: ");
                     foreach (var userAccount in usersList)
                     {
                         //Console.WriteLine(usersList.Count());
@@ -93,6 +94,7 @@ namespace Recon
                     }
 
                     var computerList = ADComputer.GetADComputers(domainURL);
+                    Console.WriteLine("Found computers:");
                     foreach(var computer in computerList)
                     {
                         Console.WriteLine(computer.ComputerInfo);
@@ -1050,7 +1052,7 @@ namespace Recon
                             if (searchResult.Properties[CanonicalNameProperty].Count > 0) user.CN = searchResult.Properties[CanonicalNameProperty][0].ToString();
 
                             //Set samaccount if available
-                            //if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
+                            if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
 
                             //Get RID if available
                             //if (searchResult.Properties[Rid].Count > 0) user.RID = searchResult.Properties[Rid][0].ToString();
