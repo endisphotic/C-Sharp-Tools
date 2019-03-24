@@ -287,6 +287,20 @@ namespace Recon
                         }
                         if (hasDomain == "y")
                         {
+
+                            Console.WriteLine("Your domain is: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                            string domainConfirmation = Console.ReadLine();
+                            while (domainConfirmation != "y" && domainConfirmation != "n")
+                            {
+                                Console.WriteLine("Invalid selection. Your domain is: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                domainConfirmation = Console.ReadLine();
+                            }
+                            if (domainConfirmation == "n")
+                            {
+                                Console.WriteLine("Please enter new domain to use:");
+                                domainURL = Console.ReadLine();
+                            }
+
                             Console.WriteLine("Enter user name:");
                             string wmiUsername = Console.ReadLine();
                             //Password
@@ -328,16 +342,6 @@ namespace Recon
                 {
                     done = true;
                 }
-
-                ////See if user wants to do a network scan
-                //var networkScan = NetworkChoice();
-                ////If they select yes, get type
-                //if (networkScan == "n")
-                //{
-                //    Environment.Exit(0);
-                //}
-
-                    //Continue with scan if not exited
                 
             }
 
