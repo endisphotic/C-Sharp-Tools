@@ -129,8 +129,6 @@ namespace Recon
                             Console.WriteLine("Found users: ");
                             foreach (var userAccount in usersList)
                             {
-                                //Console.WriteLine(usersList.Count());
-                                //Console.WriteLine(userAccount.CN);
                                 Console.WriteLine(userAccount.SamAccountName);
                                 Console.WriteLine(userAccount.SID);
                                 File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + userAccount.SID + Environment.NewLine);
@@ -1134,6 +1132,36 @@ namespace Recon
             public const string SidProperty = "objectSid";
 
             /// <summary>
+            /// Property for First Name
+            /// </summary>
+            public const string FirstNameProperty = "givenName";
+
+            /// <summary>
+            /// Property for last name
+            /// </summary>
+            public const string LastNameProperty = "sn";
+
+            /// <summary>
+            /// Property to get AD group membership
+            /// </summary>
+            public const string MemberOfProperty = "memberOf";
+
+            /// <summary>
+            /// Gets or sets member of
+            /// </summary>
+            public string MemberOf { get; set; }
+
+            /// <summary>
+            /// Gets or sets last name
+            /// </summary>
+            public string LastName { get; set; }
+
+            /// <summary>
+            /// Gets for sets first name
+            /// </summary>
+            public string FirstName { get; set; }
+
+            /// <summary>
             /// Gets or sets the SID of the user
             /// </summary>
             public string SID { get; set; }
@@ -1164,10 +1192,13 @@ namespace Recon
                     //Set filter
                     directorySearcher.Filter = "(&(objectCategory=person)(objectClass=user))";
 
-                    //Set properties to load
+                    //Set properties to load based on above strings
                     directorySearcher.PropertiesToLoad.Add(CanonicalNameProperty);
                     directorySearcher.PropertiesToLoad.Add(SamAccountNameProperty);
                     directorySearcher.PropertiesToLoad.Add(SidProperty);
+                    directorySearcher.PropertiesToLoad.Add(FirstNameProperty);
+                    directorySearcher.PropertiesToLoad.Add(LastNameProperty);
+                    directorySearcher.PropertiesToLoad.Add(MemberOfProperty);
 
                     using(SearchResultCollection searchResultCollection = directorySearcher.FindAll())
                     {
@@ -1181,6 +1212,15 @@ namespace Recon
 
                             //Set samaccount if available
                             if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
+
+                            //Set first name info
+                            if (searchResult.Properties[FirstNameProperty].Count > 0) user.FirstName = searchResult.Properties[FirstNameProperty][0].ToString();
+
+                            //Sets last name info
+                            if (searchResult.Properties[LastNameProperty].Count > 0) user.LastName = searchResult.Properties[LastNameProperty][0].ToString();
+
+                            //Sets member of info
+                            if (searchResult.Properties[MemberOfProperty].Count > 0) user.MemberOf = searchResult.Properties[MemberOfProperty][0].ToString();
 
                             //Get SID if available
                             if (searchResult.Properties[SidProperty].Count > 0) user.SID = (new SecurityIdentifier((byte[])searchResult.Properties[SidProperty][0], 0).Value);
