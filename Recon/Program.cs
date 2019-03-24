@@ -47,7 +47,7 @@ namespace Recon
             //Run local recon if user selects yes
             if (machineInfo == "y")
             {
-                LocalMachine();
+                LocalMachine(docPath);
             }
             else if (machineInfo == "exit")
             {
@@ -134,13 +134,17 @@ namespace Recon
                     wmiPassword = Console.ReadLine();
                     //Get computer domain
 
+
+                    //If LDAP querying was not done, gets domain to use for WMI
                     if(domainURL == "")
                     {
                         Console.WriteLine("Enter network domain:");
                         domainURL = Console.ReadLine();
                     }
+                    //If ldap querying was done, confirms they want to use the same domain
                     else if (domainURL != "")
                     {
+
                         Console.WriteLine("The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
                         string domainConfirmation = Console.ReadLine();
                         while (domainConfirmation != "y" && domainConfirmation != "n")
@@ -148,6 +152,7 @@ namespace Recon
                             Console.WriteLine("Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
                             domainConfirmation = Console.ReadLine();
                         }
+                        //If they select n, they're prompted for a different domain
                         if(domainConfirmation == "n")
                         {
                             Console.WriteLine("Please enter new domain to use:");
@@ -158,7 +163,6 @@ namespace Recon
                 }
 
             }
-
 
 
             //Get Default gateway
@@ -173,8 +177,6 @@ namespace Recon
             //Get stripped IP from ip Choice
             var strippedIp = StripIP(ipChoice);
 
-            //Create string for found hosts
-            //WmiTargetList wmiTest = new WmiTargetList();
 
             //Create list for WMI hosts
             List<string> wmiList = new List<string>();
@@ -305,7 +307,7 @@ namespace Recon
         }
 
 
-        public static void LocalMachine()
+        public static void LocalMachine(string docPath)
         {
             //Net commands
             try
@@ -341,7 +343,6 @@ namespace Recon
                     string netDomainResult = netProcess.StandardOutput.ReadToEnd();
                     string netErr = netProcess.StandardError.ReadToEnd();
                     //Append local machine info to results
-                    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     File.AppendAllText(docPath + "\\results.txt", netDomainResult + netErr + Environment.NewLine);
                     Console.WriteLine(netDomainResult);
                 }
@@ -385,7 +386,6 @@ namespace Recon
                     string cmdDomainResult = cmdProcess.StandardOutput.ReadToEnd();
                     string cmdErr = cmdProcess.StandardError.ReadToEnd();
                     //Append local machine info to results
-                    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     File.AppendAllText(docPath + "\\results.txt", cmdDomainResult + cmdErr + Environment.NewLine);
                     Console.WriteLine(cmdDomainResult);
                 }
@@ -418,7 +418,6 @@ namespace Recon
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
                 //Append local machine info to results
-                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 File.AppendAllText(docPath + "\\results.txt", scResult + scErr + Environment.NewLine);
                 Console.WriteLine(scResult);
 
