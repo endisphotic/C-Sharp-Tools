@@ -31,6 +31,7 @@ namespace Recon
 
                 //Prompt user decision on recon or deployment via WMI
                 Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Deployment via WMI \r\n");
+                Console.WriteLine("Make your selection:");
                 string attackType = Console.ReadLine();
                 while (attackType != "1" && attackType != "2")
                 {
@@ -258,7 +259,8 @@ namespace Recon
 
                         while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
                         {
-                            Console.WriteLine("\r\n Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                            Console.WriteLine("\r\n" +
+                                "Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
                             targetWmi = Console.ReadLine();
                         }
                         if (targetWmi == "y")
@@ -354,7 +356,8 @@ namespace Recon
                 }
 
                 //See if user wants to go back to main menu or exit
-                Console.WriteLine("\r\n Enter 'm' for Main Menu or 'e' for exit:");
+                Console.WriteLine("\r\n" +
+                    "Enter 'm' for Main Menu or 'e' for exit:");
                 string mainMenu = Console.ReadLine();
                 while (mainMenu != "m" && mainMenu != "e")
                 {
