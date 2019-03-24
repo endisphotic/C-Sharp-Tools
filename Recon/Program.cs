@@ -32,7 +32,7 @@ namespace Recon
                 Console.WriteLine("Welcome to Neko. \r\n");
 
                 //Prompt user decision on recon or deployment via WMI
-                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Deployment via WMI \r\n\r\n");
+                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Deployment via WMI \r\n");
                 string attackType = Console.ReadLine();
                 while (attackType != "1" && attackType != "2")
                 {
@@ -62,7 +62,7 @@ namespace Recon
                     string reconChoice = Console.ReadLine();
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3")
                     {
-                        Console.WriteLine("Invalid selection. Enter '1' for Local machine, '2' for Domain, or '3' for Network");
+                        Console.WriteLine("\r\n Invalid selection. Enter '1' for Local machine, '2' for Domain, or '3' for Network");
                         reconChoice = Console.ReadLine();
                     }
 
@@ -75,11 +75,11 @@ namespace Recon
 
                     if (reconChoice == "1")
                     {
-                        Console.WriteLine("Conduct local system recon? Enter 'y' or 'n' or 'exit':");
+                        Console.WriteLine("\r\nConduct local system recon? Enter 'y' or 'n' or 'exit':");
                         string machineInfo = Console.ReadLine();
                         while (machineInfo != "y" && machineInfo != "n")
                         {
-                            Console.WriteLine("Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                            Console.WriteLine("\r\n Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
                             machineInfo = Console.ReadLine();
                         }
                         //Conduct local recon
@@ -91,11 +91,11 @@ namespace Recon
                         //string domainURL = "";
 
                         //See if user wants to do LDAP searching
-                        Console.WriteLine("Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                        Console.WriteLine("\r\n Do you want to do network recon via LDAP? Enter 'y' or 'n':");
                         string ldapQueries = Console.ReadLine();
                         while (ldapQueries != "y" && ldapQueries != "n")
                         {
-                            Console.WriteLine("Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                            Console.WriteLine("\r\n Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
                             ldapQueries = Console.ReadLine();
                         }
 
@@ -104,17 +104,17 @@ namespace Recon
                         {
 
                             //Confirm that it is correct
-                            Console.WriteLine("Recon will begin on: " + domainURL + "." + " Is this correct? Enter 'y' or 'n':");
+                            Console.WriteLine("\r\n Recon will begin on: " + domainURL + "." + " Is this correct? Enter 'y' or 'n':");
                             string ldapConfirmation = Console.ReadLine();
                             while (ldapConfirmation != "y" && ldapConfirmation != "n")
                             {
-                                Console.WriteLine("Invalid selection. Recon will begin on: " + domainURL + " Is this correct? Enter 'y' or 'n':");
+                                Console.WriteLine("\r\n Invalid selection. Recon will begin on: " + domainURL + " Is this correct? Enter 'y' or 'n':");
                             }
                             //If user wants to use a different domain, get that one.
                             if (ldapConfirmation == "n")
                             {
                                 //Get info for domain
-                                Console.WriteLine("Please enter the domain for searchin:");
+                                Console.WriteLine("\r\n Please enter the domain for searchin:");
                                 domainURL = Console.ReadLine();
                             }
 
@@ -153,19 +153,19 @@ namespace Recon
                         // Get WMI User Info
                         if (scanType == "1")
                         {
-                            Console.WriteLine("This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                            Console.WriteLine("\r\n This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
                             string hasDomain = Console.ReadLine();
                             while (hasDomain != "y" && hasDomain != "n")
                             {
-                                Console.WriteLine("Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                                Console.WriteLine("\r\n Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
                                 hasDomain = Console.ReadLine();
                             }
                             if (hasDomain == "y")
                             {
-                                Console.WriteLine("Enter user name:");
+                                Console.WriteLine("\r\n Enter user name:");
                                 wmiUsername = Console.ReadLine();
                                 //Password
-                                Console.WriteLine("Enter password:");
+                                Console.WriteLine("\r\n Enter password:");
                                 wmiPassword = Console.ReadLine();
                                 //Get computer domain
 
@@ -173,18 +173,18 @@ namespace Recon
                                 //If LDAP querying was not done, gets domain to use for WMI
                                 if (domainURL == "")
                                 {
-                                    Console.WriteLine("Enter network domain:");
+                                    Console.WriteLine("\r\n Enter network domain:");
                                     domainURL = Console.ReadLine();
                                 }
                                 //If ldap querying was done, confirms they want to use the same domain
                                 else if (domainURL != "")
                                 {
 
-                                    Console.WriteLine("The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                    Console.WriteLine("\r\n The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
                                     string domainConfirmation = Console.ReadLine();
                                     while (domainConfirmation != "y" && domainConfirmation != "n")
                                     {
-                                        Console.WriteLine("Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                        Console.WriteLine("\r\n Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
                                         domainConfirmation = Console.ReadLine();
                                     }
                                     //If they select n, they're prompted for a different domain
@@ -240,19 +240,19 @@ namespace Recon
                         Console.WriteLine("Scanning finished");
 
                         //See if user wants to drop payloads via WMI
-                        Console.WriteLine("Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                        Console.WriteLine("\r\n  Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
                         string targetWmi = Console.ReadLine();
 
                         while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
                         {
-                            Console.WriteLine("Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
+                            Console.WriteLine("\r\n Invalid command. Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
                             targetWmi = Console.ReadLine();
                         }
                         if (targetWmi == "y")
                         {
 
                             string commandFile = "";
-                            Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
+                            Console.WriteLine("\r\n Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
                             //Get command from user
                             commandFile = Console.ReadLine();
                             //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
@@ -265,30 +265,32 @@ namespace Recon
                         }
                     }
                 }
+                //User choice to deploy via WMI
                 else if (attackType == "2")
                 {
-                    Console.WriteLine("Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                    //Confirm that this is correct
+                    Console.WriteLine("\r\n Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
                     string targetWmi = Console.ReadLine();
 
                     while (targetWmi != "y" && targetWmi != "n" && targetWmi != "exit")
                     {
-                        Console.WriteLine("Invalid command. Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
+                        Console.WriteLine("\r\n Invalid command. Drop payload or create processes on selected WMI targets? Enter 'y' or 'n' or 'exit':");
                         targetWmi = Console.ReadLine();
                     }
                     if (targetWmi == "y")
                     {
-
-                        Console.WriteLine("This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                        //Check that user has domain admin creds
+                        Console.WriteLine("\r\n This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
                         string hasDomain = Console.ReadLine();
                         while (hasDomain != "y" && hasDomain != "n")
                         {
-                            Console.WriteLine("Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
+                            Console.WriteLine("\r\n Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
                             hasDomain = Console.ReadLine();
                         }
                         if (hasDomain == "y")
                         {
-
-                            Console.WriteLine("Your domain is: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                            //Tell user their domain and confirm that this is the intended domain
+                            Console.WriteLine("\r\n Your domain is: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
                             string domainConfirmation = Console.ReadLine();
                             while (domainConfirmation != "y" && domainConfirmation != "n")
                             {
@@ -300,23 +302,24 @@ namespace Recon
                                 Console.WriteLine("Please enter new domain to use:");
                                 domainURL = Console.ReadLine();
                             }
-
+                            //Get Username
                             Console.WriteLine("Enter user name:");
                             string wmiUsername = Console.ReadLine();
                             //Password
                             Console.WriteLine("Enter password:");
                             string wmiPassword = Console.ReadLine();
-                            //Get computer domain
 
-                            Console.WriteLine("Enter IP addresses separated by commas:");
+                            //Get target list
+                            Console.WriteLine("\r\n Enter IP addresses separated by commas:");
                             //Get IP targets
                             string ipTargets = Console.ReadLine();
+
                             //Split into array by commas
                             string[] ipSplit = ipTargets.Split(',');
 
                             //Declare command
                             string commandFile = "";
-                            Console.WriteLine("Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
+                            Console.WriteLine("\r\n Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
                             //Get command from user
                             commandFile = Console.ReadLine();
                             //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
@@ -331,7 +334,7 @@ namespace Recon
                 }
 
                 //See if user wants to go back to main menu or exit
-                Console.WriteLine("Enter 'm' for Main Menu or 'e' for exit:");
+                Console.WriteLine("\r\n Enter 'm' for Main Menu or 'e' for exit:");
                 string mainMenu = Console.ReadLine();
                 while (mainMenu != "m" && mainMenu != "e")
                 {
@@ -341,6 +344,8 @@ namespace Recon
                 if(mainMenu == "e")
                 {
                     done = true;
+                    //Clear console
+                    Console.Clear();
                 }
                 
             }
