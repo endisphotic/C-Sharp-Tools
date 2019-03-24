@@ -127,11 +127,24 @@ namespace Recon
                             //Active Directory Recon
                             var usersList = ADUser.GetUsers("LDAP://" + domainURL);
                             Console.WriteLine("Found users: ");
+                            //Queries LDAP and writes out info to console and results
                             foreach (var userAccount in usersList)
                             {
                                 Console.WriteLine(userAccount.SamAccountName);
                                 Console.WriteLine(userAccount.SID);
-                                File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + userAccount.SID + Environment.NewLine);
+                                Console.WriteLine(userAccount.FirstName);
+                                Console.WriteLine(userAccount.LastName);
+                                Console.WriteLine(userAccount.StreetAddress);
+                                Console.WriteLine(userAccount.DirectReports);
+                                Console.WriteLine(userAccount.LastLogon);
+                                Console.WriteLine(userAccount.LastLogoff);
+                                Console.WriteLine(userAccount.MemberOf);
+                                Console.WriteLine(userAccount.AdminCount);
+                                File.AppendAllText(docPath + "\\results.txt", "SAM Account: " + userAccount.SamAccountName +  Environment.NewLine + "Account SID: " + userAccount.SID + 
+                                    "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine + 
+                                    "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine + 
+                                    "Last Logon: " + userAccount.LastLogon + Environment.NewLine + "Last Logoff: " + userAccount.LastLogoff + Environment.NewLine + "Member of: " +
+                                    userAccount.MemberOf + Environment.NewLine + "Admin Count: " + userAccount.AdminCount);
                             }
 
                             var computerList = ADComputer.GetADComputers(domainURL);
@@ -141,7 +154,7 @@ namespace Recon
                                 Console.WriteLine(computer.ComputerInfo);
                                 Console.WriteLine(computer.lastLogon);
                                 //Adds last logon for found computers
-                                File.AppendAllText(docPath + "\\results.txt", computer.ComputerInfo + computer.lastLogon + Environment.NewLine);
+                                File.AppendAllText(docPath + "\\results.txt", "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon );
                             }
 
                         }
