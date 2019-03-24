@@ -91,6 +91,12 @@ namespace Recon
                         Console.WriteLine(userAccount.SamAccountName);
                         File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + Environment.NewLine);
                     }
+
+                    var computerList = ADComputer.GetADComputers(domainURL);
+                    foreach(var computer in computerList)
+                    {
+                        Console.WriteLine(computer);
+                    }
                 }
                 
             }
@@ -1031,7 +1037,7 @@ namespace Recon
                     //Set properties to load
                     directorySearcher.PropertiesToLoad.Add(CanonicalNameProperty);
                     directorySearcher.PropertiesToLoad.Add(SamAccountNameProperty);
-                    directorySearcher.PropertiesToLoad.Add(Rid);
+                    //directorySearcher.PropertiesToLoad.Add(Rid);
 
                     using(SearchResultCollection searchResultCollection = directorySearcher.FindAll())
                     {
@@ -1044,10 +1050,10 @@ namespace Recon
                             if (searchResult.Properties[CanonicalNameProperty].Count > 0) user.CN = searchResult.Properties[CanonicalNameProperty][0].ToString();
 
                             //Set samaccount if available
-                            if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
+                            //if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
 
                             //Get RID if available
-                            if (searchResult.Properties[Rid].Count > 0) user.RID = searchResult.Properties[Rid][0].ToString();
+                            //if (searchResult.Properties[Rid].Count > 0) user.RID = searchResult.Properties[Rid][0].ToString();
 
                             //Add use to users list
                             users.Add(user);
@@ -1057,6 +1063,37 @@ namespace Recon
                 return users;
             }
 
+        }
+
+        /// <summary>
+        /// Gets AD Computers
+        /// </summary>
+        public class ADComputer
+        {
+            public static List<ADComputer> GetADComputers(string domainURL)
+            {
+                //Create new list
+                List<ADComputer> computers = new List<ADComputer>();
+
+                //Create new DE
+                DirectoryEntry entry = new DirectoryEntry("LDAP://" + domainURL);
+                //Create new searcher
+                DirectorySearcher mySearch = new DirectorySearcher(entry);
+                //Limit to only computers
+                mySearch.Filter = ("(objectClass=computer)");
+
+                foreach(SearchResult results in mySearch.FindAll())
+                {
+                    var computer = new ADComputer();
+
+                    string ComputerName = results.GetDirectoryEntry().Name;
+                    if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computers.Add(computer);
+
+                }
+
+                return computers;
+
+            }
         }
 
     }
