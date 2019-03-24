@@ -1070,6 +1070,18 @@ namespace Recon
         /// </summary>
         public class ADComputer
         {
+
+            /// <summary>
+            /// Property of Computer Name
+            /// </summary>
+            public const string computerName = "computerName";
+
+            /// <summary>
+            /// Gets or sets the computer
+            /// </summary>
+            public string ComputerInfo { get; set; }
+
+
             public static List<ADComputer> GetADComputers(string domainURL)
             {
                 //Create new list
@@ -1087,7 +1099,8 @@ namespace Recon
                     var computer = new ADComputer();
 
                     string ComputerName = results.GetDirectoryEntry().Name;
-                    if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computers.Add(computer);
+                    if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString(); ;
+                    computers.Add(computer);
 
                 }
 
