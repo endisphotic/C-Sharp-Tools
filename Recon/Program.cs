@@ -98,6 +98,7 @@ namespace Recon
                     foreach(var computer in computerList)
                     {
                         Console.WriteLine(computer.ComputerInfo);
+                        File.AppendAllText(docPath + "\\results.txt", computer.ComputerInfo + Environment.NewLine);
                     }
                 }
                 
@@ -1001,14 +1002,14 @@ namespace Recon
             public const string CanonicalNameProperty = "CN";
 
             /// <summary>
-            /// Property of RID
+            /// Property of SID
             /// </summary>
-            public const string Rid = "rid";
+            public const string SidProperty = "objectSid";
 
             /// <summary>
             /// Gets or sets the RID of the user
             /// </summary>
-            public string RID { get; set; }
+            public string SID { get; set; }
 
             /// <summary>
             /// Gets or sets the CN of the user
@@ -1039,7 +1040,7 @@ namespace Recon
                     //Set properties to load
                     directorySearcher.PropertiesToLoad.Add(CanonicalNameProperty);
                     directorySearcher.PropertiesToLoad.Add(SamAccountNameProperty);
-                    //directorySearcher.PropertiesToLoad.Add(Rid);
+                    directorySearcher.PropertiesToLoad.Add(SidProperty);
 
                     using(SearchResultCollection searchResultCollection = directorySearcher.FindAll())
                     {
@@ -1054,8 +1055,8 @@ namespace Recon
                             //Set samaccount if available
                             if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
 
-                            //Get RID if available
-                            //if (searchResult.Properties[Rid].Count > 0) user.RID = searchResult.Properties[Rid][0].ToString();
+                            //Get SID if available
+                            if (searchResult.Properties[SidProperty].Count > 0) user.SID = searchResult.Properties[SidProperty][0].ToString();
 
                             //Add use to users list
                             users.Add(user);
