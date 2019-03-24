@@ -89,8 +89,10 @@ namespace Recon
                     foreach (var userAccount in usersList)
                     {
                         //Console.WriteLine(usersList.Count());
+                        Console.WriteLine(userAccount.CN);
                         Console.WriteLine(userAccount.SamAccountName);
-                        File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + Environment.NewLine);
+                        Console.WriteLine(userAccount.SID);
+                        File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + userAccount.CN + userAccount.SID + Environment.NewLine);
                     }
 
                     var computerList = ADComputer.GetADComputers(domainURL);
