@@ -324,10 +324,11 @@ namespace Recon
                     Console.WriteLine("Invalid selection. Enter 'm' for Main Menu or 'e' for exit:");
                     mainMenu = Console.ReadLine();
                 }
-                else if(mainMenu == "e")
+                if(mainMenu == "e")
                 {
                     done = true;
                 }
+
                 ////See if user wants to do a network scan
                 //var networkScan = NetworkChoice();
                 ////If they select yes, get type
