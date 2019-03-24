@@ -1147,6 +1147,56 @@ namespace Recon
             public const string MemberOfProperty = "memberOf";
 
             /// <summary>
+            /// Property for direct reports
+            /// </summary>
+            public const string DirectReportsProperty = "directReports";
+
+            /// <summary>
+            /// Property for logoff info
+            /// </summary>
+            public const string LastLogoffProperty = "lastLogoff";
+
+            /// <summary>
+            /// Property for street address info
+            /// </summary>
+            public const string StreetAddressProperty = "streesAddress";
+
+            /// <summary>
+            /// Property for last logon info
+            /// </summary>
+            public const string LastLogonProperty = "lastLogon";
+
+            /// <summary>
+            /// Property for admin count
+            /// </summary>
+            public const string AdminCountProperty = "adminCount";
+
+            /// <summary>
+            /// Gets or sets admin count
+            /// </summary>
+            public string AdminCount { get; set; }
+
+            /// <summary>
+            /// Gets or set last logon
+            /// </summary>
+            public string LastLogon { get; set; }
+
+            /// <summary>
+            /// Gets or sets street address info
+            /// </summary>
+            public string StreetAddress { get; set; }
+
+            /// <summary>
+            /// Gets or sets last logoff info
+            /// </summary>
+            public string LastLogoff { get; set; }
+
+            /// <summary>
+            /// Gets or set direct reports info
+            /// </summary>
+            public string DirectReports { get; set; }
+
+            /// <summary>
             /// Gets or sets member of
             /// </summary>
             public string MemberOf { get; set; }
@@ -1199,6 +1249,11 @@ namespace Recon
                     directorySearcher.PropertiesToLoad.Add(FirstNameProperty);
                     directorySearcher.PropertiesToLoad.Add(LastNameProperty);
                     directorySearcher.PropertiesToLoad.Add(MemberOfProperty);
+                    directorySearcher.PropertiesToLoad.Add(DirectReportsProperty);
+                    directorySearcher.PropertiesToLoad.Add(StreetAddressProperty);
+                    directorySearcher.PropertiesToLoad.Add(LastLogoffProperty);
+                    directorySearcher.PropertiesToLoad.Add(LastLogonProperty);
+                    directorySearcher.PropertiesToLoad.Add(AdminCountProperty);
 
                     using(SearchResultCollection searchResultCollection = directorySearcher.FindAll())
                     {
@@ -1221,6 +1276,21 @@ namespace Recon
 
                             //Sets member of info
                             if (searchResult.Properties[MemberOfProperty].Count > 0) user.MemberOf = searchResult.Properties[MemberOfProperty][0].ToString();
+
+                            //Sets direct reports info if there
+                            if (searchResult.Properties[DirectReportsProperty].Count > 0) user.DirectReports = searchResult.Properties[DirectReportsProperty][0].ToString();
+
+                            //Sets street address info
+                            if (searchResult.Properties[StreetAddressProperty].Count > 0) user.StreetAddress = searchResult.Properties[StreetAddressProperty][0].ToString();
+
+                            //Sets last logoff info
+                            if (searchResult.Properties[LastLogoffProperty].Count > 0) user.LastLogoff = searchResult.Properties[LastLogoffProperty][0].ToString();
+
+                            //Sets last logon info
+                            if (searchResult.Properties[LastLogonProperty].Count > 0) user.LastLogon = searchResult.Properties[LastLogonProperty][0].ToString();
+
+                            //Gets admin count
+                            if (searchResult.Properties[AdminCountProperty].Count > 0) user.AdminCount = searchResult.Properties[AdminCountProperty][0].ToString();
 
                             //Get SID if available
                             if (searchResult.Properties[SidProperty].Count > 0) user.SID = (new SecurityIdentifier((byte[])searchResult.Properties[SidProperty][0], 0).Value);
