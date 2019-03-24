@@ -31,6 +31,12 @@ namespace Recon
             Console.WriteLine("Conduct local system recon? Enter 'y' or 'n' or 'exit':");
             string machineInfo = Console.ReadLine();
 
+            //Create text file for results
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
+            {
+                outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
+            }
+
             //Determine if user wants to do a local recon scan
             while (machineInfo != "y" && machineInfo != "n")
             {
@@ -48,6 +54,49 @@ namespace Recon
                 Environment.Exit(0);
             }
 
+            //Domain info
+            string domainURL = "";
+
+            //See if user wants to do LDAP searching
+            Console.WriteLine("Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+            string ldapQueries = Console.ReadLine();
+            while (ldapQueries != "y" && ldapQueries != "n")
+            {
+                Console.WriteLine("Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                ldapQueries = Console.ReadLine();
+            }
+
+            //If user opts to run ldap queries 
+            if (ldapQueries == "y")
+            {
+                //Get info for domain
+                Console.WriteLine("Please enter the domain for searchin:");
+                domainURL = Console.ReadLine();
+
+                //Confirm that it is correct
+                Console.WriteLine("Recon will begin on: " + domainURL + " Is this correct? Enter 'y' or 'n':");
+                string ldapConfirmation = Console.ReadLine();
+                while (ldapConfirmation != "y" && ldapConfirmation != "n")
+                {
+                    Console.WriteLine("Invalid selection. Recon will begin on: " + domainURL + " Is this correct? Enter 'y' or 'n':");
+                }
+                //If confirmed conduct LDAP recon on target domain
+                if(ldapConfirmation == "y")
+                {
+                    //Active Directory Recon
+                    var usersList = ADUser.GetUsers("LDAP://" + domainURL);
+                    foreach (var userAccount in usersList)
+                    {
+                        //Console.WriteLine(usersList.Count());
+                        Console.WriteLine(userAccount.SamAccountName);
+                        File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + Environment.NewLine);
+                    }
+                }
+                
+            }
+
+
+
             //See if user wants to do a network scan
             var networkScan = NetworkChoice();
             //If they select yes, get type
@@ -64,7 +113,7 @@ namespace Recon
             //WMI user information
             string wmiUsername = "";
             string wmiPassword = "";
-            string domainURL = "";
+
 
             // Get WMI User Info
             if (scanType == "1")
@@ -84,22 +133,32 @@ namespace Recon
                     Console.WriteLine("Enter password:");
                     wmiPassword = Console.ReadLine();
                     //Get computer domain
-                    Console.WriteLine("Enter network domain:");
-                    domainURL = Console.ReadLine();
+
+                    if(domainURL == "")
+                    {
+                        Console.WriteLine("Enter network domain:");
+                        domainURL = Console.ReadLine();
+                    }
+                    else if (domainURL != "")
+                    {
+                        Console.WriteLine("The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                        string domainConfirmation = Console.ReadLine();
+                        while (domainConfirmation != "y" && domainConfirmation != "n")
+                        {
+                            Console.WriteLine("Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                            domainConfirmation = Console.ReadLine();
+                        }
+                        if(domainConfirmation == "n")
+                        {
+                            Console.WriteLine("Please enter new domain to use:");
+                            domainURL = Console.ReadLine();
+                        }
+                    }
+                    
                 }
 
             }
 
-            //Active Directory Recon
-            var usersList = ADUser.GetUsers("LDAP://" + domainURL);
-            foreach (var userAccount in usersList)
-            {
-                Console.WriteLine(usersList.Count());
-                Console.WriteLine(userAccount.SamAccountName);
-            }
-            //ADUser adList = new ADUser();
-
-            //List<string> calledList = adList.
 
 
             //Get Default gateway
@@ -113,12 +172,6 @@ namespace Recon
 
             //Get stripped IP from ip Choice
             var strippedIp = StripIP(ipChoice);
-
-            //Create text file for results
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
-            {
-                outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
-            }
 
             //Create string for found hosts
             //WmiTargetList wmiTest = new WmiTargetList();
