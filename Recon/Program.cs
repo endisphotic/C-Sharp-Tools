@@ -39,7 +39,7 @@ namespace Recon
                     attackType = Console.ReadLine();
                 }
 
-                //Create document for scan results
+                //Create document path for scan results
                 string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
                 //Get domain name
@@ -141,7 +141,9 @@ namespace Recon
                             foreach (var computer in computerList)
                             {
                                 Console.WriteLine(computer.ComputerInfo);
-                                File.AppendAllText(docPath + "\\results.txt", computer.ComputerInfo + Environment.NewLine);
+                                Console.WriteLine(computer.lastLogon);
+                                //Adds last logon for found computers
+                                File.AppendAllText(docPath + "\\results.txt", computer.ComputerInfo + computer.lastLogon + Environment.NewLine);
                             }
 
                         }
@@ -1200,6 +1202,14 @@ namespace Recon
         {
 
             /// <summary>
+            /// Property of last logon
+            /// </summary>
+            public const string lastLogonProperty = "lastLogon";
+
+            //Gets or sets last logon
+            public string lastLogon { get; set; }
+            
+            /// <summary>
             /// Property of Computer Name
             /// </summary>
             public const string computerName = "computerName";
@@ -1222,13 +1232,19 @@ namespace Recon
                 //Limit to only computers
                 mySearch.Filter = ("(objectClass=computer)");
 
+                mySearch.PropertiesToLoad.Add(lastLogonProperty);
+
                 foreach(SearchResult results in mySearch.FindAll())
                 {
                     var computer = new ADComputer();
 
                     string ComputerName = results.GetDirectoryEntry().Name;
                     //Remove CN from results
-                    if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString(); 
+                    if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString();
+
+                    //Checks last logon
+                    if (results.Properties[lastLogonProperty].Count > 0) computer.lastLogon = results.Properties[lastLogonProperty][0].ToString();
+
                     //Add to list
                     computers.Add(computer);
 
