@@ -95,7 +95,7 @@ namespace Recon
                     var computerList = ADComputer.GetADComputers(domainURL);
                     foreach(var computer in computerList)
                     {
-                        Console.WriteLine(computer);
+                        Console.WriteLine(computer.ComputerInfo);
                     }
                 }
                 
