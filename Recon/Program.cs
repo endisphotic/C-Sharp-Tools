@@ -993,6 +993,16 @@ namespace Recon
             public const string CanonicalNameProperty = "CN";
 
             /// <summary>
+            /// Property of RID
+            /// </summary>
+            public const string Rid = "rid";
+
+            /// <summary>
+            /// Gets or sets the RID of the user
+            /// </summary>
+            public string RID { get; set; }
+
+            /// <summary>
             /// Gets or sets the CN of the user
             /// </summary>
             public string CN { get; set; }
@@ -1021,6 +1031,7 @@ namespace Recon
                     //Set properties to load
                     directorySearcher.PropertiesToLoad.Add(CanonicalNameProperty);
                     directorySearcher.PropertiesToLoad.Add(SamAccountNameProperty);
+                    directorySearcher.PropertiesToLoad.Add(Rid);
 
                     using(SearchResultCollection searchResultCollection = directorySearcher.FindAll())
                     {
@@ -1035,9 +1046,11 @@ namespace Recon
                             //Set samaccount if available
                             if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
 
+                            //Get RID if available
+                            if (searchResult.Properties[Rid].Count > 0) user.RID = searchResult.Properties[Rid][0].ToString();
+
                             //Add use to users list
                             users.Add(user);
-                            //myList.Add(user);
                         }
                     }
                 }
