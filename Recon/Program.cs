@@ -327,7 +327,7 @@ namespace Recon
 
                     if (mainMenu == "m")
                     {
-                        break;
+                        done = false;
                     }
                     else if(mainMenu == "e")
                     {
