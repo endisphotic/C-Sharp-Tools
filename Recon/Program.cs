@@ -13,6 +13,7 @@ using System.Management;
 using System.Text.RegularExpressions;
 using System.Net.NetworkInformation;
 using System.DirectoryServices;
+using System.Security.Principal;
 
 namespace Recon
 {
@@ -89,10 +90,10 @@ namespace Recon
                     foreach (var userAccount in usersList)
                     {
                         //Console.WriteLine(usersList.Count());
-                        Console.WriteLine(userAccount.CN);
+                        //Console.WriteLine(userAccount.CN);
                         Console.WriteLine(userAccount.SamAccountName);
                         Console.WriteLine(userAccount.SID);
-                        File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + userAccount.CN + userAccount.SID + Environment.NewLine);
+                        File.AppendAllText(docPath + "\\results.txt", userAccount.SamAccountName + userAccount.SID + Environment.NewLine);
                     }
 
                     var computerList = ADComputer.GetADComputers(domainURL);
@@ -1009,7 +1010,7 @@ namespace Recon
             public const string SidProperty = "objectSid";
 
             /// <summary>
-            /// Gets or sets the RID of the user
+            /// Gets or sets the SID of the user
             /// </summary>
             public string SID { get; set; }
 
@@ -1058,7 +1059,7 @@ namespace Recon
                             if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
 
                             //Get SID if available
-                            if (searchResult.Properties[SidProperty].Count > 0) user.SID = searchResult.Properties[SidProperty][0].ToString();
+                            if (searchResult.Properties[SidProperty].Count > 0) user.SID = (new SecurityIdentifier((byte[])searchResult.Properties[SidProperty][0], 0).Value);
 
                             //Add use to users list
                             users.Add(user);
