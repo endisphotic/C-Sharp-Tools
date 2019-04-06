@@ -155,7 +155,7 @@ namespace Recon
                                 Console.WriteLine(userAccount.LastLogoff);
                                 Console.WriteLine(userAccount.MemberOf);
                                 Console.WriteLine(userAccount.AdminCount);
-                                File.AppendAllText(docPath + "\\results.txt", "SAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
+                                File.AppendAllText(docPath + "\\results.txt", "\r\n\r\nSAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
                                     "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine +
                                     "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine +
                                     "Last Logon: " + userAccount.LastLogon + Environment.NewLine + "Last Logoff: " + userAccount.LastLogoff + Environment.NewLine + "Member of: " +
