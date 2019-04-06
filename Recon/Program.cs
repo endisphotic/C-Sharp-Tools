@@ -94,7 +94,7 @@ namespace Recon
 
                         //See if user wants to do LDAP searching
                         Console.WriteLine("\r\n" +
-                            "Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                            "Do you want to do domain recon via LDAP? Enter 'y' or 'n':");
                         string ldapQueries = Console.ReadLine();
                         while (ldapQueries != "y" && ldapQueries != "n")
                         {
@@ -120,7 +120,7 @@ namespace Recon
                             if (ldapConfirmation == "n")
                             {
                                 //Get info for domain
-                                Console.WriteLine("\r\n Please enter the domain for searchin:");
+                                Console.WriteLine("\r\nPlease enter the domain for searching:");
                                 domainURL = Console.ReadLine();
                             }
 
