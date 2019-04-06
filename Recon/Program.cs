@@ -124,8 +124,17 @@ namespace Recon
                                 domainURL = Console.ReadLine();
                             }
 
+                            Console.WriteLine("\r\n" +
+                                    "Enter user name:");
+                            string Username = Console.ReadLine();
+                            //Password
+                            Console.WriteLine("\r\n" +
+                                "Enter password:");
+                            string Password = Console.ReadLine();
+                            //Get computer domain
+
                             //Active Directory Recon
-                            var usersList = ADUser.GetUsers("LDAP://" + domainURL);
+                            var usersList = ADUser.GetUsers("LDAP://" + domainURL, Username, Password);
                             Console.WriteLine("Found users: ");
                             //Queries LDAP and writes out info to console and results
                             foreach (var userAccount in usersList)
@@ -1428,11 +1437,15 @@ namespace Recon
             /// </summary>
             /// <param name="domainURL"></param>
             /// <returns></returns>
-            public static List<ADUser> GetUsers(string domainURL)
+            public static List<ADUser> GetUsers(string domainURL, string UserName, string Password)
             {
                 List<ADUser> users = new List<ADUser>();
 
-                using (DirectoryEntry searchRoot = new DirectoryEntry(domainURL))
+                //using (DirectoryEntry searchRoot = new DirectoryEntry(domainURL))
+                DirectoryEntry searchRoot = new DirectoryEntry(domainURL);
+                searchRoot.Username = UserName;
+                searchRoot.Password = Password;
+               
                 using (DirectorySearcher directorySearcher = new DirectorySearcher(searchRoot))
                 {
                     //Set filter
@@ -1451,9 +1464,9 @@ namespace Recon
                     directorySearcher.PropertiesToLoad.Add(LastLogonProperty);
                     directorySearcher.PropertiesToLoad.Add(AdminCountProperty);
 
-                    using(SearchResultCollection searchResultCollection = directorySearcher.FindAll())
+                    using (SearchResultCollection searchResultCollection = directorySearcher.FindAll())
                     {
-                        foreach(SearchResult searchResult in searchResultCollection)
+                        foreach (SearchResult searchResult in searchResultCollection)
                         {
                             //Create new AD user instance
                             var user = new ADUser();
