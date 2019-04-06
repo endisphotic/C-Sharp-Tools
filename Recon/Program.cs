@@ -950,6 +950,29 @@ namespace Recon
                 }
 
 
+                //Logon Info
+                ObjectQuery UserQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
+                ManagementObjectSearcher UserInfo = new ManagementObjectSearcher(scope, logonQuery);
+
+                //User collection
+                ManagementObjectCollection UserCollection = UserInfo.Get();
+
+                //Get logon info
+                try
+                {
+                    foreach (ManagementObject User in UserCollection)
+                    {
+                        string UserResults = "UserName: " + User["UserName"] + "\r\n" +
+                            "Timezone: " + User["CurrentTimeZone"] + "\r\n\r\n";
+                        File.AppendAllText(docPath + "\\results.txt", UserResults + Environment.NewLine);
+                        Console.WriteLine(UserResults);
+                    }
+                }
+                catch
+                {
+
+                }
+
 
             }
             //Catch access denied error
@@ -1536,7 +1559,16 @@ namespace Recon
 
             //Gets or sets last logon
             public string lastLogon { get; set; }
-            
+
+
+            /// <summary>
+            /// Server name
+            /// </summary>
+            public const string serverNameProperty = "ServerName";
+
+            public string serverName {get; set; }
+
+
             /// <summary>
             /// Property of Computer Name
             /// </summary>
@@ -1546,7 +1578,6 @@ namespace Recon
             /// Gets or sets the computer
             /// </summary>
             public string ComputerInfo { get; set; }
-
 
             public static List<ADComputer> GetADComputers(string domainURL, string Username, string Password)
             {
@@ -1571,7 +1602,6 @@ namespace Recon
                 {
                     var computer = new ADComputer();
 
-                    var lastLogins = new Dictionary<string, DateTime>();
 
                     string ComputerName = results.GetDirectoryEntry().Name;
                     //Remove CN from results
@@ -1579,6 +1609,9 @@ namespace Recon
 
                     //Checks last logon
                     if (results.Properties[lastLogonProperty].Count > 0) computer.lastLogon = results.Properties[lastLogonProperty][0].ToString();
+
+                    //Server name
+                    if (results.Properties[serverNameProperty].Count > 0) computer.serverName = results.Properties[serverNameProperty][0].ToString();
 
                     //Add to list
                     computers.Add(computer);
