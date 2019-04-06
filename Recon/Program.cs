@@ -57,7 +57,7 @@ namespace Recon
 
                 if (attackType == "1")
                 {
-                    Console.WriteLine("Recon options: 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3:Network");
+                    Console.WriteLine("Recon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3: Network");
                     string reconChoice = Console.ReadLine();
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3")
                     {
