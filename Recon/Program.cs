@@ -156,7 +156,7 @@ namespace Recon
                                     userAccount.MemberOf + Environment.NewLine + "Admin Count: " + userAccount.AdminCount);
                             }
 
-                            var computerList = ADComputer.GetADComputers(domainURL);
+                            var computerList = ADComputer.GetADComputers(domainURL, Username, Password);
                             Console.WriteLine("Found computers:");
                             foreach (var computer in computerList)
                             {
@@ -1443,6 +1443,8 @@ namespace Recon
 
                 //using (DirectoryEntry searchRoot = new DirectoryEntry(domainURL))
                 DirectoryEntry searchRoot = new DirectoryEntry(domainURL);
+
+                //Set user and password
                 searchRoot.Username = UserName;
                 searchRoot.Password = Password;
                
@@ -1539,13 +1541,18 @@ namespace Recon
             public string ComputerInfo { get; set; }
 
 
-            public static List<ADComputer> GetADComputers(string domainURL)
+            public static List<ADComputer> GetADComputers(string domainURL, string Username, string Password)
             {
                 //Create new list
                 List<ADComputer> computers = new List<ADComputer>();
 
                 //Create new DE
                 DirectoryEntry entry = new DirectoryEntry("LDAP://" + domainURL);
+
+                //Set user and pass
+                entry.Username = Username;
+                entry.Password = Password;
+
                 //Create new searcher
                 DirectorySearcher mySearch = new DirectorySearcher(entry);
                 //Limit to only computers
