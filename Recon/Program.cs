@@ -107,6 +107,12 @@ namespace Recon
                         if (ldapQueries == "y")
                         {
 
+                            //Check if user is logged into an account on the domain
+                            if(domainURL == "")
+                            {
+                                Console.WriteLine("\r\nPlease enter the domain for searching:");
+                                domainURL = Console.ReadLine();
+                            }
                             //Confirm that it is correct
                             Console.WriteLine("\r\n" +
                                 "Recon will begin on: " + domainURL + "." + " Is this correct? Enter 'y' or 'n':");
