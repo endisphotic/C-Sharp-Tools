@@ -167,9 +167,9 @@ namespace Recon
                             foreach (var computer in computerList)
                             {
                                 Console.WriteLine(computer.ComputerInfo);
-                                Console.WriteLine(computer.lastLogon);
+                                Console.WriteLine(DateTime.FromFileTime(Convert.ToInt64(computer.lastLogon)));
                                 //Adds last logon for found computers
-                                File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
+                                File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + DateTime.FromFileTime(Convert.ToInt64(computer.ComputerInfo)) + Environment.NewLine + "Last Logon: " + computer.lastLogon);
                             }
 
                         }
@@ -1562,13 +1562,15 @@ namespace Recon
                 //Create new searcher
                 DirectorySearcher mySearch = new DirectorySearcher(entry);
                 //Limit to only computers
-                mySearch.Filter = ("(objectClass=computer)");
+                mySearch.Filter = "(&(objectClass=user)(!objectClass=computer))";
 
                 mySearch.PropertiesToLoad.Add(lastLogonProperty);
 
                 foreach(SearchResult results in mySearch.FindAll())
                 {
                     var computer = new ADComputer();
+
+                    var lastLogins = new Dictionary<string, DateTime>();
 
                     string ComputerName = results.GetDirectoryEntry().Name;
                     //Remove CN from results
