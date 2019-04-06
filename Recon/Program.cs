@@ -169,7 +169,7 @@ namespace Recon
                                 Console.WriteLine(computer.ComputerInfo);
                                 Console.WriteLine(computer.lastLogon);
                                 //Adds last logon for found computers
-                                File.AppendAllText(docPath + "\\results.txt", "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
+                                File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
                             }
 
                         }
