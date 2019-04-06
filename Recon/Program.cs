@@ -167,9 +167,9 @@ namespace Recon
                             foreach (var computer in computerList)
                             {
                                 Console.WriteLine(computer.ComputerInfo);
-                                Console.WriteLine(DateTime.FromFileTime(Convert.ToInt64(computer.lastLogon)));
+                                Console.WriteLine(computer.lastLogon);
                                 //Adds last logon for found computers
-                                File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + DateTime.FromFileTime(Convert.ToInt64(computer.ComputerInfo)) + Environment.NewLine + "Last Logon: " + computer.lastLogon);
+                                File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + computer.ComputerInfo  + Environment.NewLine + "Last Logon: " + computer.lastLogon);
                             }
 
                         }
