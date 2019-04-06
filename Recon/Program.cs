@@ -908,6 +908,7 @@ namespace Recon
                         string userResults = "Account Type: " + user["AccountType"] + "\r\n" +
                            "Domain: " + user["Domain"] + "\r\n" +
                            "Full Name: " + user["FullName"] + "\r\n" +
+                           "Name: " + user["Name"] + "\r\n\r\n" +
                            "SID: " + user["SID"] + "\r\n" +
                            "Password Expires: " + user["PasswordExpires"] + "\r\n" +
                            "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
@@ -938,7 +939,7 @@ namespace Recon
                             "Status: " + logon["Status"] + "\r\n" +
                             "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
                             "Logon ID: " + logon["LogonId"] + "\r\n" +
-                            "Logon Type: " + logon["LogonType"];
+                            "Logon Type: " + logon["LogonType"] + "\r\n\r\n";
                         File.AppendAllText(docPath + "\\results.txt", logonResults + Environment.NewLine);
                         Console.WriteLine(logonResults);
                     }
