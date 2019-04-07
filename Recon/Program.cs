@@ -260,12 +260,10 @@ namespace Recon
                                     {
                                         Console.WriteLine(computer.ComputerInfo);
                                         Console.WriteLine(computer.LastLogon);
-                                        Console.WriteLine(computer.UserName);
-                                        Console.WriteLine(computer.Name);
                                         Console.WriteLine(computer.ComputerType);
                                         //Write out results
                                         writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
-                                            + Environment.NewLine + "Last logged on user: " + computer.UserName);
+                                            + Environment.NewLine + "Computer type " + computer.ComputerType);
                                         writer.Flush();
 
                                     }
@@ -1757,14 +1755,6 @@ namespace Recon
             //Gets or sets last logon
             public string LastLogon { get; set; }
 
-
-            /// <summary>
-            /// Server name
-            /// </summary>
-            public const string NameProperty = "name";
-
-            public string Name {get; set; }
-
             /// <summary>
             /// User name property
             /// </summary>
@@ -1785,15 +1775,6 @@ namespace Recon
             /// </summary>
             public const string computerName = "location";
 
-            /// <summary>
-            /// Property of Computer Name
-            /// </summary>
-            public const string computerName2 = "computerName";
-
-            /// <summary>
-            /// Test
-            /// </summary>
-            public string computerName3 { get; set; }
 
             /// <summary>
             /// Gets or sets the computer
@@ -1815,10 +1796,10 @@ namespace Recon
                 //Create new searcher
                 DirectorySearcher mySearch = new DirectorySearcher(entry);
                 //Limit to only computers
-                mySearch.Filter = "(&(objectClass=user)(!objectClass=computer))";
+                mySearch.Filter = "(objectClass=computer))";
 
                 //Add properties to load for last logon and last user name
-                mySearch.PropertiesToLoad.AddRange(new[] { NameProperty, lastLogonProperty, distinguishedNameProperty });
+                mySearch.PropertiesToLoad.AddRange(new[] { lastLogonProperty, distinguishedNameProperty });
 
                 foreach(SearchResult results in mySearch.FindAll())
                 {
@@ -1834,11 +1815,6 @@ namespace Recon
                     //Checks last logon
                     if (results.Properties[lastLogonProperty].Count > 0) computer.LastLogon = Convert.ToString(DateTime.FromFileTime((long)results.Properties[lastLogonProperty][0]));
 
-                    //Checks and adds last user
-                    if (results.Properties[NameProperty].Count > 0) computer.Name = results.Properties[NameProperty][0].ToString();
-
-                    if (results.Properties[computerName2].Count > 0) computer.computerName3 = results.Properties[computerName2][0].ToString();
-
                     //Add to list
                     computers.Add(computer);
 
@@ -1848,6 +1824,8 @@ namespace Recon
 
             }
         }
+
+
 
         //Check if file exists, and if so add next number method
         public static string UniqueFile(string resultsPath)
