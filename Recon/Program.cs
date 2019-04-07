@@ -94,11 +94,24 @@ namespace Recon
 
                     //Set context
                     PrincipalContext accountCheck = new PrincipalContext(ContextType.Domain, domainURL);
-                    bool ValidCreds = accountCheck.ValidateCredentials(Username, Password);
+                    bool ValidCreds = false;
                     //Don't move forward until authentication succeeds. 
                     while (ValidCreds == false)
                     {
-
+                        if (accountCheck.ValidateCredentials(Username, Password) == true)
+                        {
+                            Console.WriteLine("Authenication successful!");
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid username or password.");
+                            Console.WriteLine("Please enter valid username and password: ");
+                            Console.WriteLine("Username: ");
+                            Username = Console.ReadLine();
+                            Console.WriteLine("Password: ");
+                            Password = Console.ReadLine();
+                        }
                     }
                 }
 
