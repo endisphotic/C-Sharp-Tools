@@ -259,12 +259,12 @@ namespace Recon
                                     foreach (var computer in computerList)
                                     {
                                         Console.WriteLine(computer.ComputerInfo);
-                                        Console.WriteLine(computer.lastLogon);
-                                        Console.WriteLine(computer.userName);
-                                        Console.WriteLine(computer.serverName);
+                                        Console.WriteLine(computer.LastLogon);
+                                        Console.WriteLine(computer.UserName);
+                                        Console.WriteLine(computer.Name);
                                         //Write out results
-                                        writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon
-                                            + Environment.NewLine + "Last logged on user: " + computer.userName + Environment.NewLine + "Computer name: " + computer.serverName);
+                                        writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
+                                            + Environment.NewLine + "Last logged on user: " + computer.Name + Environment.NewLine + "Computer name: " + computer.Name);
                                         writer.Flush();
 
                                     }
@@ -1754,15 +1754,15 @@ namespace Recon
             public const string lastLogonProperty = "lastLogon";
 
             //Gets or sets last logon
-            public string lastLogon { get; set; }
+            public string LastLogon { get; set; }
 
 
             /// <summary>
             /// Server name
             /// </summary>
-            public const string serverNameProperty = "ServerName";
+            public const string NameProperty = "name";
 
-            public string serverName {get; set; }
+            public string Name {get; set; }
 
             /// <summary>
             /// User name property
@@ -1772,7 +1772,7 @@ namespace Recon
             /// <summary>
             /// Gets or sets user name
             /// </summary>
-            public string userName { get; set; }
+            public string UserName { get; set; }
 
             /// <summary>
             /// Property of Computer Name
@@ -1802,7 +1802,7 @@ namespace Recon
                 mySearch.Filter = "(&(objectClass=user)(!objectClass=computer))";
 
                 //Add properties to load for last logon and last user name
-                mySearch.PropertiesToLoad.AddRange(new[] { serverNameProperty, lastLogonProperty, distinguishedNameProperty });
+                mySearch.PropertiesToLoad.AddRange(new[] { NameProperty, lastLogonProperty, distinguishedNameProperty });
 
                 foreach(SearchResult results in mySearch.FindAll())
                 {
@@ -1814,13 +1814,13 @@ namespace Recon
                     if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString();
 
                     //Checks last logon
-                    if (results.Properties[lastLogonProperty].Count > 0) computer.lastLogon = Convert.ToString(DateTime.FromFileTime((long)results.Properties[lastLogonProperty][0]));
+                    if (results.Properties[lastLogonProperty].Count > 0) computer.LastLogon = Convert.ToString(DateTime.FromFileTime((long)results.Properties[lastLogonProperty][0]));
 
                     //Checks and adds last user
-                    if (results.Properties[distinguishedNameProperty].Count > 0) computer.userName = results.Properties[distinguishedNameProperty][0].ToString();
+                    if (results.Properties[distinguishedNameProperty].Count > 0) computer.UserName = results.Properties[distinguishedNameProperty][0].ToString();
 
                     //Server name
-                    if (results.Properties[serverNameProperty].Count > 0) computer.serverName = results.Properties[serverNameProperty][0].ToString();
+                    if (results.Properties[NameProperty].Count > 0) computer.Name = results.Properties[NameProperty][0].ToString();
 
                     //Add to list
                     computers.Add(computer);
