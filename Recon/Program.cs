@@ -1329,16 +1329,8 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
-
-                                    //Get unique name
-                                    string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
-
-                                    using (var writer = new StreamWriter(writePath, append: true))
-                                    {
-                                        //Write out success
-                                        writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
-                                        writer.Flush();
-                                    }
+                                    //Write out results
+                                    File.AppendAllText(nekoFolder + "\\Network IP Scan.txt", results + Environment.NewLine + Environment.NewLine);
                                     if (results.Contains("succeeded") && (j) == 135)
                                     {
                                         Console.WriteLine("Port 135 confirmed");
@@ -1380,17 +1372,8 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
-
-                                    //Get unique name
-                                    string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
-
                                     //Write out results
-                                    using (var writer = new StreamWriter(writePath, append: true))
-                                    {
-                                        //Write out success
-                                        writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
-                                        writer.Flush();
-                                    }
+                                    File.AppendAllText(nekoFolder + "\\Network IP Scan.txt", results + Environment.NewLine + Environment.NewLine);
                                 }
                             }
                         }
@@ -1449,17 +1432,7 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text file
-
-                                        //Get unique name
-                                        string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
-
-                                        //Write out results
-                                        using (var writer = new StreamWriter(writePath, append: true))
-                                        {
-                                            //Write out success
-                                            writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
-                                            writer.Flush();
-                                        }
+                                        File.AppendAllText(nekoFolder + "\\Network IP Scan.txt", results + Environment.NewLine + Environment.NewLine);
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
@@ -1516,16 +1489,7 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text document
-                                        //Get unique name
-                                        string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
-
-                                        //Write out results
-                                        using (var writer = new StreamWriter(writePath, append: true))
-                                        {
-                                            //Write out success
-                                            writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
-                                            writer.Flush();
-                                        }
+                                        File.AppendAllText(nekoFolder + "\\Network IP Scan.txt", results + Environment.NewLine + Environment.NewLine);
                                     }
                                 }
                             }
