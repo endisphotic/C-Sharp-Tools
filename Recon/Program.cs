@@ -208,24 +208,37 @@ namespace Recon
                                 var usersList = ADUser.GetUsers("LDAP://" + domainURL, Username, Password);
                                 Console.WriteLine("Found users: ");
                                 //Queries LDAP and writes out info to console and results
-                                foreach (var userAccount in usersList)
+
+                                //Get unique file to prevent overwriting
+                                string writePath = UniqueFile(nekoFolder + "\\LDAP User Recon.csv");
+
+                                //Start stream writer for writing results
+                                using (var writer = new StreamWriter(writePath, append: true))
                                 {
-                                    Console.WriteLine(userAccount.SamAccountName);
-                                    Console.WriteLine(userAccount.SID);
-                                    Console.WriteLine(userAccount.FirstName);
-                                    Console.WriteLine(userAccount.LastName);
-                                    Console.WriteLine(userAccount.StreetAddress);
-                                    Console.WriteLine(userAccount.DirectReports);
-                                    Console.WriteLine(userAccount.LastLogon);
-                                    Console.WriteLine(userAccount.LastLogoff);
-                                    Console.WriteLine(userAccount.MemberOf);
-                                    Console.WriteLine(userAccount.AdminCount);
-                                    File.AppendAllText(nekoFolder + "\\LDAP User Recon.csv", "\r\n\r\nSAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
+                                    foreach (var userAccount in usersList)
+                                    {
+                                        Console.WriteLine(userAccount.SamAccountName);
+                                        Console.WriteLine(userAccount.SID);
+                                        Console.WriteLine(userAccount.FirstName);
+                                        Console.WriteLine(userAccount.LastName);
+                                        Console.WriteLine(userAccount.StreetAddress);
+                                        Console.WriteLine(userAccount.DirectReports);
+                                        Console.WriteLine(userAccount.LastLogon);
+                                        Console.WriteLine(userAccount.LastLogoff);
+                                        Console.WriteLine(userAccount.MemberOf);
+                                        Console.WriteLine(userAccount.AdminCount);
+
+                                        //Write out results
+                                        writer.WriteLine(Environment.NewLine + "\r\nSAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
                                         Environment.NewLine + "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine +
                                         "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine +
                                         "Last Logon: " + userAccount.LastLogon + Environment.NewLine + "Last Logoff: " + userAccount.LastLogoff + Environment.NewLine + "Member of: " +
                                         userAccount.MemberOf + Environment.NewLine + "Admin Count: " + userAccount.AdminCount);
+                                        writer.Flush();
+                                        
+                                    }
                                 }
+  
                             }
                             catch (Exception e)
                             {
@@ -236,13 +249,29 @@ namespace Recon
                             {
                                 var computerList = ADComputer.GetADComputers(domainURL, Username, Password);
                                 Console.WriteLine("Found computers:");
-                                foreach (var computer in computerList)
+
+                                //Get unique file to prevent overwriting
+                                string writePath = UniqueFile(nekoFolder + "\\LDAP Computer Recon.csv");
+
+                                //Start stream writer for writing results
+                                using (var writer = new StreamWriter(writePath, append: true))
                                 {
-                                    Console.WriteLine(computer.ComputerInfo);
-                                    Console.WriteLine(computer.lastLogon);
-                                    //Adds last logon for found computers
-                                    File.AppendAllText(nekoFolder + "\\LDAP Computer Recon.csv", Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
+                                    foreach (var computer in computerList)
+                                    {
+                                        Console.WriteLine(computer.ComputerInfo);
+                                        Console.WriteLine(computer.lastLogon);
+                                        Console.WriteLine(computer.userName);
+                                        Console.WriteLine(computer.serverName);
+                                        //Write out results
+                                        writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon
+                                            + Environment.NewLine + "Last logged on user: " + computer.userName + Environment.NewLine + "Computer name: " + computer.serverName);
+                                        writer.Flush();
+
+                                    }
                                 }
+
+
+                                    
                             }
                             catch(Exception e)
                             {
