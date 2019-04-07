@@ -717,8 +717,11 @@ namespace Recon
                 netDomain[3] = "group \"domain controllers\" /domain";
                 netDomain[4] = "start";
 
+                //Get unique file to prevent overwriting
+                string writePath = UniqueFile(nekoFolder + "\\Local Account Information.txt");
+
                 //Start stream writer for writing results
-                using(var writer = new StreamWriter(nekoFolder + "\\Local Account Information.txt", append: true))
+                using(var writer = new StreamWriter(writePath, append: true))
                 {
                     foreach (string argument in netDomain)
                     {
@@ -767,8 +770,12 @@ namespace Recon
                 //cmdArgs[3] = "/c sc query";
 
 
+                //Get unique name
+                //Get unique file to prevent overwriting
+                string writePath = UniqueFile(nekoFolder + "\\Local Machine Network and Task Recon.txt");
+
                 //Start stream writer for writing results
-                using(var writer = new StreamWriter(nekoFolder + "\\Local Machine Network and Task Recon.txt", append: true))
+                using (var writer = new StreamWriter(writePath, append: true))
                 {
                     foreach (string argument in cmdArgs)
                     {
@@ -828,9 +835,13 @@ namespace Recon
                 scProcess.Start();
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
+
+                //Get unique path
+                string writePath = UniqueFile(nekoFolder + "\\Local Machine Services.txt");
+
                 //Append local machine info to results
 
-                using (var writer = new StreamWriter(nekoFolder + "\\Local Machine Services.txt", append: true))
+                using (var writer = new StreamWriter(writePath, append: true))
                 {
 
                     Console.WriteLine(scResult);
@@ -943,8 +954,10 @@ namespace Recon
                 //Get OS information
                 try
                 {
+                    //Get unique name
+                    string writePath = UniqueFile(nekoFolder + "\\WMI Computer Info.txt");
 
-                    using (var writer = new StreamWriter(nekoFolder + "\\WMI Computer Info.txt", append: true))
+                    using (var writer = new StreamWriter(writePath, append: true))
                     {
                         foreach (ManagementObject m in queryCollection)
                         {
@@ -987,7 +1000,10 @@ namespace Recon
                 //Get user info
                 try
                 {
-                    using (var writer = new StreamWriter(nekoFolder + "\\WMI User Account Info.txt", append: true))
+                    //Get unique name
+                    string writePath = UniqueFile(nekoFolder + "\\WMI User Account Info.txt");
+
+                    using (var writer = new StreamWriter(writePath, append: true))
                     {
                         foreach (ManagementObject user in userCollection)
                         {
@@ -1025,7 +1041,10 @@ namespace Recon
                 try
                 {
 
-                    using (var writer = new StreamWriter(nekoFolder + "\\WMI Logon Info.txt", append: true))
+                    //Get unique name
+                    string writePath = UniqueFile(nekoFolder + "\\WMI Logon Info.txt");
+
+                    using (var writer = new StreamWriter(writePath, append: true))
                     {
                         foreach (ManagementObject logon in logonCollection)
                         {
@@ -1061,7 +1080,10 @@ namespace Recon
                 //Get logon info
                 try
                 {
-                    using (var writer = new StreamWriter(nekoFolder + "\\WMI Logon Info.txt", append: true))
+                    //Get unique name
+                    string writePath = UniqueFile(nekoFolder + "\\WMI Logon Info.txt");
+
+                    using (var writer = new StreamWriter(writePath, append: true))
                     {
                         foreach (ManagementObject User in UserCollection)
                         {
@@ -1279,7 +1301,11 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
-                                    using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+
+                                    //Get unique name
+                                    string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
+
+                                    using (var writer = new StreamWriter(writePath, append: true))
                                     {
                                         //Write out success
                                         writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
@@ -1326,8 +1352,12 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
+
+                                    //Get unique name
+                                    string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
+
                                     //Write out results
-                                    using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+                                    using (var writer = new StreamWriter(writePath, append: true))
                                     {
                                         //Write out success
                                         writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
@@ -1391,7 +1421,12 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text file
-                                        using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+
+                                        //Get unique name
+                                        string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
+
+                                        //Write out results
+                                        using (var writer = new StreamWriter(writePath, append: true))
                                         {
                                             //Write out success
                                             writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
@@ -1453,7 +1488,11 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text document
-                                        using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+                                        //Get unique name
+                                        string writePath = UniqueFile(nekoFolder + "\\Network IP Scan.txt");
+
+                                        //Write out results
+                                        using (var writer = new StreamWriter(writePath, append: true))
                                         {
                                             //Write out success
                                             writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
@@ -1749,6 +1788,43 @@ namespace Recon
                 return computers;
 
             }
+        }
+
+        //Check if file exists, and if so add next number method
+        public static string UniqueFile(string resultsPath)
+        {
+
+            //Check if file exists
+            if (File.Exists(resultsPath))
+            {
+                //Get folder path
+                string folder = Path.GetDirectoryName(resultsPath);
+                //Get file name
+                string filename = Path.GetFileNameWithoutExtension(resultsPath);
+                //Get extension of file
+                string extension = Path.GetExtension(resultsPath);
+
+                //Set number
+                int fileNumber = 1;
+
+                //Regex pattern for matchin
+                Match regex = Regex.Match(resultsPath, @"(.+) \((\d+)\)\.\w+");
+
+                if (regex.Success)
+                {
+                    filename = regex.Groups[1].Value;
+                    fileNumber = int.Parse(regex.Groups[2].Value);
+                }
+
+                do
+                {
+                    //Keep adding numbers until file can be created
+                    fileNumber++;
+                    resultsPath = Path.Combine(folder, string.Format("{0} ({1}){2}", filename, fileNumber, extension));
+                }
+                while (File.Exists(resultsPath));
+            }
+            return resultsPath;
         }
 
     }
