@@ -1735,6 +1735,15 @@ namespace Recon
 
             public string serverName {get; set; }
 
+            /// <summary>
+            /// User name property
+            /// </summary>
+            public const string distinguishedNameProperty = "distinguishedName";
+
+            /// <summary>
+            /// Gets or sets user name
+            /// </summary>
+            public string userName { get; set; }
 
             /// <summary>
             /// Property of Computer Name
@@ -1763,7 +1772,8 @@ namespace Recon
                 //Limit to only computers
                 mySearch.Filter = "(&(objectClass=user)(!objectClass=computer))";
 
-                mySearch.PropertiesToLoad.Add(lastLogonProperty);
+                //Add properties to load for last logon and last user name
+                mySearch.PropertiesToLoad.AddRange(new[] { lastLogonProperty, distinguishedNameProperty });
 
                 foreach(SearchResult results in mySearch.FindAll())
                 {
@@ -1775,7 +1785,10 @@ namespace Recon
                     if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString();
 
                     //Checks last logon
-                    if (results.Properties[lastLogonProperty].Count > 0) computer.lastLogon = results.Properties[lastLogonProperty][0].ToString();
+                    if (results.Properties[lastLogonProperty].Count > 0) computer.lastLogon = Convert.ToString(DateTime.FromFileTime((long)results.Properties[lastLogonProperty][0]));
+
+                    //Checks and adds last user
+                    if (results.Properties[distinguishedNameProperty].Count > 0) computer.userName = results.Properties[distinguishedNameProperty][0].ToString();
 
                     //Server name
                     if (results.Properties[serverNameProperty].Count > 0) computer.serverName = results.Properties[serverNameProperty][0].ToString();
