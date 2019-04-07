@@ -1724,7 +1724,7 @@ namespace Recon
                             if (searchResult.Properties[LastLogoffProperty].Count > 0) user.LastLogoff = searchResult.Properties[LastLogoffProperty][0].ToString();
 
                             //Sets last logon info
-                            if (searchResult.Properties[LastLogonProperty].Count > 0) user.LastLogon = searchResult.Properties[LastLogonProperty][0].ToString();
+                            if (searchResult.Properties[LastLogonProperty].Count > 0) user.LastLogon = Convert.ToString(DateTime.FromFileTime((long)searchResult.Properties[LastLogonProperty][0]));
 
                             //Gets admin count
                             if (searchResult.Properties[AdminCountProperty].Count > 0) user.AdminCount = searchResult.Properties[AdminCountProperty][0].ToString();
@@ -1802,7 +1802,7 @@ namespace Recon
                 mySearch.Filter = "(&(objectClass=user)(!objectClass=computer))";
 
                 //Add properties to load for last logon and last user name
-                mySearch.PropertiesToLoad.AddRange(new[] { lastLogonProperty, distinguishedNameProperty });
+                mySearch.PropertiesToLoad.AddRange(new[] { serverNameProperty, lastLogonProperty, distinguishedNameProperty });
 
                 foreach(SearchResult results in mySearch.FindAll())
                 {
