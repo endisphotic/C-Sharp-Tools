@@ -186,38 +186,51 @@ namespace Recon
                                 domainURL = Console.ReadLine();
                             }
 
-                            
-                            //Active Directory Recon
-                            var usersList = ADUser.GetUsers("LDAP://" + domainURL, Username, Password);
-                            Console.WriteLine("Found users: ");
-                            //Queries LDAP and writes out info to console and results
-                            foreach (var userAccount in usersList)
+                            try
                             {
-                                Console.WriteLine(userAccount.SamAccountName);
-                                Console.WriteLine(userAccount.SID);
-                                Console.WriteLine(userAccount.FirstName);
-                                Console.WriteLine(userAccount.LastName);
-                                Console.WriteLine(userAccount.StreetAddress);
-                                Console.WriteLine(userAccount.DirectReports);
-                                Console.WriteLine(userAccount.LastLogon);
-                                Console.WriteLine(userAccount.LastLogoff);
-                                Console.WriteLine(userAccount.MemberOf);
-                                Console.WriteLine(userAccount.AdminCount);
-                                File.AppendAllText(docPath + "\\results.txt", "\r\n\r\nSAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
-                                    Environment.NewLine + "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine +
-                                    "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine +
-                                    "Last Logon: " + userAccount.LastLogon + Environment.NewLine + "Last Logoff: " + userAccount.LastLogoff + Environment.NewLine + "Member of: " +
-                                    userAccount.MemberOf + Environment.NewLine + "Admin Count: " + userAccount.AdminCount);
+                                //Active Directory Recon
+                                var usersList = ADUser.GetUsers("LDAP://" + domainURL, Username, Password);
+                                Console.WriteLine("Found users: ");
+                                //Queries LDAP and writes out info to console and results
+                                foreach (var userAccount in usersList)
+                                {
+                                    Console.WriteLine(userAccount.SamAccountName);
+                                    Console.WriteLine(userAccount.SID);
+                                    Console.WriteLine(userAccount.FirstName);
+                                    Console.WriteLine(userAccount.LastName);
+                                    Console.WriteLine(userAccount.StreetAddress);
+                                    Console.WriteLine(userAccount.DirectReports);
+                                    Console.WriteLine(userAccount.LastLogon);
+                                    Console.WriteLine(userAccount.LastLogoff);
+                                    Console.WriteLine(userAccount.MemberOf);
+                                    Console.WriteLine(userAccount.AdminCount);
+                                    File.AppendAllText(docPath + "\\results.txt", "\r\n\r\nSAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
+                                        Environment.NewLine + "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine +
+                                        "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine +
+                                        "Last Logon: " + userAccount.LastLogon + Environment.NewLine + "Last Logoff: " + userAccount.LastLogoff + Environment.NewLine + "Member of: " +
+                                        userAccount.MemberOf + Environment.NewLine + "Admin Count: " + userAccount.AdminCount);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
                             }
 
-                            var computerList = ADComputer.GetADComputers(domainURL, Username, Password);
-                            Console.WriteLine("Found computers:");
-                            foreach (var computer in computerList)
+                            try
                             {
-                                Console.WriteLine(computer.ComputerInfo);
-                                Console.WriteLine(computer.lastLogon);
-                                //Adds last logon for found computers
-                                File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + computer.ComputerInfo  + Environment.NewLine + "Last Logon: " + computer.lastLogon);
+                                var computerList = ADComputer.GetADComputers(domainURL, Username, Password);
+                                Console.WriteLine("Found computers:");
+                                foreach (var computer in computerList)
+                                {
+                                    Console.WriteLine(computer.ComputerInfo);
+                                    Console.WriteLine(computer.lastLogon);
+                                    //Adds last logon for found computers
+                                    File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
+                                }
+                            }
+                            catch(Exception e)
+                            {
+                                Console.WriteLine(e);
                             }
 
                         }
@@ -227,65 +240,59 @@ namespace Recon
                         //Get type of scan
                         var scanType = UserSelection();
 
-                        //WMI user information
-                        string wmiUsername = "";
-                        string wmiPassword = "";
-
 
                         // Get WMI User Info
                         if (scanType == "1")
                         {
                             Console.WriteLine("\r\n" +
-                                "This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
-                            string hasDomain = Console.ReadLine();
-                            while (hasDomain != "y" && hasDomain != "n")
+                                "This process requires Domain Admin credentials, does " + Username + "have sufficient credentials? Enter 'y' or 'n':");
+                            string hasDomainAdmin = Console.ReadLine();
+                            while (hasDomainAdmin != "y" && hasDomainAdmin != "n")
                             {
                                 Console.WriteLine("\r\n" +
                                     "Invalid selection. This process requires Domain Admin credentials, proceed? Enter 'y' or 'n':");
-                                hasDomain = Console.ReadLine();
+                                hasDomainAdmin = Console.ReadLine();
                             }
-                            if (hasDomain == "y")
+                            if (hasDomainAdmin == "n")
                             {
                                 Console.WriteLine("\r\n" +
                                     "Enter user name:");
-                                wmiUsername = Console.ReadLine();
+                                Username = Console.ReadLine();
                                 //Password
                                 Console.WriteLine("\r\n" +
                                     "Enter password:");
-                                wmiPassword = Console.ReadLine();
-                                //Get computer domain
-
-
-                                //If LDAP querying was not done, gets domain to use for WMI
-                                if (domainURL == "")
-                                {
-                                    Console.WriteLine("\r\n" +
-                                        "Enter network domain:");
-                                    domainURL = Console.ReadLine();
-                                }
-                                //If ldap querying was done, confirms they want to use the same domain
-                                else if (domainURL != "")
-                                {
-
-                                    Console.WriteLine("\r\n" +
-                                        "The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
-                                    string domainConfirmation = Console.ReadLine();
-                                    while (domainConfirmation != "y" && domainConfirmation != "n")
-                                    {
-                                        Console.WriteLine("\r\n" +
-                                            "Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
-                                        domainConfirmation = Console.ReadLine();
-                                    }
-                                    //If they select n, they're prompted for a different domain
-                                    if (domainConfirmation == "n")
-                                    {
-                                        Console.WriteLine("Please enter new domain to use:");
-                                        domainURL = Console.ReadLine();
-                                    }
-                                }
-
+                                Password = Console.ReadLine();
                             }
 
+
+
+                            //If LDAP querying was not done, gets domain to use for WMI
+                            if (domainURL == "")
+                            {
+                                Console.WriteLine("\r\n" +
+                                    "Enter network domain:");
+                                domainURL = Console.ReadLine();
+                            }
+                            //If ldap querying was done, confirms they want to use the same domain
+                            else if (domainURL != "")
+                            {
+
+                                Console.WriteLine("\r\n" +
+                                    "The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                string domainConfirmation = Console.ReadLine();
+                                while (domainConfirmation != "y" && domainConfirmation != "n")
+                                {
+                                    Console.WriteLine("\r\n" +
+                                        "Invalid selection. The domain selected for LDAP recon was: " + domainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
+                                    domainConfirmation = Console.ReadLine();
+                                }
+                                //If they select n, they're prompted for a different domain
+                                if (domainConfirmation == "n")
+                                {
+                                    Console.WriteLine("Please enter new domain to use:");
+                                    domainURL = Console.ReadLine();
+                                }
+                            }
                         }
 
 
@@ -309,7 +316,7 @@ namespace Recon
                         //Initiate scanning functions
                         if (portChoice == "1" || portChoice == "2")
                         {
-                            bool scanning = (MultithreadScan(strippedIp, portChoice, scanType, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                            bool scanning = (MultithreadScan(strippedIp, portChoice, scanType, Username, Password, domainURL, docPath, wmiList));
                             {
                                 while (scanning == true)
                                 {
@@ -320,7 +327,7 @@ namespace Recon
                         //Selected port scan
                         else if (portChoice == "3")
                         {
-                            while (SelectedPortScan(strippedIp, scanType, wmiUsername, wmiPassword, domainURL, docPath, wmiList) == true)
+                            while (SelectedPortScan(strippedIp, scanType, Username, Password, domainURL, docPath, wmiList) == true)
                             {
 
                             }
@@ -352,7 +359,7 @@ namespace Recon
                             // Attack targets
                             foreach (string target in wmiList)
                             {
-                                AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
+                                AttackWMI(Username, Password, domainURL, target, commandFile);
                             }
                         }
                     }
