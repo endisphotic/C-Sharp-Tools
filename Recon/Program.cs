@@ -1775,6 +1775,11 @@ namespace Recon
             public string UserName { get; set; }
 
             /// <summary>
+            /// Gets or sets Computer type
+            /// </summary>
+            public string ComputerType { get; set; }
+
+            /// <summary>
             /// Property of Computer Name
             /// </summary>
             public const string computerName = "location";
@@ -1812,11 +1817,14 @@ namespace Recon
                     //Remove CN from results
                     if (ComputerName.StartsWith("CN=")) ComputerName = ComputerName.Remove(0, "CN=".Length); computer.ComputerInfo = ComputerName.ToString();
 
+                    //Gets information about type of computer
+                    if (results.Properties[distinguishedNameProperty].Count > 0) computer.ComputerType = results.Properties[distinguishedNameProperty][0].ToString();
+
                     //Checks last logon
                     if (results.Properties[lastLogonProperty].Count > 0) computer.LastLogon = Convert.ToString(DateTime.FromFileTime((long)results.Properties[lastLogonProperty][0]));
 
                     //Checks and adds last user
-                    if (results.Properties[distinguishedNameProperty].Count > 0) computer.UserName = results.Properties[distinguishedNameProperty][0].ToString();
+                    if (results.Properties[NameProperty].Count > 0) computer.Name = results.Properties[NameProperty][0].ToString();
 
 
                     //Add to list
