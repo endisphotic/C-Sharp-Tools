@@ -262,6 +262,7 @@ namespace Recon
                                         Console.WriteLine(computer.LastLogon);
                                         Console.WriteLine(computer.UserName);
                                         Console.WriteLine(computer.Name);
+                                        Console.WriteLine(computer.ComputerType);
                                         //Write out results
                                         writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
                                             + Environment.NewLine + "Last logged on user: " + computer.UserName);
@@ -1785,6 +1786,16 @@ namespace Recon
             public const string computerName = "location";
 
             /// <summary>
+            /// Property of Computer Name
+            /// </summary>
+            public const string computerName2 = "computerName";
+
+            /// <summary>
+            /// Test
+            /// </summary>
+            public string computerName3 { get; set; }
+
+            /// <summary>
             /// Gets or sets the computer
             /// </summary>
             public string ComputerInfo { get; set; }
@@ -1804,7 +1815,7 @@ namespace Recon
                 //Create new searcher
                 DirectorySearcher mySearch = new DirectorySearcher(entry);
                 //Limit to only computers
-                mySearch.Filter = "(objectClass=computer)";
+                mySearch.Filter = "(&(objectClass=user)(!objectClass=computer))";
 
                 //Add properties to load for last logon and last user name
                 mySearch.PropertiesToLoad.AddRange(new[] { NameProperty, lastLogonProperty, distinguishedNameProperty });
