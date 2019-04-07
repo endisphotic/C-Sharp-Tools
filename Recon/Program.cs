@@ -264,7 +264,7 @@ namespace Recon
                                         Console.WriteLine(computer.Name);
                                         //Write out results
                                         writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
-                                            + Environment.NewLine + "Last logged on user: " + computer.Name + Environment.NewLine + "Computer name: " + computer.Name);
+                                            + Environment.NewLine + "Last logged on user: " + computer.UserName);
                                         writer.Flush();
 
                                     }
