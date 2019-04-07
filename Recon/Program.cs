@@ -152,13 +152,6 @@ namespace Recon
                         reconChoice = Console.ReadLine();
                     }
 
-
-                    //Create text file for results
-                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(nekoFolder, "recon.csv")))
-                    {
-                        outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
-                    }
-
                     if (reconChoice == "1")
                     {
                         Console.WriteLine("\r\n" +
@@ -171,12 +164,10 @@ namespace Recon
                             machineInfo = Console.ReadLine();
                         }
                         //Conduct local recon
-                        LocalMachine(docPath);
+                        LocalMachine(nekoFolder);
                     }
                     else if (reconChoice == "2")
                     {
-                        //Domain info
-                        //string domainURL = "";
 
                         //See if user wants to do LDAP searching
                         Console.WriteLine("\r\n" +
@@ -341,7 +332,7 @@ namespace Recon
                         //Initiate scanning functions
                         if (portChoice == "1" || portChoice == "2")
                         {
-                            bool scanning = (MultithreadScan(strippedIp, portChoice, scanType, Username, Password, domainURL, docPath, wmiList));
+                            bool scanning = (MultithreadScan(strippedIp, portChoice, scanType, Username, Password, domainURL, nekoFolder, wmiList));
                             {
                                 while (scanning == true)
                                 {
@@ -352,7 +343,7 @@ namespace Recon
                         //Selected port scan
                         else if (portChoice == "3")
                         {
-                            while (SelectedPortScan(strippedIp, scanType, Username, Password, domainURL, docPath, wmiList) == true)
+                            while (SelectedPortScan(strippedIp, scanType, Username, Password, domainURL, nekoFolder, wmiList) == true)
                             {
 
                             }
@@ -726,32 +717,37 @@ namespace Recon
                 netDomain[3] = "group \"domain controllers\" /domain";
                 netDomain[4] = "start";
 
-
-                foreach (string argument in netDomain)
+                //Start stream writer for writing results
+                using(var writer = new StreamWriter(nekoFolder + "\\Local Account Information.txt", append: true))
                 {
-                    //Start new process
-                    Process netProcess = new Process();
-                    //Configure process
-                    ProcessStartInfo netConfig = new ProcessStartInfo();
-                    netConfig.WindowStyle = ProcessWindowStyle.Hidden;
-                    netConfig.CreateNoWindow = true;
-                    //Launch cmd
-                    netConfig.FileName = "net.exe";
-                    //Enable reading output
-                    netConfig.RedirectStandardOutput = true;
-                    netConfig.RedirectStandardError = true;
-                    netConfig.UseShellExecute = false;
-                    //Pass arguments
-                    //netConfig.Arguments = netDomain;
-                    netProcess.StartInfo = netConfig;
-                    netConfig.Arguments = argument;
-                    netProcess.Start();
-                    string netDomainResult = netProcess.StandardOutput.ReadToEnd();
-                    string netErr = netProcess.StandardError.ReadToEnd();
-                    //Append local machine info to results
-                    File.AppendAllText(nekoFolder + "\\Local Machine Account Recon.csv", netDomainResult + netErr + Environment.NewLine);
-                    Console.WriteLine(netDomainResult);
+                    foreach (string argument in netDomain)
+                    {
+                        //Start new process
+                        Process netProcess = new Process();
+                        //Configure process
+                        ProcessStartInfo netConfig = new ProcessStartInfo();
+                        netConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                        netConfig.CreateNoWindow = true;
+                        //Launch cmd
+                        netConfig.FileName = "net.exe";
+                        //Enable reading output
+                        netConfig.RedirectStandardOutput = true;
+                        netConfig.RedirectStandardError = true;
+                        netConfig.UseShellExecute = false;
+                        //Pass arguments
+                        //netConfig.Arguments = netDomain;
+                        netProcess.StartInfo = netConfig;
+                        netConfig.Arguments = argument;
+                        netProcess.Start();
+                        string netDomainResult = netProcess.StandardOutput.ReadToEnd();
+                        string netErr = netProcess.StandardError.ReadToEnd();
+                        //Write results and clear buffer
+                        writer.WriteLine(netDomainResult + netErr + Environment.NewLine);
+                        writer.Flush();
+                        Console.WriteLine(netDomainResult);
+                    }
                 }
+
 
             }
             catch (Exception e)
@@ -770,31 +766,40 @@ namespace Recon
                 cmdArgs[4] = "/c tasklist";
                 //cmdArgs[3] = "/c sc query";
 
-                foreach (string argument in cmdArgs)
+
+                //Start stream writer for writing results
+                using(var writer = new StreamWriter(nekoFolder + "\\Local Machine Network and Task Recon.txt", append: true))
                 {
-                    //Start new process
-                    Process cmdProcess = new Process();
-                    //Configure process
-                    ProcessStartInfo cmdConfig = new ProcessStartInfo();
-                    cmdConfig.WindowStyle = ProcessWindowStyle.Hidden;
-                    cmdConfig.CreateNoWindow = true;
-                    //Launch cmd
-                    cmdConfig.FileName = "cmd.exe";
-                    //Enable reading output
-                    cmdConfig.RedirectStandardOutput = true;
-                    cmdConfig.RedirectStandardError = true;
-                    cmdConfig.UseShellExecute = false;
-                    //Pass arguments
-                    //netConfig.Arguments = netDomain;
-                    cmdProcess.StartInfo = cmdConfig;
-                    cmdConfig.Arguments = argument;
-                    cmdProcess.Start();
-                    string cmdDomainResult = cmdProcess.StandardOutput.ReadToEnd();
-                    string cmdErr = cmdProcess.StandardError.ReadToEnd();
-                    //Append local machine info to results
-                    File.AppendAllText(nekoFolder + "\\Local Machine Network and Task Recon.csv", cmdDomainResult + cmdErr + Environment.NewLine);
-                    Console.WriteLine(cmdDomainResult);
+                    foreach (string argument in cmdArgs)
+                    {
+                        //Start new process
+                        Process cmdProcess = new Process();
+                        //Configure process
+                        ProcessStartInfo cmdConfig = new ProcessStartInfo();
+                        cmdConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                        cmdConfig.CreateNoWindow = true;
+                        //Launch cmd
+                        cmdConfig.FileName = "cmd.exe";
+                        //Enable reading output
+                        cmdConfig.RedirectStandardOutput = true;
+                        cmdConfig.RedirectStandardError = true;
+                        cmdConfig.UseShellExecute = false;
+                        //Pass arguments
+                        //netConfig.Arguments = netDomain;
+                        cmdProcess.StartInfo = cmdConfig;
+                        cmdConfig.Arguments = argument;
+                        cmdProcess.Start();
+                        string cmdDomainResult = cmdProcess.StandardOutput.ReadToEnd();
+                        string cmdErr = cmdProcess.StandardError.ReadToEnd();
+                        //Append local machine info to results
+                        writer.WriteLine(cmdDomainResult + cmdErr + Environment.NewLine);
+                        writer.Flush();
+
+                        Console.WriteLine(cmdDomainResult);
+                    }
                 }
+
+
             }
             catch (Exception e)
             {
@@ -824,47 +829,57 @@ namespace Recon
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
                 //Append local machine info to results
-                File.AppendAllText(nekoFolder + "\\Local Machine Services.csv", scResult + scErr + Environment.NewLine);
-                Console.WriteLine(scResult);
 
-                //Regex matching pattern for SERVICE_NAME:
-                string pattern = @"(?<=\SERVICE_NAME:\s)(\w+)";
-
-                //Create list for matched values
-                List<string> serviceList = new List<string>();
-
-                //Match regex pattern
-                MatchCollection matches = Regex.Matches(scResult, pattern);
-                for (int i = 0; i < matches.Count; i++)
+                using (var writer = new StreamWriter(nekoFolder + "\\Local Machine Services.txt", append: true))
                 {
-                    //Console.WriteLine(matches[i].ToString());
-                    //serviceList.Add(matches[i].ToString());
-                    string services = matches[i].ToString();
-                    Console.WriteLine(services);
-                    File.AppendAllText(nekoFolder + "\\Local Machine Services.csv", services + Environment.NewLine);
-                    string scSDSHOW = "/c sc sdshow " + services;
-                    Process scSdProcess = new Process();
-                    //Configure process
-                    ProcessStartInfo scSdConfig = new ProcessStartInfo();
-                    scSdConfig.WindowStyle = ProcessWindowStyle.Hidden;
-                    scSdConfig.CreateNoWindow = true;
-                    //Launch cmd
-                    scSdConfig.FileName = "cmd.exe";
-                    //Enable reading output
-                    scSdConfig.RedirectStandardOutput = true;
-                    scSdConfig.RedirectStandardError = true;
-                    scSdConfig.UseShellExecute = false;
-                    //Pass arguments
-                    //netConfig.Arguments = netDomain;
-                    scSdProcess.StartInfo = scSdConfig;
-                    scSdConfig.Arguments = scSDSHOW;
-                    scSdProcess.Start();
-                    string scSD = scSdProcess.StandardOutput.ReadToEnd();
-                    string scSdErr = scSdProcess.StandardError.ReadToEnd();
-                    //Append local machine info to results
-                    File.AppendAllText(nekoFolder + "\\Local Machine Services.csv", scSD + scSdErr + Environment.NewLine);
-                    Console.WriteLine(scSD);
+
+                    Console.WriteLine(scResult);
+                    //Write service info to text
+                    writer.WriteLine(scResult + scErr + Environment.NewLine);
+                    writer.Flush();
+
+                    //Regex matching pattern for SERVICE_NAME:
+                    string pattern = @"(?<=\SERVICE_NAME:\s)(\w+)";
+
+                    //Create list for matched values
+                    List<string> serviceList = new List<string>();
+
+                    //Match regex pattern
+                    MatchCollection matches = Regex.Matches(scResult, pattern);
+                    for (int i = 0; i < matches.Count; i++)
+                    {
+                        //Console.WriteLine(matches[i].ToString());
+                        //serviceList.Add(matches[i].ToString());
+                        string services = matches[i].ToString();
+                        Console.WriteLine(services);
+                        File.AppendAllText(nekoFolder + "\\Local Machine Services.txt", services + Environment.NewLine);
+                        string scSDSHOW = "/c sc sdshow " + services;
+                        Process scSdProcess = new Process();
+                        //Configure process
+                        ProcessStartInfo scSdConfig = new ProcessStartInfo();
+                        scSdConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                        scSdConfig.CreateNoWindow = true;
+                        //Launch cmd
+                        scSdConfig.FileName = "cmd.exe";
+                        //Enable reading output
+                        scSdConfig.RedirectStandardOutput = true;
+                        scSdConfig.RedirectStandardError = true;
+                        scSdConfig.UseShellExecute = false;
+                        //Pass arguments
+                        //netConfig.Arguments = netDomain;
+                        scSdProcess.StartInfo = scSdConfig;
+                        scSdConfig.Arguments = scSDSHOW;
+                        scSdProcess.Start();
+                        string scSD = scSdProcess.StandardOutput.ReadToEnd();
+                        string scSdErr = scSdProcess.StandardError.ReadToEnd();
+                        //Append service permissions
+                        writer.WriteLine(scSD + scSdErr + Environment.NewLine);
+                        writer.Flush();
+                        Console.WriteLine(scSD);
+                    }
                 }
+
+
 
             }
             catch (Exception e)
@@ -929,19 +944,27 @@ namespace Recon
                 try
                 {
 
-                    foreach (ManagementObject m in queryCollection)
+                    using (var writer = new StreamWriter(nekoFolder + "\\WMI Computer Info.txt", append: true))
                     {
+                        foreach (ManagementObject m in queryCollection)
+                        {
 
-                        string wmiScanResults = "Computer Name     : " + m["csname"] + "\r\n" +
-                        "Operating System  : " + m["Caption"] + "\r\n" +
-                        "Version           : " + m["Version"] + "\r\n" +
-                        "Windows Directory : " + m["WindowsDirectory"] + "\r\n" +
-                        "Manufacturer      : " + m["Manufacturer"] + "\r\n" +
-                        "OS Architecture   : " + m["OSArchitecture"] + "\r\n";
-                        ;
-                        File.AppendAllText(nekoFolder + "\\WMI Computer Info.csv", wmiScanResults + Environment.NewLine);
-                        Console.WriteLine(wmiScanResults);
+                            string wmiScanResults = "Computer Name     : " + m["csname"] + "\r\n" +
+                            "Operating System  : " + m["Caption"] + "\r\n" +
+                            "Version           : " + m["Version"] + "\r\n" +
+                            "Windows Directory : " + m["WindowsDirectory"] + "\r\n" +
+                            "Manufacturer      : " + m["Manufacturer"] + "\r\n" +
+                            "OS Architecture   : " + m["OSArchitecture"] + "\r\n";
+                            ;
+
+                            //Write out results
+                            writer.WriteLine(wmiScanResults + Environment.NewLine);
+                            writer.Flush();
+                            Console.WriteLine(wmiScanResults);
+                        }
                     }
+
+                    
 
                 }
                 catch (UnauthorizedAccessException e)
@@ -964,18 +987,26 @@ namespace Recon
                 //Get user info
                 try
                 {
-                    foreach (ManagementObject user in userCollection)
+                    using (var writer = new StreamWriter(nekoFolder + "\\WMI User Account Info.txt", append: true))
                     {
-                        string userResults = "Account Type: " + user["AccountType"] + "\r\n" +
-                           "Domain: " + user["Domain"] + "\r\n" +
-                           "Full Name: " + user["FullName"] + "\r\n" +
-                           "Name: " + user["Name"] + "\r\n\r\n" +
-                           "SID: " + user["SID"] + "\r\n" +
-                           "Password Expires: " + user["PasswordExpires"] + "\r\n" +
-                           "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
-                        File.AppendAllText(nekoFolder + "\\WMI User Account Info.csv", userResults + Environment.NewLine);
-                        Console.WriteLine(userResults);
+                        foreach (ManagementObject user in userCollection)
+                        {
+                            string userResults = "Account Type: " + user["AccountType"] + "\r\n" +
+                               "Domain: " + user["Domain"] + "\r\n" +
+                               "Full Name: " + user["FullName"] + "\r\n" +
+                               "Name: " + user["Name"] + "\r\n\r\n" +
+                               "SID: " + user["SID"] + "\r\n" +
+                               "Password Expires: " + user["PasswordExpires"] + "\r\n" +
+                               "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
+
+                            //Write results
+                            writer.WriteLine(userResults + Environment.NewLine);
+                            writer.Flush();
+                            Console.WriteLine(userResults);
+                        }
                     }
+
+
                 }
                 catch
                 {
@@ -993,17 +1024,26 @@ namespace Recon
                 //Get logon info
                 try
                 {
-                    foreach (ManagementObject logon in logonCollection)
+
+                    using (var writer = new StreamWriter(nekoFolder + "\\WMI Logon Info.txt", append: true))
                     {
-                        string logonResults = "Logon info: " + logon["Name"] + "\r\n" +
-                            "Start: " + logon["StartTime"] + "\r\n" +
-                            "Status: " + logon["Status"] + "\r\n" +
-                            "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
-                            "Logon ID: " + logon["LogonId"] + "\r\n" +
-                            "Logon Type: " + logon["LogonType"] + "\r\n\r\n";
-                        File.AppendAllText(nekoFolder + "\\WMI Logon Info.csv", logonResults + Environment.NewLine);
-                        Console.WriteLine(logonResults);
+                        foreach (ManagementObject logon in logonCollection)
+                        {
+                            string logonResults = "Logon info: " + logon["Name"] + "\r\n" +
+                                "Start: " + logon["StartTime"] + "\r\n" +
+                                "Status: " + logon["Status"] + "\r\n" +
+                                "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
+                                "Logon ID: " + logon["LogonId"] + "\r\n" +
+                                "Logon Type: " + logon["LogonType"] + "\r\n\r\n";
+
+                            //Write results
+                            writer.WriteLine(logonResults + Environment.NewLine);
+                            writer.Flush();
+                            Console.WriteLine(logonResults);
+                        }
                     }
+
+
                 }
                 catch
                 {
@@ -1021,13 +1061,21 @@ namespace Recon
                 //Get logon info
                 try
                 {
-                    foreach (ManagementObject User in UserCollection)
+                    using (var writer = new StreamWriter(nekoFolder + "\\WMI Logon Info.txt", append: true))
                     {
-                        string UserResults = "UserName: " + User["UserName"] + "\r\n" +
-                            "Timezone: " + User["CurrentTimeZone"] + "\r\n\r\n";
-                        File.AppendAllText(nekoFolder + "\\WMI Logon Info.csv", UserResults + Environment.NewLine);
-                        Console.WriteLine(UserResults);
+                        foreach (ManagementObject User in UserCollection)
+                        {
+                            string UserResults = "UserName: " + User["UserName"] + "\r\n" +
+                                "Timezone: " + User["CurrentTimeZone"] + "\r\n\r\n";
+
+                            //Write results
+                            writer.WriteLine(UserResults + Environment.NewLine);
+                            writer.Flush();
+                            Console.WriteLine(UserResults);
+                        }
                     }
+
+
                 }
                 catch
                 {
@@ -1231,8 +1279,12 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
-                                    //Append results to text file
-                                    File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
+                                    using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+                                    {
+                                        //Write out success
+                                        writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
+                                        writer.Flush();
+                                    }
                                     if (results.Contains("succeeded") && (j) == 135)
                                     {
                                         Console.WriteLine("Port 135 confirmed");
@@ -1274,8 +1326,13 @@ namespace Recon
                                 {
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
-                                    //Append results to text file
-                                    File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
+                                    //Write out results
+                                    using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+                                    {
+                                        //Write out success
+                                        writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
+                                        writer.Flush();
+                                    }
                                 }
                             }
                         }
@@ -1334,7 +1391,12 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text file
-                                        File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
+                                        using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+                                        {
+                                            //Write out success
+                                            writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
+                                            writer.Flush();
+                                        }
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
@@ -1391,7 +1453,12 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text document
-                                        File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
+                                        using (var writer = new StreamWriter(nekoFolder + "\\Network IP Scan.txt", append: true))
+                                        {
+                                            //Write out success
+                                            writer.WriteLine(results + Environment.NewLine + Environment.NewLine);
+                                            writer.Flush();
+                                        }
                                     }
                                 }
                             }
