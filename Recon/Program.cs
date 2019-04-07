@@ -1777,7 +1777,7 @@ namespace Recon
             /// <summary>
             /// Property of Computer Name
             /// </summary>
-            public const string computerName = "computerName";
+            public const string computerName = "location";
 
             /// <summary>
             /// Gets or sets the computer
@@ -1799,7 +1799,7 @@ namespace Recon
                 //Create new searcher
                 DirectorySearcher mySearch = new DirectorySearcher(entry);
                 //Limit to only computers
-                mySearch.Filter = "(&(objectClass=user)(!objectClass=computer))";
+                mySearch.Filter = "(objectClass=computer)";
 
                 //Add properties to load for last logon and last user name
                 mySearch.PropertiesToLoad.AddRange(new[] { NameProperty, lastLogonProperty, distinguishedNameProperty });
@@ -1807,7 +1807,6 @@ namespace Recon
                 foreach(SearchResult results in mySearch.FindAll())
                 {
                     var computer = new ADComputer();
-
 
                     string ComputerName = results.GetDirectoryEntry().Name;
                     //Remove CN from results
@@ -1819,8 +1818,6 @@ namespace Recon
                     //Checks and adds last user
                     if (results.Properties[distinguishedNameProperty].Count > 0) computer.UserName = results.Properties[distinguishedNameProperty][0].ToString();
 
-                    //Server name
-                    if (results.Properties[NameProperty].Count > 0) computer.Name = results.Properties[NameProperty][0].ToString();
 
                     //Add to list
                     computers.Add(computer);
