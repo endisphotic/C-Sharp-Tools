@@ -46,7 +46,7 @@ namespace Recon
                 string adCheck = Console.ReadLine();
                 while (adCheck != "y" && adCheck != "n")
                 {
-                    Console.WriteLine("Invalid selection. Enter 'y' or 'n':");
+                    Console.WriteLine("\r\nInvalid selection. Enter 'y' or 'n':");
                     adCheck = Console.ReadLine();
                 }
 
@@ -57,7 +57,7 @@ namespace Recon
                 if (adCheck == "y")
                 {
 
-                    Console.WriteLine("Please specify the username and password for use: ");
+                    Console.WriteLine("\r\nPlease specify the username and password for use: ");
 
                     Console.WriteLine("\r\n" +
                                     "Enter user name:");
@@ -75,11 +75,11 @@ namespace Recon
                     }
                     else if (domainURL != "")
                     {
-                        Console.WriteLine("Do you want to use " + domainURL + "? Enter 'y' or 'n': ");
+                        Console.WriteLine("\r\nDo you want to use " + domainURL + "? Enter 'y' or 'n': ");
                         string confirmDomain = Console.ReadLine();
                         while (confirmDomain != "y" && confirmDomain != "n")
                         {
-                            Console.WriteLine("Invalid selection. Do you want to use " + domainURL + " ? Enter 'y' or 'n': ");
+                            Console.WriteLine("\r\nInvalid selection. Do you want to use " + domainURL + " ? Enter 'y' or 'n': ");
                             confirmDomain = Console.ReadLine();
                         }
                         //If user wants to use a different domain, get it.
@@ -99,12 +99,12 @@ namespace Recon
                     {
                         if (accountCheck.ValidateCredentials(Username, Password) == true)
                         {
-                            Console.WriteLine("Authenication successful!");
+                            Console.WriteLine("\r\nAuthenication successful!");
                             break;
                         }
                         else
                         {
-                            Console.WriteLine("Invalid username or password.");
+                            Console.WriteLine("\r\nInvalid username or password.");
                             Console.WriteLine("Please enter valid username and password: ");
                             Console.WriteLine("Username: ");
                             Username = Console.ReadLine();
@@ -120,7 +120,7 @@ namespace Recon
                 string attackType = Console.ReadLine();
                 while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4")
                 {
-                    Console.WriteLine("Invalid selection. Enter '1' for Recon, '2' Deployment via WMI:");
+                    Console.WriteLine("\r\nInvalid selection. Enter '1' for Recon, '2' Deployment via WMI:");
                     attackType = Console.ReadLine();
                 }
 
@@ -206,7 +206,7 @@ namespace Recon
                             {
                                 //Active Directory Recon
                                 var usersList = ADUser.GetUsers("LDAP://" + domainURL, Username, Password);
-                                Console.WriteLine("Found users: ");
+                                Console.WriteLine("\r\nFound users: ");
                                 //Queries LDAP and writes out info to console and results
 
                                 //Get unique file to prevent overwriting
@@ -248,7 +248,7 @@ namespace Recon
                             try
                             {
                                 var computerList = ADComputer.GetADComputers(domainURL, Username, Password);
-                                Console.WriteLine("Found computers:");
+                                Console.WriteLine("\r\nFound computers:");
 
                                 //Get unique file to prevent overwriting
                                 string writePath = UniqueFile(nekoFolder + "\\LDAP Computer Recon.csv");
@@ -605,25 +605,25 @@ namespace Recon
                     {
 
                         //Get IP for target
-                        Console.WriteLine("Please enter IP address for target: ");
+                        Console.WriteLine("\r\nPlease enter IP address for target: ");
                         string targetIP = Console.ReadLine();
                         //Check if target IP is valid
                         if (ValidateIP(targetIP) == false)
                         {
-                            Console.WriteLine("Invalid IP. Please enter valid IP address: ");
+                            Console.WriteLine("\r\nInvalid IP. Please enter valid IP address: ");
                             targetIP = Console.ReadLine();
                         }
 
-                        Console.WriteLine("Enter listener IP: ");
+                        Console.WriteLine("\r\nEnter listener IP: ");
                         string listenerIP = Console.ReadLine();
                         //Check if listener IP is valid
                         if (ValidateIP(listenerIP) == false)
                         {
-                            Console.WriteLine("Invalid IP. Please enter valid IP address: ");
+                            Console.WriteLine("\r\nInvalid IP. Please enter valid IP address: ");
                             listenerIP = Console.ReadLine();
                         }
                         //Get port choice from user
-                        Console.WriteLine("Enter port for communication. Leave blank for default (port 80):");
+                        Console.WriteLine("\r\r\nEnter port for communication. Leave blank for default (port 80):");
                         string reversePort = Console.ReadLine();
 
                         if (reversePort == "")
@@ -675,11 +675,11 @@ namespace Recon
         public static string PortSelection()
         {
             //Get user selection for type of scan
-            Console.WriteLine("Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan:");
+            Console.WriteLine("\r\nPlease enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan:");
             string portChoice = Console.ReadLine();
             while (portChoice != "1" && portChoice != "2" && portChoice != "3")
             {
-                Console.WriteLine("Invalid selection. Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan:");
+                Console.WriteLine("\r\nInvalid selection. Please enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan:");
                 portChoice = Console.ReadLine();
             }
             return portChoice;
@@ -690,12 +690,12 @@ namespace Recon
         public static string UserIpChoice(string defaultGateway)
         {
             //Tell user thier gatway and check if they want to use that or a specified network
-            Console.WriteLine("Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+            Console.WriteLine("\r\nYour default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
             string whichNetwork = Console.ReadLine();
             string subnet = "";
             while (whichNetwork != "y" && whichNetwork != "n")
             {
-                Console.WriteLine("Invalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
+                Console.WriteLine("\r\nInvalid choice. Your default gateway is " + defaultGateway + " Would you like to scan this subnet? Enter 'y' or 'n':");
                 whichNetwork = Console.ReadLine();
             }
             if (whichNetwork == "y")
@@ -706,7 +706,7 @@ namespace Recon
             }
             else if (whichNetwork == "n")
             {
-                Console.WriteLine("Please enter a subnet to scan. For example, '192.168.0.1':");
+                Console.WriteLine("\r\nPlease enter a subnet to scan. For example, '192.168.0.1':");
                 subnet = Console.ReadLine();
                 //Validate that the IP is in correct format
                 if (ValidateIP(subnet) == false)
@@ -721,7 +721,7 @@ namespace Recon
         //Function for what type of scan
         public static string UserSelection()
         {
-            Console.WriteLine("Please select scan type: type '1' for WMI + Network (REQUIRES Domain Admin credentials) or '2' for Network ONLY:");
+            Console.WriteLine("\r\nPlease select scan type: type '1' for WMI + Network (REQUIRES Domain Admin credentials) or '2' for Network ONLY:");
             string scanType = Console.ReadLine();
 
             while (scanType != "1" && scanType != "2")
