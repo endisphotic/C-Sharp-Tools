@@ -1077,7 +1077,7 @@ namespace Recon
                         foreach (ManagementObject logon in logonCollection)
                         {
                             string logonResults = "Logon info: " + logon["Name"] + "\r\n" +
-                                "Start: " + logon["StartTime"] + "\r\n" +
+                                "Start: " + Convert.ToString(DateTime.FromFileTime((long)logon["StartTime"])) + "\r\n" +
                                 "Status: " + logon["Status"] + "\r\n" +
                                 "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
                                 "Logon ID: " + logon["LogonId"] + "\r\n" +
