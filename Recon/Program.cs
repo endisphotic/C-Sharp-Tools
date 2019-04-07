@@ -1837,6 +1837,7 @@ namespace Recon
                     //Checks and adds last user
                     if (results.Properties[NameProperty].Count > 0) computer.Name = results.Properties[NameProperty][0].ToString();
 
+                    if (results.Properties[computerName2].Count > 0) computer.computerName3 = results.Properties[computerName2][0].ToString();
 
                     //Add to list
                     computers.Add(computer);
