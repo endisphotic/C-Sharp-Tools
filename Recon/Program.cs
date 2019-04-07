@@ -100,6 +100,7 @@ namespace Recon
                     {
                         if(accountCheck.ValidateCredentials(Username, Password) == true)
                         {
+                            Console.WriteLine("Authenication successful!");
                             break;
                         }
                         else
