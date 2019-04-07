@@ -30,19 +30,6 @@ namespace Recon
 
                 Console.WriteLine("Welcome to Neko. \r\n");
 
-                //Prompt user decision on recon or deployment via WMI
-                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n");
-                Console.WriteLine("Make your selection:");
-                string attackType = Console.ReadLine();
-                while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4")
-                {
-                    Console.WriteLine("Invalid selection. Enter '1' for Recon, '2' Deployment via WMI:");
-                    attackType = Console.ReadLine();
-                }
-
-                //Create document path for scan results
-                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
                 //Get domain name
                 string domainURL = "";
                 try
@@ -57,7 +44,7 @@ namespace Recon
 
                 Console.WriteLine("Will you be using any Active Directory components, such as LDAP recon or lateral movement via WMI? Enter 'y' or 'n':");
                 string adCheck = Console.ReadLine();
-                while(adCheck != "y" && adCheck != "n")
+                while (adCheck != "y" && adCheck != "n")
                 {
                     Console.WriteLine("Invalid selection. Enter 'y' or 'n':");
                     adCheck = Console.ReadLine();
@@ -91,13 +78,13 @@ namespace Recon
                     {
                         Console.WriteLine("Do you want to use " + domainURL + "? Enter 'y' or 'n': ");
                         string confirmDomain = Console.ReadLine();
-                        while(confirmDomain != "y" && confirmDomain != "n")
+                        while (confirmDomain != "y" && confirmDomain != "n")
                         {
-                            Console.WriteLine("Invalid selection. Do you want to use " + domainURL + " ? Enter 'y' or 'n': " );
+                            Console.WriteLine("Invalid selection. Do you want to use " + domainURL + " ? Enter 'y' or 'n': ");
                             confirmDomain = Console.ReadLine();
                         }
                         //If user wants to use a different domain, get it.
-                        if(confirmDomain == "n")
+                        if (confirmDomain == "n")
                         {
                             Console.WriteLine("\r\nPlease enter the domain for searching:");
                             domainURL = Console.ReadLine();
@@ -107,13 +94,40 @@ namespace Recon
 
                     //Set context
                     PrincipalContext accountCheck = new PrincipalContext(ContextType.Domain, domainURL);
-                    bool ValidCreds = accountCheck.ValidateCredentials(Username, Password);
+                    bool ValidCreds = false;
                     //Don't move forward until authentication succeeds. 
                     while (ValidCreds == false)
                     {
-
+                        if(accountCheck.ValidateCredentials(Username, Password) == true)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid username or password.");
+                            Console.WriteLine("Please enter valid username and password: ");
+                            Console.WriteLine("Username: ");
+                            Username = Console.ReadLine();
+                            Console.WriteLine("Password: ");
+                            Password = Console.ReadLine();
+                        }
                     }
                 }
+
+                //Prompt user decision on recon or deployment via WMI
+                Console.WriteLine("Options: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n");
+                Console.WriteLine("Make your selection:");
+                string attackType = Console.ReadLine();
+                while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4")
+                {
+                    Console.WriteLine("Invalid selection. Enter '1' for Recon, '2' Deployment via WMI:");
+                    attackType = Console.ReadLine();
+                }
+
+                //Create document path for scan results
+                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+
 
 
                 if (attackType == "1")
