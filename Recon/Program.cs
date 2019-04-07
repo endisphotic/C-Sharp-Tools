@@ -15,6 +15,7 @@ using System.Net.NetworkInformation;
 using System.DirectoryServices;
 using System.Security.Principal;
 using System.DirectoryServices.ActiveDirectory;
+using System.DirectoryServices.AccountManagement;
 
 namespace Recon
 {
@@ -52,6 +53,66 @@ namespace Recon
                 catch
                 {
 
+                }
+
+                Console.WriteLine("Will you be using any Active Directory components, such as LDAP recon or lateral movement via WMI? Enter 'y' or 'n':");
+                string adCheck = Console.ReadLine();
+                while(adCheck != "y" && adCheck != "n")
+                {
+                    Console.WriteLine("Invalid selection. Enter 'y' or 'n':");
+                    adCheck = Console.ReadLine();
+                }
+
+                //Declare user and password variables
+                string Username = "";
+                string Password = "";
+
+                if (adCheck == "y")
+                {
+
+                    Console.WriteLine("Please specify the username and password for use: ");
+
+                    Console.WriteLine("\r\n" +
+                                    "Enter user name:");
+                    Username = Console.ReadLine();
+                    //Password
+                    Console.WriteLine("\r\n" +
+                        "Enter password:");
+                    Password = Console.ReadLine();
+                    //Get computer domain
+
+                    //f program was unable to get domain, get domain info
+                    if (domainURL == "")
+                    {
+                        Console.WriteLine("\r\nPlease enter the domain for searching:");
+                        domainURL = Console.ReadLine();
+                    }
+                    else if (domainURL != "")
+                    {
+                        Console.WriteLine("Do you want to use " + domainURL + "? Enter 'y' or 'n': ");
+                        string confirmDomain = Console.ReadLine();
+                        while(confirmDomain != "y" && confirmDomain != "n")
+                        {
+                            Console.WriteLine("Invalid selection. Do you want to use " + domainURL + " ? Enter 'y' or 'n': " );
+                            confirmDomain = Console.ReadLine();
+                        }
+                        //If user wants to use a different domain, get it.
+                        if(confirmDomain == "n")
+                        {
+                            Console.WriteLine("\r\nPlease enter the domain for searching:");
+                            domainURL = Console.ReadLine();
+                        }
+                    }
+
+
+                    //Set context
+                    PrincipalContext accountCheck = new PrincipalContext(ContextType.Domain, domainURL);
+                    bool ValidCreds = accountCheck.ValidateCredentials(Username, Password);
+                    //Don't move forward until authentication succeeds. 
+                    while (ValidCreds == false)
+                    {
+
+                    }
                 }
 
 
@@ -107,12 +168,7 @@ namespace Recon
                         if (ldapQueries == "y")
                         {
 
-                            //Check if user is logged into an account on the domain
-                            if(domainURL == "")
-                            {
-                                Console.WriteLine("\r\nPlease enter the domain for searching:");
-                                domainURL = Console.ReadLine();
-                            }
+                            
                             //Confirm that it is correct
                             Console.WriteLine("\r\n" +
                                 "Recon will begin on: " + domainURL + "." + " Is this correct? Enter 'y' or 'n':");
@@ -130,15 +186,7 @@ namespace Recon
                                 domainURL = Console.ReadLine();
                             }
 
-                            Console.WriteLine("\r\n" +
-                                    "Enter user name:");
-                            string Username = Console.ReadLine();
-                            //Password
-                            Console.WriteLine("\r\n" +
-                                "Enter password:");
-                            string Password = Console.ReadLine();
-                            //Get computer domain
-
+                            
                             //Active Directory Recon
                             var usersList = ADUser.GetUsers("LDAP://" + domainURL, Username, Password);
                             Console.WriteLine("Found users: ");
