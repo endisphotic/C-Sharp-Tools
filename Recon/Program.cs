@@ -953,7 +953,7 @@ namespace Recon
 
 
         //WMI recon function
-        public static void WmiFunction(string hostname, string Username, string Password, string domainURL, string nekoFolder)
+        public static void WmiFunction(string hostname, string Username, string Password, string domainURL, string nekoFolder, string wmiHost)
         {
             try
             {
@@ -982,7 +982,7 @@ namespace Recon
                 //Get OS information
                 try
                 {
-                    using (var writer = new StreamWriter(nekoFolder + "\\Network Scan Reults.txt", append: true))
+                    using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
                     {
                         foreach (ManagementObject m in queryCollection)
                         {
@@ -1026,7 +1026,7 @@ namespace Recon
                 try
                 {
 
-                    using (var writer = new StreamWriter(nekoFolder + "\\Network Scan Reults.txt", append: true))
+                    using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
                     {
                         foreach (ManagementObject user in userCollection)
                         {
@@ -1063,7 +1063,7 @@ namespace Recon
                 try
                 {
 
-                    using (var writer = new StreamWriter(nekoFolder + "\\Network Scan Reults.txt", append: true))
+                    using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
                     {
                         foreach (ManagementObject logon in logonCollection)
                         {
@@ -1101,7 +1101,7 @@ namespace Recon
                 {
                     //File.AppendAllText(nekoFolder + "\\Network Scan Reults.txt", results + Environment.NewLine + Environment.NewLine);
 
-                    using (var writer = new StreamWriter(nekoFolder + "\\Network Scan Reults.txt", append: true))
+                    using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
                     {
                         foreach (ManagementObject User in computerCollection)
                         {
@@ -1326,12 +1326,13 @@ namespace Recon
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
                                     //Write out results
-                                    File.AppendAllText(nekoFolder + "\\Network Scan Reults.txt", results + Environment.NewLine + Environment.NewLine);
+                                    File.AppendAllText(nekoFolder + "\\Network IP Scan " + strippedIP + Convert.ToString(i) + ".txt", results + Environment.NewLine + Environment.NewLine);
+                                    string wmiHost = "\\Network IP Scan " + strippedIP + Convert.ToString(i) + ".txt";
                                     if (results.Contains("succeeded") && (j) == 135)
                                     {
                                         Console.WriteLine("Port 135 confirmed");
                                         //Launch WMI recon info
-                                        WmiFunction(strippedIP + Convert.ToString(i), Username, Password, domainURL, nekoFolder);
+                                        WmiFunction(strippedIP + Convert.ToString(i), Username, Password, domainURL, nekoFolder, wmiHost);
                                         //Add to WMI list
                                         wmiList.Add(strippedIP + Convert.ToString(i));
 
@@ -1369,7 +1370,7 @@ namespace Recon
                                     Console.WriteLine("Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.");
                                     results = "Connection to " + strippedIP + Convert.ToString(i) + " on port: " + Convert.ToString(j) + " succeeded.";
                                     //Write out results
-                                    File.AppendAllText(nekoFolder + "\\Network Scan Reults.txt", results + Environment.NewLine + Environment.NewLine);
+                                    File.AppendAllText(nekoFolder + "\\Network IP Scan " + strippedIP + Convert.ToString(i) + ".txt", results + Environment.NewLine + Environment.NewLine);
                                 }
                             }
                         }
@@ -1390,7 +1391,7 @@ namespace Recon
             {
                 string results = "";
                 //Get port numbers from user
-                Console.WriteLine("Please enter port numbers separated by commas: ");
+                Console.WriteLine("\r\nPlease enter port numbers separated by commas: ");
                 string ports = Console.ReadLine();
                 if (ports != "")
                 {
@@ -1399,7 +1400,7 @@ namespace Recon
                     {
                         ports.Replace(" ", "");
                     }
-                    Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports) + Environment.NewLine);
+                    Console.WriteLine("\r\nStarting selected scan on port(s): " + Convert.ToString(ports) + Environment.NewLine);
                     //Add ports to list
                     List<int> portList = new List<int>();
                     //Split out data by comma values
@@ -1428,12 +1429,13 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text file
-                                        File.AppendAllText(nekoFolder + "\\Network Scan Reults.txt", results + Environment.NewLine + Environment.NewLine);
+                                        File.AppendAllText(nekoFolder + "\\Network IP Scan " + strippedIp + Convert.ToString(i) + ".txt", results + Environment.NewLine + Environment.NewLine);
+                                        string wmiHost = "\\Network IP Scan " + strippedIp + Convert.ToString(i) + ".txt";
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
                                             //Launch WMI recon
-                                            WmiFunction(strippedIp + Convert.ToString(i), Username, Password, domainURL, nekoFolder);
+                                            WmiFunction(strippedIp + Convert.ToString(i), Username, Password, domainURL, nekoFolder, wmiHost);
                                             //Add host to WMI list
                                             wmiList.Add(strippedIp + Convert.ToString(i));
                                         }
@@ -1453,7 +1455,7 @@ namespace Recon
             {
                 string results = "";
                 //Get port number from user
-                Console.WriteLine("Please enter port numbers separated by commas: ");
+                Console.WriteLine("\r\nPlease enter port numbers separated by commas: ");
                 string ports = Console.ReadLine();
                 if (ports != "")
                 {
@@ -1462,7 +1464,7 @@ namespace Recon
                     {
                         ports.Replace(" ", "");
                     }
-                    Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                    Console.WriteLine("\r\nStarting selected scan on port(s): " + Convert.ToString(ports));
                     //Add ports to list array
                     string[] fullList = ports.Split(',');
 
@@ -1485,7 +1487,7 @@ namespace Recon
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
                                         //Append results to text document
-                                        File.AppendAllText(nekoFolder + "\\Network IP Scan.txt", results + Environment.NewLine + Environment.NewLine);
+                                        File.AppendAllText(nekoFolder + "\\Network IP Scan " + strippedIp + Convert.ToString(i) +".txt", results + Environment.NewLine + Environment.NewLine);
                                     }
                                 }
                             }
