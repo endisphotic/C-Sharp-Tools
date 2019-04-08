@@ -143,7 +143,7 @@ namespace Recon
 
                 if (attackType == "1")
                 {
-                    Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3: Network Scan with Option of WMI");
+                    Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI");
                     string reconChoice = Console.ReadLine();
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3")
                     {
@@ -1826,6 +1826,6 @@ namespace Recon
             return resultsPath;
 
         }
-
+        
     }
 }
