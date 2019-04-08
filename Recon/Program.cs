@@ -1053,7 +1053,7 @@ namespace Recon
 
 
                 //Logon Info
-                ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
+                ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_LogonSession Where (LogonType = 2) OR (LogonType = 3)");
                 ManagementObjectSearcher logonInfo = new ManagementObjectSearcher(scope, logonQuery);
 
                 //User collection
