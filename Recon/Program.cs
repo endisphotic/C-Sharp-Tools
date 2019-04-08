@@ -24,24 +24,28 @@ namespace Recon
         static void Main(string[] args)
         {
 
-            bool done = false;
-            while (!done)
+            Console.WriteLine("Welcome to Neko. \r\n");
+
+            bool infoConfirmed = false;
+
+            //Get domain name
+            string domainURL = "";
+            try
+            {
+                Domain domain = Domain.GetComputerDomain();
+                domainURL = domain.Name;
+            }
+            catch
             {
 
-                Console.WriteLine("Welcome to Neko. \r\n");
+            }
 
-                //Get domain name
-                string domainURL = "";
-                try
-                {
-                    Domain domain = Domain.GetComputerDomain();
-                    domainURL = domain.Name;
-                }
-                catch
-                {
+            //Declare user and password variables
+            string Username = "";
+            string Password = "";
 
-                }
-
+            while (infoConfirmed == false)
+            {
                 Console.WriteLine("Will you be using any Active Directory components, such as LDAP recon or lateral movement via WMI? Enter 'y' or 'n':");
                 string adCheck = Console.ReadLine();
                 while (adCheck != "y" && adCheck != "n")
@@ -50,9 +54,6 @@ namespace Recon
                     adCheck = Console.ReadLine();
                 }
 
-                //Declare user and password variables
-                string Username = "";
-                string Password = "";
 
                 if (adCheck == "y")
                 {
@@ -91,28 +92,63 @@ namespace Recon
                     }
 
 
-                    //Set context
-                    PrincipalContext accountCheck = new PrincipalContext(ContextType.Domain, domainURL);
-                    bool ValidCreds = false;
                     //Don't move forward until authentication succeeds. 
+                    bool ValidCreds = false;
+                    //Set context
                     while (ValidCreds == false)
                     {
-                        if (accountCheck.ValidateCredentials(Username, Password) == true)
+                        try
                         {
-                            Console.WriteLine("\r\nAuthenication successful!");
-                            break;
+                            PrincipalContext accountCheck = new PrincipalContext(ContextType.Domain, domainURL);
+
+                            if (accountCheck.ValidateCredentials(Username, Password) == true)
+                            {
+                                Console.WriteLine("\r\nAuthenication successful!");
+                                //Information verified proceeding to next step. 
+                                infoConfirmed = true;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("\r\nInvalid username or password.");
+                                Console.WriteLine("Please enter valid username and password: ");
+                                Console.WriteLine("Username: ");
+                                Username = Console.ReadLine();
+                                Console.WriteLine("Password: ");
+                                Password = Console.ReadLine();
+                            }
+
                         }
-                        else
+                        catch (PrincipalServerDownException e)
                         {
-                            Console.WriteLine("\r\nInvalid username or password.");
-                            Console.WriteLine("Please enter valid username and password: ");
-                            Console.WriteLine("Username: ");
-                            Username = Console.ReadLine();
-                            Console.WriteLine("Password: ");
-                            Password = Console.ReadLine();
+                            if (e.Message.Contains("server could not"))
+                            {
+                                Console.WriteLine("Server could not be contacted.\r\nPlease specify a valid domain or enter 'exit': ");
+                                domainURL = Console.ReadLine();
+                                if (domainURL == "exit")
+                                {
+                                    //Break out of loop if user enters exit and return to beginning
+                                    break;
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
                         }
                     }
                 }
+                else if(adCheck == "n")
+                {
+                    //Information verified proceeding to next step. 
+                    infoConfirmed = true;
+                }
+
+            }
+
+            bool done = false;
+            while (!done)
+            {
 
                 //Prompt user decision on recon or deployment via WMI
                 Console.WriteLine("\r\nOptions: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n");
