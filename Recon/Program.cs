@@ -1083,14 +1083,14 @@ namespace Recon
 
 
                 }
-                catch
+                catch(Exception e)
                 {
-
+                    Console.WriteLine(e);
                 }
 
 
                 //Computer System
-                ObjectQuery computerQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
+                ObjectQuery computerQuery = new ObjectQuery("Select * FROM Win32_ComputerSystem");
                 ManagementObjectSearcher computerInfo = new ManagementObjectSearcher(scope, computerQuery);
 
                 //User collection
@@ -1123,9 +1123,9 @@ namespace Recon
 
 
                 }
-                catch
+                catch (Exception e)
                 {
-
+                    Console.WriteLine(e);
                 }
 
 
