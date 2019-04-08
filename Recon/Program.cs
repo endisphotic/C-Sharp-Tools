@@ -1758,7 +1758,7 @@ namespace Recon
                 //Create new searcher
                 DirectorySearcher mySearch = new DirectorySearcher(entry);
                 //Limit to only computers
-                mySearch.Filter = "(objectClass=computer))";
+                mySearch.Filter = "(objectClass=computer)";
 
                 //Add properties to load for last logon and last user name
                 mySearch.PropertiesToLoad.AddRange(new[] { lastLogonProperty, distinguishedNameProperty });
