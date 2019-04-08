@@ -143,7 +143,7 @@ namespace Recon
 
                 if (attackType == "1")
                 {
-                    Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3: Network");
+                    Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain \r\n\r\n 3: Network Scan with Option of WMI");
                     string reconChoice = Console.ReadLine();
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3")
                     {
@@ -289,7 +289,7 @@ namespace Recon
                         if (scanType == "1")
                         {
                             Console.WriteLine("\r\n" +
-                                "This process requires Domain Admin credentials, does " + Username + "have sufficient credentials? Enter 'y' or 'n':");
+                                "This process requires Domain Admin credentials, does " + Username + " have sufficient credentials? Enter 'y' or 'n':");
                             string hasDomainAdmin = Console.ReadLine();
                             while (hasDomainAdmin != "y" && hasDomainAdmin != "n")
                             {
