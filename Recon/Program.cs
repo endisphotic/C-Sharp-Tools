@@ -148,7 +148,7 @@ namespace Recon
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3")
                     {
                         Console.WriteLine("\r\n" +
-                            "Invalid selection. Enter '1' for Local machine, '2' for Domain, or '3' for Network");
+                            "Invalid selection. Enter '1' for Local machine, '2' for Domain, or '3' for Network IP Scan with Option of WMI");
                         reconChoice = Console.ReadLine();
                     }
 
@@ -1399,7 +1399,7 @@ namespace Recon
                     {
                         ports.Replace(" ", "");
                     }
-                    Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports));
+                    Console.WriteLine("Starting selected scan on port(s): " + Convert.ToString(ports) + Environment.NewLine);
                     //Add ports to list
                     List<int> portList = new List<int>();
                     //Split out data by comma values
