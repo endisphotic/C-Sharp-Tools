@@ -1030,10 +1030,9 @@ namespace Recon
                     {
                         foreach (ManagementObject user in userCollection)
                         {
-                            string userResults = "Account Type: " + user["AccountType"] + "\r\n" +
-                               "Domain: " + user["Domain"] + "\r\n" +
+                            string userResults = "\r\nDomain: " + user["Domain"] + "\r\n" +
                                "Full Name: " + user["FullName"] + "\r\n" +
-                               "Name: " + user["Name"] + "\r\n\r\n" +
+                               "Name: " + user["Name"] + "\r\n" +
                                "SID: " + user["SID"] + "\r\n" +
                                "Password Expires: " + user["PasswordExpires"] + "\r\n" +
                                "Password Changeable: " + user["PasswordChangeable"] + "\r\n\r\n";
@@ -1068,7 +1067,7 @@ namespace Recon
                     {
                         foreach (ManagementObject logon in logonCollection)
                         {
-                            string logonResults = "Logon info: " + logon["Name"] + "\r\n" +
+                            string logonResults = "Logon info: " + logon["Name"] + "\r\n" + "UserName: " + logon["UserName"] +
                                 "Start: " + Convert.ToString(DateTime.FromFileTime((long)logon["StartTime"])) + "\r\n" +
                                 "Status: " + logon["Status"] + "\r\n" +
                                 "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
@@ -1090,12 +1089,12 @@ namespace Recon
                 }
 
 
-                //Logon Info
-                ObjectQuery UserQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
-                ManagementObjectSearcher UserInfo = new ManagementObjectSearcher(scope, logonQuery);
+                //Computer System
+                ObjectQuery computerQuery = new ObjectQuery("Select * FROM Win32_LogonSession");
+                ManagementObjectSearcher computerInfo = new ManagementObjectSearcher(scope, computerQuery);
 
                 //User collection
-                ManagementObjectCollection UserCollection = UserInfo.Get();
+                ManagementObjectCollection computerCollection = computerInfo.Get();
 
                 //Get logon info
                 try
@@ -1104,10 +1103,16 @@ namespace Recon
 
                     using (var writer = new StreamWriter(nekoFolder + "\\Network Scan Reults.txt", append: true))
                     {
-                        foreach (ManagementObject User in UserCollection)
+                        foreach (ManagementObject User in computerCollection)
                         {
                             string UserResults = "UserName: " + User["UserName"] + "\r\n" +
-                                "Timezone: " + User["CurrentTimeZone"] + "\r\n\r\n";
+                                "Primary Owner Name: " + User["PrimaryOwnerName"] + "\r\n" +
+                                "Name: " + User["Name"] + "\r\n" +
+                                "Model: " + User["Model"] + "\r\n" +
+                                "Manufacturer: " + User["Manufacturer"] + "\r\n" +
+                                "LastLoadInfo: " + User["LastLoadInfo"] + "\r\n" +
+                                "BootupState: " + User["BootupState"] + "\r\n" +
+                                "Status: " + User["Status"] + "\r\n\r\n";
 
                             //Write results
                             writer.WriteLine(UserResults + Environment.NewLine);
