@@ -325,7 +325,7 @@ namespace Recon
                         if (scanType == "1")
                         {
                             Console.WriteLine("\r\n" +
-                                "This process requires Domain Admin credentials, does " + Username + " have sufficient credentials? Enter 'y' or 'n':");
+                                "This process typically requires Domain Admin credentials, does " + Username + " have sufficient credentials? Enter 'y' or 'n':");
                             string hasDomainAdmin = Console.ReadLine();
                             while (hasDomainAdmin != "y" && hasDomainAdmin != "n")
                             {
@@ -948,6 +948,7 @@ namespace Recon
                         string scSD = scSdProcess.StandardOutput.ReadToEnd();
                         string scSdErr = scSdProcess.StandardError.ReadToEnd();
                         //Append service permissions
+                        //Fix bug with file in use
                         writer.WriteLine(scSD + scSdErr + Environment.NewLine);
                         writer.Flush();
                         Console.WriteLine(scSD);
