@@ -900,7 +900,7 @@ namespace Recon
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
                 //Append local machine info to results
-                File.AppendAllText(docPath + "\\results.txt", scResult + scErr + Environment.NewLine);
+                File.AppendAllText(nekoFolder + "\\Local Machine Services.txt", scResult + scErr + Environment.NewLine);
                 Console.WriteLine(scResult);
 
                 //Regex matching pattern for SERVICE_NAME:
