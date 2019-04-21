@@ -1067,9 +1067,13 @@ namespace Recon
 
 
                 }
-                catch
+                catch (UnauthorizedAccessException e)
                 {
-
+                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
                 }
 
 
@@ -1104,7 +1108,11 @@ namespace Recon
 
 
                 }
-                catch(Exception e)
+                catch (UnauthorizedAccessException e)
+                {
+                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                }
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
@@ -1143,6 +1151,10 @@ namespace Recon
                     }
 
 
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    Console.WriteLine(e + "Access Denied, insufficient privileges");
                 }
                 catch (Exception e)
                 {
