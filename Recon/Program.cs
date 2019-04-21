@@ -817,9 +817,9 @@ namespace Recon
 
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
+                Console.WriteLine("Command requires you are logged in with a domain account.");
             }
             //CMD commands
             try
@@ -899,64 +899,48 @@ namespace Recon
                 scProcess.Start();
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
-
-                //Get unique path
-                string writePath = UniqueFile(nekoFolder + "\\Local Machine Services.txt");
-
                 //Append local machine info to results
+                File.AppendAllText(docPath + "\\results.txt", scResult + scErr + Environment.NewLine);
+                Console.WriteLine(scResult);
 
-                using (var writer = new StreamWriter(writePath, append: true))
+                //Regex matching pattern for SERVICE_NAME:
+                string pattern = @"(?<=\SERVICE_NAME:\s)(\w+)";
+
+                //Create list for matched values
+                List<string> serviceList = new List<string>();
+
+                //Match regex pattern
+                MatchCollection matches = Regex.Matches(scResult, pattern);
+                for (int i = 0; i < matches.Count; i++)
                 {
-
-                    Console.WriteLine(scResult);
-                    //Write service info to text
-                    writer.WriteLine(scResult + scErr + Environment.NewLine);
-                    writer.Flush();
-
-                    //Regex matching pattern for SERVICE_NAME:
-                    string pattern = @"(?<=\SERVICE_NAME:\s)(\w+)";
-
-                    //Create list for matched values
-                    List<string> serviceList = new List<string>();
-
-                    //Match regex pattern
-                    MatchCollection matches = Regex.Matches(scResult, pattern);
-                    for (int i = 0; i < matches.Count; i++)
-                    {
-                        //Console.WriteLine(matches[i].ToString());
-                        //serviceList.Add(matches[i].ToString());
-                        string services = matches[i].ToString();
-                        Console.WriteLine(services);
-                        File.AppendAllText(nekoFolder + "\\Local Machine Services.txt", services + Environment.NewLine);
-                        string scSDSHOW = "/c sc sdshow " + services;
-                        Process scSdProcess = new Process();
-                        //Configure process
-                        ProcessStartInfo scSdConfig = new ProcessStartInfo();
-                        scSdConfig.WindowStyle = ProcessWindowStyle.Hidden;
-                        scSdConfig.CreateNoWindow = true;
-                        //Launch cmd
-                        scSdConfig.FileName = "cmd.exe";
-                        //Enable reading output
-                        scSdConfig.RedirectStandardOutput = true;
-                        scSdConfig.RedirectStandardError = true;
-                        scSdConfig.UseShellExecute = false;
-                        //Pass arguments
-                        //netConfig.Arguments = netDomain;
-                        scSdProcess.StartInfo = scSdConfig;
-                        scSdConfig.Arguments = scSDSHOW;
-                        scSdProcess.Start();
-                        string scSD = scSdProcess.StandardOutput.ReadToEnd();
-                        string scSdErr = scSdProcess.StandardError.ReadToEnd();
-                        //Append service permissions
-                        //Fix bug with file in use
-                        writer.WriteLine(scSD + scSdErr + Environment.NewLine);
-                        writer.Flush();
-                        Console.WriteLine(scSD);
-                    }
+                    //Console.WriteLine(matches[i].ToString());
+                    //serviceList.Add(matches[i].ToString());
+                    string services = matches[i].ToString();
+                    Console.WriteLine(services);
+                    File.AppendAllText(nekoFolder + "\\Local Machine Services.txt", services + Environment.NewLine);
+                    string scSDSHOW = "/c sc sdshow " + services;
+                    Process scSdProcess = new Process();
+                    //Configure process
+                    ProcessStartInfo scSdConfig = new ProcessStartInfo();
+                    scSdConfig.WindowStyle = ProcessWindowStyle.Hidden;
+                    scSdConfig.CreateNoWindow = true;
+                    //Launch cmd
+                    scSdConfig.FileName = "cmd.exe";
+                    //Enable reading output
+                    scSdConfig.RedirectStandardOutput = true;
+                    scSdConfig.RedirectStandardError = true;
+                    scSdConfig.UseShellExecute = false;
+                    //Pass arguments
+                    //netConfig.Arguments = netDomain;
+                    scSdProcess.StartInfo = scSdConfig;
+                    scSdConfig.Arguments = scSDSHOW;
+                    scSdProcess.Start();
+                    string scSD = scSdProcess.StandardOutput.ReadToEnd();
+                    string scSdErr = scSdProcess.StandardError.ReadToEnd();
+                    //Append local machine info to results
+                    File.AppendAllText(nekoFolder + "\\Local Machine Services.txt", scSD + scSdErr + Environment.NewLine);
+                    Console.WriteLine(scSD);
                 }
-
-
-
             }
             catch (Exception e)
             {
