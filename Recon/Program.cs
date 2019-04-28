@@ -728,11 +728,26 @@ namespace Recon
             try
             {
                 environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.CurrentUser, computerName).OpenSubKey("Environment");
+
+                // Print the values.
+                Console.WriteLine("\nThere are {0} values for {1}.",
+                    environmentKey.ValueCount.ToString(),
+                    environmentKey.Name);
+                foreach (string valueName in environmentKey.GetValueNames())
+                {
+                    Console.WriteLine("{0,-20}: {1}", valueName,
+                        environmentKey.GetValue(valueName).ToString());
+                }
+
+                // Close the registry key.
+                environmentKey.Close();
             }
             catch
             {
 
             }
+
+
         }
 
         //Function for port selection
