@@ -200,7 +200,7 @@ namespace Recon
                             machineInfo = Console.ReadLine();
                         }
                         //Conduct local recon
-                        LocalMachine(nekoFolder);
+                        LocalMachine(nekoFolder, Username, Password);
                     }
                     else if (reconChoice == "2")
                     {
@@ -768,7 +768,7 @@ namespace Recon
         }
 
 
-        public static void LocalMachine(string nekoFolder)
+        public static void LocalMachine(string nekoFolder, string Username, string Password)
         {
             //Net commands
             try
@@ -805,6 +805,8 @@ namespace Recon
                         //netConfig.Arguments = netDomain;
                         netProcess.StartInfo = netConfig;
                         netConfig.Arguments = argument;
+                        netConfig.UserName = Username;
+                        netConfig.PasswordInClearText = Password;
                         netProcess.Start();
                         string netDomainResult = netProcess.StandardOutput.ReadToEnd();
                         string netErr = netProcess.StandardError.ReadToEnd();
@@ -859,6 +861,8 @@ namespace Recon
                         //netConfig.Arguments = netDomain;
                         cmdProcess.StartInfo = cmdConfig;
                         cmdConfig.Arguments = argument;
+                        cmdConfig.UserName = Username;
+                        cmdConfig.PasswordInClearText = Password;
                         cmdProcess.Start();
                         string cmdDomainResult = cmdProcess.StandardOutput.ReadToEnd();
                         string cmdErr = cmdProcess.StandardError.ReadToEnd();
@@ -896,6 +900,8 @@ namespace Recon
                 //netConfig.Arguments = netDomain;
                 scProcess.StartInfo = scConfig;
                 scConfig.Arguments = scArg;
+                scConfig.UserName = Username;
+                scConfig.PasswordInClearText = Password;
                 scProcess.Start();
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
@@ -934,6 +940,8 @@ namespace Recon
                     //netConfig.Arguments = netDomain;
                     scSdProcess.StartInfo = scSdConfig;
                     scSdConfig.Arguments = scSDSHOW;
+                    scSdConfig.UserName = Username;
+                    scSdConfig.PasswordInClearText = Password;
                     scSdProcess.Start();
                     string scSD = scSdProcess.StandardOutput.ReadToEnd();
                     string scSdErr = scSdProcess.StandardError.ReadToEnd();
