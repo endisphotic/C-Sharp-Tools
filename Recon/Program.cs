@@ -447,7 +447,7 @@ namespace Recon
                     }
                     else if(reconChoice == "4")
                     {
-                        RemoteRegQuery();
+                        RemoteRegQuery(nekoFolder);
                     }
                 }
                 //Installation of payload via PowerShell + WMI with obfuscation options
@@ -721,10 +721,9 @@ namespace Recon
         }
 
         /// Method for remote registry query
-        public static void RemoteRegQuery()
+        public static void RemoteRegQuery(string nekoFolder)
         {
 
-            RegistryKey environmentKey;
 
             Console.WriteLine("Provide computer name: ");
             string computerName = Console.ReadLine();
@@ -732,57 +731,33 @@ namespace Recon
             //Open remote key
             try
             {
-                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName).OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\\UserTile");
+                //Specifiy key
+                RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName, RegistryView.Registry64);
 
-                // Print the values.
-                Console.WriteLine("\nThere are {0} values for {1}.",
-                    environmentKey.ValueCount.ToString(), 
-                    environmentKey.Name);
-
-                string lastUser = Convert.ToString(environmentKey.GetValue("lastLoggedOnDisplayName")); //  .GetValue("LastLoggedOnDisPlayName").ToString();
-                Console.WriteLine(lastUser);
-
-                foreach (string valueName in environmentKey.GetSubKeyNames())
+                var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+                if(key == null)
                 {
-                    Console.WriteLine("{0,-20}: {1}", valueName,
-                        environmentKey.GetValue(valueName).ToString(),
-                        environmentKey.GetSubKeyNames().ToString());
 
                 }
+                //Create objects for values
+                object lastUser = key.GetValue("LastLoggedOnUser");
+                object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
 
-                // Close the registry key.
-                environmentKey.Close();
+                //Display information
+                Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
+
+                //Write out results
+                File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
+                    + "Computer Name: " + computerName + Environment.NewLine);
+
+
             }
-            catch
+            catch(Exception e)
             {
-
+                Console.WriteLine(e);
             }
 
-            //Check HK_Users
-            try
-            {
-                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.Users, computerName);
 
-                // Print the values.
-                Console.WriteLine("\nThere are {0} values for {1}.",
-                    environmentKey.ValueCount.ToString(),
-                    environmentKey.Name);
-
-                foreach (string valueName in environmentKey.GetSubKeyNames())
-                {
-                    Console.WriteLine("{0,-20}: {1}", valueName,
-                        environmentKey.GetValue(valueName).ToString(),
-                        environmentKey.GetValueNames().ToString());
-
-                }
-
-                // Close the registry key.
-                environmentKey.Close();
-            }
-            catch
-            {
-
-            }
 
 
         }
