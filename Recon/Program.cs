@@ -16,6 +16,8 @@ using System.DirectoryServices;
 using System.Security.Principal;
 using System.DirectoryServices.ActiveDirectory;
 using System.DirectoryServices.AccountManagement;
+using System.Security.Permissions;
+using Microsoft.Win32;
 
 namespace Recon
 {
@@ -46,7 +48,7 @@ namespace Recon
 
             while (infoConfirmed == false)
             {
-                Console.WriteLine("Will you be using any Active Directory components, such as LDAP recon or lateral movement via WMI? Enter 'y' or 'n':");
+                Console.WriteLine("Will you be using any Active Directory components, such as LDAP recon, remote registry, or lateral movement via WMI? \r\n\r\nEnter 'y' or 'n':");
                 string adCheck = Console.ReadLine();
                 while (adCheck != "y" && adCheck != "n")
                 {
@@ -200,7 +202,7 @@ namespace Recon
                             machineInfo = Console.ReadLine();
                         }
                         //Conduct local recon
-                        LocalMachine(nekoFolder, Username, Password);
+                        LocalMachine(nekoFolder);
                     }
                     else if (reconChoice == "2")
                     {
@@ -442,6 +444,10 @@ namespace Recon
                                 AttackWMI(Username, Password, domainURL, target, commandFile);
                             }
                         }
+                    }
+                    else if(reconChoice == "4")
+                    {
+                        RemoteRegQuery(Username, Password);
                     }
                 }
                 //Installation of payload via PowerShell + WMI with obfuscation options
@@ -706,6 +712,28 @@ namespace Recon
 
         }
 
+        /// <summary>
+        /// Method for remote registry query
+        /// </summary>
+        /// <returns></returns>
+        public static void RemoteRegQuery(string Username, string Password)
+        {
+
+            RegistryKey environmentKey;
+
+            Console.WriteLine("Provide computer name: ");
+            string computerName = Console.ReadLine();
+            
+            //Open remote key
+            try
+            {
+                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.CurrentUser, computerName).OpenSubKey("Environment");
+            }
+            catch
+            {
+
+            }
+        }
 
         //Function for port selection
         public static string PortSelection()
@@ -768,7 +796,7 @@ namespace Recon
         }
 
 
-        public static void LocalMachine(string nekoFolder, string Username, string Password)
+        public static void LocalMachine(string nekoFolder)
         {
             //Net commands
             try
@@ -805,8 +833,6 @@ namespace Recon
                         //netConfig.Arguments = netDomain;
                         netProcess.StartInfo = netConfig;
                         netConfig.Arguments = argument;
-                        netConfig.UserName = Username;
-                        netConfig.PasswordInClearText = Password;
                         netProcess.Start();
                         string netDomainResult = netProcess.StandardOutput.ReadToEnd();
                         string netErr = netProcess.StandardError.ReadToEnd();
@@ -861,8 +887,6 @@ namespace Recon
                         //netConfig.Arguments = netDomain;
                         cmdProcess.StartInfo = cmdConfig;
                         cmdConfig.Arguments = argument;
-                        cmdConfig.UserName = Username;
-                        cmdConfig.PasswordInClearText = Password;
                         cmdProcess.Start();
                         string cmdDomainResult = cmdProcess.StandardOutput.ReadToEnd();
                         string cmdErr = cmdProcess.StandardError.ReadToEnd();
@@ -900,8 +924,6 @@ namespace Recon
                 //netConfig.Arguments = netDomain;
                 scProcess.StartInfo = scConfig;
                 scConfig.Arguments = scArg;
-                scConfig.UserName = Username;
-                scConfig.PasswordInClearText = Password;
                 scProcess.Start();
                 string scResult = scProcess.StandardOutput.ReadToEnd();
                 string scErr = scProcess.StandardError.ReadToEnd();
@@ -940,8 +962,6 @@ namespace Recon
                     //netConfig.Arguments = netDomain;
                     scSdProcess.StartInfo = scSdConfig;
                     scSdConfig.Arguments = scSDSHOW;
-                    scSdConfig.UserName = Username;
-                    scSdConfig.PasswordInClearText = Password;
                     scSdProcess.Start();
                     string scSD = scSdProcess.StandardOutput.ReadToEnd();
                     string scSdErr = scSdProcess.StandardError.ReadToEnd();
