@@ -181,7 +181,8 @@ namespace Recon
 
                 if (attackType == "1")
                 {
-                    Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI");
+                    Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI" +
+                        "\r\n 4: Remote Registry");
                     string reconChoice = Console.ReadLine();
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3" && reconChoice != "4")
                     {
@@ -289,7 +290,7 @@ namespace Recon
                                 Console.WriteLine("\r\nFound computers:");
 
                                 //Get unique file to prevent overwriting
-                                string writePath = UniqueFile(nekoFolder + "\\LDAP Computer Recon.csv");
+                                string writePath = UniqueFile(nekoFolder + "\\LDAP Computer Recon.txt");
 
                                 //Start stream writer for writing results
                                 using (var writer = new StreamWriter(writePath, append: true))
@@ -299,6 +300,7 @@ namespace Recon
                                         Console.WriteLine(computer.ComputerInfo);
                                         Console.WriteLine(computer.LastLogon);
                                         Console.WriteLine(computer.ComputerType);
+
                                         //Write out results
                                         writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
                                             + Environment.NewLine + "Computer type " + computer.ComputerType);
@@ -447,7 +449,7 @@ namespace Recon
                     }
                     else if(reconChoice == "4")
                     {
-                        RemoteRegQuery();
+                        RemoteRegQuery(nekoFolder);
                     }
                 }
                 //Installation of payload via PowerShell + WMI with obfuscation options
@@ -720,68 +722,68 @@ namespace Recon
             return account;
         }
 
-        /// Method for remote registry query
-        public static void RemoteRegQuery()
+        /// Method for remote registry query - need to make this so user can input their own options
+        public static void RemoteRegQuery(string nekoFolder)
         {
-
-            RegistryKey environmentKey;
-
-            Console.WriteLine("Provide computer name: ");
-            string computerName = Console.ReadLine();
-
-            //Open remote key
-            try
+            //Confirm that user has appropriate creds and is able to query registry remotely. 
+            Console.WriteLine("This process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
+            string userDecision = Console.ReadLine();
+            while(userDecision != "y" && userDecision != "")
             {
-                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName).OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\\UserTile");
+                Console.WriteLine("Invalid Selection. \r\nThis process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
+            }
+            if(userDecision == "y")
+            {
 
-                // Print the values.
-                Console.WriteLine("\nThere are {0} values for {1}.",
-                    environmentKey.ValueCount.ToString(),
-                    environmentKey.Name);
-
-                string lastUser = Convert.ToString(environmentKey.GetValue("lastLoggedOnDisplayName")); //  .GetValue("LastLoggedOnDisPlayName").ToString();
-                Console.WriteLine(lastUser);
-
-                foreach (string valueName in environmentKey.GetSubKeyNames())
+                //Need to turn this into list from previous results
+                Console.WriteLine("Enter '1' to use results from LDAP recon or '2' to specify target computer name:");
+                userDecision = Console.ReadLine();
+                while (userDecision != "1" && userDecision != "2")
                 {
-                    Console.WriteLine("{0,-20}: {1}", valueName,
-                        environmentKey.GetValue(valueName).ToString(),
-                        environmentKey.GetSubKeyNames().ToString());
+                    Console.WriteLine("Invalid selection. Enter '1' to use results from LDAP recon or '2' to specify target computer name:");
+                }
+                //Declare computer name
+                string computerName = "";
+
+                if(userDecision == "2")
+                {
+                    //Get computer name
+                    Console.WriteLine("Specify target computer name:");
+                    computerName = Console.ReadLine();
+                }
+                //else - Updating later
+                //{
+                //    //ComputerName from list
+                //}
+
+                //Open remote key
+                try
+                {
+                    //Specifiy key
+                    RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName, RegistryView.Registry64);
+
+                    var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+                    if (key == null)
+                    {
+
+                    }
+                    //Create objects for values
+                    object lastUser = key.GetValue("LastLoggedOnUser");
+                    object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
+
+                    //Display information
+                    Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
+
+                    //Write out results
+                    File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
+                        + "Computer Name: " + computerName + Environment.NewLine);
+
 
                 }
-
-                // Close the registry key.
-                environmentKey.Close();
-            }
-            catch
-            {
-
-            }
-
-            //Check HK_Users
-            try
-            {
-                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.Users, computerName);
-
-                // Print the values.
-                Console.WriteLine("\nThere are {0} values for {1}.",
-                    environmentKey.ValueCount.ToString(),
-                    environmentKey.Name);
-
-                foreach (string valueName in environmentKey.GetSubKeyNames())
+                catch (Exception e)
                 {
-                    Console.WriteLine("{0,-20}: {1}", valueName,
-                        environmentKey.GetValue(valueName).ToString(),
-                        environmentKey.GetValueNames().ToString());
-
+                    Console.WriteLine(e);
                 }
-
-                // Close the registry key.
-                environmentKey.Close();
-            }
-            catch
-            {
-
             }
 
 
