@@ -447,7 +447,7 @@ namespace Recon
                     }
                     else if(reconChoice == "4")
                     {
-                        RemoteRegQuery(Username, Password);
+                        RemoteRegQuery();
                     }
                 }
                 //Installation of payload via PowerShell + WMI with obfuscation options
@@ -712,31 +712,68 @@ namespace Recon
 
         }
 
-        /// <summary>
+        //Method for converting SID to username
+        public static string SidConversion(string sid)
+        {
+            string account = new SecurityIdentifier(sid).Translate(typeof(NTAccount)).ToString();
+
+            return account;
+        }
+
         /// Method for remote registry query
-        /// </summary>
-        /// <returns></returns>
-        public static void RemoteRegQuery(string Username, string Password)
+        public static void RemoteRegQuery()
         {
 
             RegistryKey environmentKey;
 
             Console.WriteLine("Provide computer name: ");
             string computerName = Console.ReadLine();
-            
+
             //Open remote key
             try
             {
-                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.CurrentUser, computerName).OpenSubKey("Environment");
+                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName).OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\\UserTile");
 
                 // Print the values.
                 Console.WriteLine("\nThere are {0} values for {1}.",
                     environmentKey.ValueCount.ToString(),
                     environmentKey.Name);
-                foreach (string valueName in environmentKey.GetValueNames())
+
+                string lastUser = Convert.ToString(environmentKey.GetValue("lastLoggedOnDisplayName")); //  .GetValue("LastLoggedOnDisPlayName").ToString();
+                Console.WriteLine(lastUser);
+
+                foreach (string valueName in environmentKey.GetSubKeyNames())
                 {
                     Console.WriteLine("{0,-20}: {1}", valueName,
-                        environmentKey.GetValue(valueName).ToString());
+                        environmentKey.GetValue(valueName).ToString(),
+                        environmentKey.GetSubKeyNames().ToString());
+
+                }
+
+                // Close the registry key.
+                environmentKey.Close();
+            }
+            catch
+            {
+
+            }
+
+            //Check HK_Users
+            try
+            {
+                environmentKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.Users, computerName);
+
+                // Print the values.
+                Console.WriteLine("\nThere are {0} values for {1}.",
+                    environmentKey.ValueCount.ToString(),
+                    environmentKey.Name);
+
+                foreach (string valueName in environmentKey.GetSubKeyNames())
+                {
+                    Console.WriteLine("{0,-20}: {1}", valueName,
+                        environmentKey.GetValue(valueName).ToString(),
+                        environmentKey.GetValueNames().ToString());
+
                 }
 
                 // Close the registry key.
