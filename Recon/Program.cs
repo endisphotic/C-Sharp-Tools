@@ -182,7 +182,7 @@ namespace Recon
                 if (attackType == "1")
                 {
                     Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI" +
-                        "\r\n 4: Remote Registry");
+                        "\r\n\r\n 4: Remote Registry");
                     string reconChoice = Console.ReadLine();
                     while (reconChoice != "1" && reconChoice != "2" && reconChoice != "3" && reconChoice != "4")
                     {
@@ -495,7 +495,7 @@ namespace Recon
 
                             //Get target list
                             Console.WriteLine("\r\n" +
-                                "Enter IP addresses separated by commas:");
+                                "Enter target IP addresses separated by commas:");
                             //Get IP targets
                             string ipTargets = Console.ReadLine();
 
@@ -575,7 +575,7 @@ namespace Recon
 
                             //Get website for payload
                             Console.WriteLine("\r\n" +
-                                "Enter the domain or IP for your payload:");
+                                "Enter the domain or IP for where your payload is lcoated:");
                             string payloadURL = Console.ReadLine();
 
                             //Choose download path
