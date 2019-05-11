@@ -449,7 +449,7 @@ namespace Recon
                     }
                     else if(reconChoice == "4")
                     {
-                        RemoteRegQuery(nekoFolder);
+                        RemoteRegQuery(nekoFolder, domainURL, Username, Password);
                     }
                 }
                 //Installation of payload via PowerShell + WMI with obfuscation options
@@ -723,7 +723,7 @@ namespace Recon
         }
 
         /// Method for remote registry query - need to make this so user can input their own options
-        public static void RemoteRegQuery(string nekoFolder)
+        public static void RemoteRegQuery(string nekoFolder, string domainURL, string Username, string Password)
         {
             //Confirm that user has appropriate creds and is able to query registry remotely. 
             Console.WriteLine("This process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
@@ -742,48 +742,85 @@ namespace Recon
                 {
                     Console.WriteLine("Invalid selection. Enter '1' to use results from LDAP recon or '2' to specify target computer name:");
                 }
-                //Declare computer name
-                string computerName = "";
 
                 if(userDecision == "2")
                 {
+
+                    //Declare computer name
+                    string computerName = "";
                     //Get computer name
                     Console.WriteLine("Specify target computer name:");
                     computerName = Console.ReadLine();
-                }
-                //else - Updating later
-                //{
-                //    //ComputerName from list
-                //}
 
-                //Open remote key
-                try
-                {
-                    //Specifiy key
-                    RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName, RegistryView.Registry64);
-
-                    var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
-                    if (key == null)
+                    //Open remote key
+                    try
                     {
+                        //Specifiy key
+                        RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName, RegistryView.Registry64);
+
+                        var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+                        if (key == null)
+                        {
+
+                        }
+                        //Create objects for values
+                        object lastUser = key.GetValue("LastLoggedOnUser");
+                        object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
+
+                        //Display information
+                        Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
+
+                        //Write out results
+                        File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
+                            + "Computer Name: " + computerName + Environment.NewLine);
+
 
                     }
-                    //Create objects for values
-                    object lastUser = key.GetValue("LastLoggedOnUser");
-                    object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
-
-                    //Display information
-                    Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
-
-                    //Write out results
-                    File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
-                        + "Computer Name: " + computerName + Environment.NewLine);
-
-
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
+                    //ComputerName from list
+                    //Access list class from LDAP recon
+                    var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
+
+                    foreach(var computerName in computerList)
+                    {
+                        //Open remote key
+                        try
+                        {
+                            //Specifiy key
+                            RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName.ComputerInfo, RegistryView.Registry64);
+
+                            var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+                            if (key == null)
+                            {
+
+                            }
+                            //Create objects for values
+                            object lastUser = key.GetValue("LastLoggedOnUser");
+                            object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
+
+                            //Display information
+                            Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
+
+                            //Write out results
+                            File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
+                                + "Computer Name: " + computerName + Environment.NewLine);
+
+
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                    }
+
                 }
+
             }
 
 
