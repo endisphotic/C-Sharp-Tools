@@ -784,38 +784,84 @@ namespace Recon
                 else
                 {
                     //ComputerName from list
-                    //Access list class from LDAP recon
-                    var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
-
-                    foreach(var computerName in computerList)
+                    //Access list class from LDAP recon, need to make this so user can specify their own list if they want.
+                    Console.WriteLine("Have you run LDAP recon to generate machine name list? Enter 'y' or 'n'");
+                    string userChoice = Console.ReadLine();
+                    while(userChoice != "y" && userChoice != "n")
                     {
-                        //Open remote key
+                        Console.WriteLine("Invalid selection. Have you run LDAP computer recon to generate machine name list? Enter 'y' or 'n'");
+                    }
+                    //Run ldap comnputer recon
+                    if(userChoice == "n")
+                    {
                         try
                         {
-                            //Specifiy key
-                            RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName.ComputerInfo, RegistryView.Registry64);
+                            var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
+                            Console.WriteLine("\r\nFound computers:");
 
-                            var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
-                            if (key == null)
+                            //Get unique file to prevent overwriting
+                            string writePath = UniqueFile(nekoFolder + "\\LDAP Computer Recon.txt");
+
+                            //Start stream writer for writing results
+                            using (var writer = new StreamWriter(writePath, append: true))
                             {
+                                foreach (var computer in computerList)
+                                {
+                                    Console.WriteLine(computer.ComputerInfo);
+                                    Console.WriteLine(computer.LastLogon);
+                                    Console.WriteLine(computer.ComputerType);
 
+                                    //Write out results
+                                    writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
+                                        + Environment.NewLine + "Computer type " + computer.ComputerType);
+                                    writer.Flush();
+
+                                }
                             }
-                            //Create objects for values
-                            object lastUser = key.GetValue("LastLoggedOnUser");
-                            object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
 
-                            //Display information
-                            Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
-
-                            //Write out results
-                            File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
-                                + "Computer Name: " + computerName + Environment.NewLine);
 
 
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine(e);
+                        }
+                    }
+                    //Run remote registry recon for all machines in list. 
+                    else
+                    {
+                        var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
+
+                        foreach (var computerName in computerList)
+                        {
+                            //Open remote key
+                            try
+                            {
+                                //Specifiy key
+                                RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName.ComputerInfo, RegistryView.Registry64);
+
+                                var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+                                if (key == null)
+                                {
+
+                                }
+                                //Create objects for values
+                                object lastUser = key.GetValue("LastLoggedOnUser");
+                                object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
+
+                                //Display information
+                                Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
+
+                                //Write out results
+                                File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
+                                    + "Computer Name: " + computerName + Environment.NewLine);
+
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
                         }
                     }
 
