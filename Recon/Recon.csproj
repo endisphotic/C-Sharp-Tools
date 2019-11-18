@@ -46,13 +46,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ADComputer.cs" />
-    <Compile Include="ADUser.cs" />
+    <Compile Include="Command and Control\ReverseTCPShell.cs" />
+    <Compile Include="Delivery\PowerShellDownload.cs" />
+    <Compile Include="Discovery\LDAP.cs" />
+    <Compile Include="Discovery\PortScanning\PortChoices.cs" />
+    <Compile Include="Discovery\PortScanning\WellKnownPorts.cs" />
+    <Compile Include="Discovery\PortScanning\SelectedPorts.cs" />
+    <Compile Include="Discovery\GatherInfoUsingWMI.cs" />
+    <Compile Include="Exfiltration\SaveLocations.cs" />
+    <Compile Include="Execution\WMIDeployment.cs" />
+    <Compile Include="Information\Subnet.cs" />
+    <Compile Include="Lateral Movement\GetDomainInfo.cs" />
+    <Compile Include="Lateral Movement\DomainAuthentication.cs" />
+    <Compile Include="Information\ADComputer.cs" />
+    <Compile Include="Information\ADUser.cs" />
+    <Compile Include="Discovery\LocalMachine.cs" />
+    <Compile Include="Discovery\PortScanning\PortScanType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Defensive Evasion\RemoteRegistryTampering.cs" />
+    <Compile Include="Exfiltration\UniqueFileCheck.cs" />
+    <Compile Include="UserChoices\AttackType.cs" />
+    <Compile Include="UserChoices\DiscoveryType.cs" />
+    <Compile Include="UserChoices\ScanType.cs" />
+    <Compile Include="UserChoices\WMIAttack.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
