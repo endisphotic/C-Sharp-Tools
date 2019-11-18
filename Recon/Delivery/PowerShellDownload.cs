@@ -67,7 +67,7 @@ namespace Neko.Delivery
                     // Attack targets
                     foreach (string target in ipSplit)
                     {
-                        User_Selections.WMIAttack.Parameters(DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, target, commandFile);
+                        UserChoices.WMIAttack.Parameters(DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, target, commandFile);
                     }
                 }
             }

