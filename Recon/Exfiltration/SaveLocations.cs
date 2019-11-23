@@ -4,15 +4,15 @@ using System.IO;
 namespace Neko.Exfiltration
 {
     class SaveLocations
-    { 
+    {
+        //Create document path for scan results
+        static string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        //Create sub folder
+        static string nekoFolder = Path.Combine(docPath, "Neko");
+
         public static string SetPath()
         {
-            //Create document path for scan results
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-            //Create sub folder
-            string nekoFolder = Path.Combine(docPath, "Neko");
-
             if (!File.Exists(nekoFolder))
             {
                 //Create folder for results if it doesn't exist
@@ -23,6 +23,6 @@ namespace Neko.Exfiltration
             return nekoFolder;
         }
 
-        public static string NekoFolder = SetPath();
+        public static string NekoFolder = nekoFolder;
     }
 }

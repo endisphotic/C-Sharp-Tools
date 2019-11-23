@@ -27,13 +27,17 @@ namespace Recon
                     adCheck = Console.ReadLine();
                 }
 
+                // Check if authentication to AD is required
                 if (adCheck == "y")
                 {
-                    DomainAuthentication.Authenticate();
+                    if (DomainAuthentication.Authenticate() == true)
+                    { 
+                        break;
+                    }
                 }
                 else if (adCheck == "n")
                 {
-                    //Information verified proceeding to next step. 
+                    // Information verified proceeding to next step. 
                     infoConfirmed = true;
                 }
             }
@@ -44,16 +48,10 @@ namespace Recon
             // Get attack type
             AttackType.Selection();
 
-            // Execute attack
-            AttackType.LaunchAttack();
-
-            // Set discovery options
-            DiscoveryChoice.Options();
-
             bool done = false;
             while (!done)
             {
-                //See if user wants to go back to main menu or exit
+                // See if user wants to go back to main menu or exit
                 Console.WriteLine("\r\n" +
                     "Enter 'm' for Main Menu or 'e' for exit:");
                 string mainMenu = Console.ReadLine();
@@ -66,11 +64,12 @@ namespace Recon
                 {
                     done = true;
                 }
-                //Send user back to main menu
+                // Send user back to main menu
                 if (mainMenu == "m")
                 {
-                    //Clear console
+                    // Clear console
                     Console.Clear();
+                    AttackType.Selection();
                 }
             }
         }

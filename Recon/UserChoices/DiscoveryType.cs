@@ -4,44 +4,59 @@ namespace Neko.UserChoices
 {
     class DiscoveryChoice
     {
-        static readonly string DiscoverySelection = string.Empty;
+        static string DiscoverySelection = string.Empty;
 
         public static string Selections()
         {
-            Console.WriteLine("\r\nRecon options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI" +
+            Console.WriteLine("\r\nDiscovery options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI" +
             "\r\n\r\n 4: Remote Registry");
-            string DiscoverySelection = Console.ReadLine();
+            DiscoverySelection = Console.ReadLine();
             while (DiscoverySelection != "1" && DiscoverySelection != "2" && DiscoverySelection != "3" && DiscoverySelection != "4")
             {
                 Console.WriteLine("\r\n" +
                     "Invalid selection. Enter '1' for Local machine, '2' for Domain, or '3' for Network IP Scan with Option of WMI");
                 DiscoverySelection = Console.ReadLine();
             }
+            while(Options(DiscoverySelection) == false)
+            {
+
+            }
             return DiscoverySelection;
         }
 
-        public static void Options()
+        public static bool Options(string DiscoverySelection)
         {
-            //Local machine recon
+            // Local machine recon
             if (DiscoverySelection == "1")
             {
                 Console.WriteLine("\r\n" +
-                    "Conduct local system recon? Enter 'y' or 'n' or 'exit':");
+                    "Conduct local system discovery? Enter 'y' or 'n' or 'exit':");
                 string machineInfo = Console.ReadLine();
                 while (machineInfo != "y" && machineInfo != "n")
                 {
                     Console.WriteLine("\r\n" +
-                        "Invalid selection. Do you want to do network recon via LDAP? Enter 'y' or 'n':");
+                        "Invalid selection. Do you want to do network discovery via LDAP? Enter 'y' or 'n':");
                     machineInfo = Console.ReadLine();
                 }
-                //Conduct local recon
+
+                // Conduct local recon
                 LocalMachineRecon.LocalMachine(Exfiltration.SaveLocations.NekoFolder);
+
+                // Check if user wants to do additional discovery
+                if (ContinueDiscovery() == "y")
+                {
+                    Selections();
+                }
+                else
+                {
+                    return true;
+                }
+
             }
-            //Domain recon via LDAP
+            // Domain recon via LDAP
             else if (DiscoverySelection == "2")
             {
-
-                //See if user wants to do LDAP searching
+                // See if user wants to do LDAP searching
                 Console.WriteLine("\r\n" +
                     "Do you want to do domain recon via LDAP? Enter 'y' or 'n':");
                 string ldapQueries = Console.ReadLine();
@@ -52,18 +67,27 @@ namespace Neko.UserChoices
                     ldapQueries = Console.ReadLine();
                 }
 
-                //If user opts to run ldap queries 
+                // If user opts to run ldap queries 
                 if (ldapQueries == "y")
                 {
                     Discovery.LDAP.Information();
                 }
+
+                // Check if user wants to do additional discovery
+                if (ContinueDiscovery() == "y")
+                {
+                    Selections();
+                }
+                else
+                {
+                    return true;
+                }
             }
-            //Network IP recon with option of WMI
+            // Network IP recon with option of WMI
             else if (DiscoverySelection == "3")
             {
-                //Get type of scan
+                // Get type of scan
                 var scanType = UserSelections.ScanSelection();
-
 
                 // Get WMI User Info
                 if (scanType == "1")
@@ -82,23 +106,22 @@ namespace Neko.UserChoices
                         Console.WriteLine("\r\n" +
                             "Enter user name:");
                         DomainAuthentication.Username = Console.ReadLine();
-                        //Password
+
                         Console.WriteLine("\r\n" +
                             "Enter password:");
                         DomainAuthentication.Password = Console.ReadLine();
                     }
 
-                    //If LDAP querying was not done, gets domain to use for WMI
+                    // If LDAP querying was not done, gets domain to use for WMI
                     if (GetDomainInfo.DomainURL == "")
                     {
                         Console.WriteLine("\r\n" +
                             "Enter network domain:");
                         GetDomainInfo.DomainURL = Console.ReadLine();
                     }
-                    //If ldap querying was done, confirms they want to use the same domain
+                    // If ldap querying was done, confirms they want to use the same domain
                     else
                     {
-
                         Console.WriteLine("\r\n" +
                             "The domain selected for LDAP recon was: " + GetDomainInfo.DomainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
                         string domainConfirmation = Console.ReadLine();
@@ -108,7 +131,7 @@ namespace Neko.UserChoices
                                 "Invalid selection. The domain selected for LDAP recon was: " + GetDomainInfo.DomainURL + " Would you like to continue using this domain? Enter 'y' or 'n':");
                             domainConfirmation = Console.ReadLine();
                         }
-                        //If they select n, they're prompted for a different domain
+                        // If they select n, they're prompted for a different domain
                         if (domainConfirmation == "n")
                         {
                             Console.WriteLine("Please enter new domain to use:");
@@ -116,11 +139,44 @@ namespace Neko.UserChoices
                         }
                     }
                 }
+
+                // Check if user wants to do additional discovery
+                if (ContinueDiscovery() == "y")
+                {
+                    Selections();
+                }
+                else
+                {
+                    return true;
+                }
             }
             else if (DiscoverySelection == "4")
             {
                 RemoteRegistry.RegQuery(Exfiltration.SaveLocations.NekoFolder, GetDomainInfo.DomainURL, DomainAuthentication.Username, DomainAuthentication.Password);
+
+                // Check if user wants to do additional discovery
+                if (ContinueDiscovery() == "y")
+                {
+                    Selections();
+                }
+                else
+                {
+                    return true;
+                }
             }
+            return false;
+        }
+
+        private static string ContinueDiscovery()
+        {
+            Console.WriteLine("Conduct additional discovery? Enter 'y' or 'n'");
+            string additionalDiscovery = Console.ReadLine();
+            while (additionalDiscovery != "y" && additionalDiscovery != "n")
+            {
+                Console.WriteLine("Invalid options. Conduct additional discovery?");
+                additionalDiscovery = Console.ReadLine();
+            }
+            return additionalDiscovery;
         }
     }
 }
