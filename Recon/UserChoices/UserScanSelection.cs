@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace Neko
+namespace Neko.UserChoices
 {
-    class UserSelections
+    class UserScanSelection
     {
         public static string DiscoveryScanType = string.Empty;
 
@@ -18,6 +19,9 @@ namespace Neko
                 DiscoveryScanType = Console.ReadLine();
             }
             return DiscoveryScanType;
-        } 
+        }
+
+        // List for WMI targets if found
+        public static List<string> WMITargets = new List<string>();
     }
 }

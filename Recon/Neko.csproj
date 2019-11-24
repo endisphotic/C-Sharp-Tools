@@ -68,7 +68,7 @@
     <Compile Include="Exfiltration\UniqueFileCheck.cs" />
     <Compile Include="UserChoices\AttackType.cs" />
     <Compile Include="UserChoices\DiscoveryType.cs" />
-    <Compile Include="UserChoices\ScanType.cs" />
+    <Compile Include="UserChoices\UserScanSelection.cs" />
     <Compile Include="UserChoices\WMIAttack.cs" />
   </ItemGroup>
   <ItemGroup>

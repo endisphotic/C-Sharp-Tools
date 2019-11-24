@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+using Neko.UserChoices;
 
 namespace Neko.Discovery.PortScanning
 {
     class Scanner
     {
         // Scan without WMI
-        public static bool Scan(string strippedIP, string portChoice, string type, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
+        public static bool Scan(string strippedIP, string portChoice, string type, string Username, string Password, string domainURL, string nekoFolder)
         {
             // Full port scan
             if (portChoice == "1")
@@ -18,16 +19,16 @@ namespace Neko.Discovery.PortScanning
                 // Spool up multiple threads split by ports
                 try
                 {
-                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 65536, type, Username, Password, domainURL, nekoFolder));
                     thread.Start();
 
-                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 65536, type, Username, Password, domainURL, nekoFolder));
                     thread2.Start();
 
-                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 65536, type, Username, Password, domainURL, nekoFolder));
                     thread3.Start();
 
-                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 65536, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 65536, type, Username, Password, domainURL, nekoFolder));
                     thread4.Start();
 
                     while (thread4.IsAlive == true)
@@ -47,16 +48,16 @@ namespace Neko.Discovery.PortScanning
                 // Spool up multiple threads based on ports
                 try
                 {
-                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread = new Thread(() => Ports(strippedIP, 1, 65, 1, 1025, type, Username, Password, domainURL, nekoFolder));
                     thread.Start();
 
-                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread2 = new Thread(() => Ports(strippedIP, 64, 129, 1, 1025, type, Username, Password, domainURL, nekoFolder));
                     thread2.Start();
 
-                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread3 = new Thread(() => Ports(strippedIP, 128, 193, 1, 1025, type, Username, Password, domainURL, nekoFolder));
                     thread3.Start();
 
-                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 1025, type, Username, Password, domainURL, nekoFolder, wmiList));
+                    Thread thread4 = new Thread(() => Ports(strippedIP, 192, 256, 1, 1025, type, Username, Password, domainURL, nekoFolder));
                     thread4.Start();
 
                     while (thread4.IsAlive == true)
@@ -73,7 +74,7 @@ namespace Neko.Discovery.PortScanning
         }
 
         // Ports
-        public static void Ports(string strippedIP, int startIp, int stopIp, int portStart, int portStop, string type, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
+        public static void Ports(string strippedIP, int startIp, int stopIp, int portStart, int portStop, string type, string Username, string Password, string domainURL, string nekoFolder)
         {
             // WMI Scan
             if (type == "1")
@@ -107,7 +108,7 @@ namespace Neko.Discovery.PortScanning
                                         // Launch WMI recon info
                                         GatherInfoUsingWMI.Parameters(strippedIP + Convert.ToString(i), Username, Password, domainURL, nekoFolder, wmiHost);
                                         // Add to WMI list
-                                        wmiList.Add(strippedIP + Convert.ToString(i));
+                                        UserScanSelection.WMITargets.Add(strippedIP + Convert.ToString(i));
 
                                     }
                                 }

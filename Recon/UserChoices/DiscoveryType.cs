@@ -99,7 +99,7 @@ namespace Neko.UserChoices
             else if (DiscoverySelection == "3")
             {
                 // Get type of scan
-                var scanType = UserSelections.ScanSelection();
+                var scanType = UserScanSelection.ScanSelection();
 
                 // Conduct scan
                 Discovery.PortScanning.PortChoices.Selections();

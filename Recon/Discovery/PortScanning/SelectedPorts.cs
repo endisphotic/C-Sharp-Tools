@@ -8,7 +8,7 @@ namespace Neko.Discovery.PortScanning
     class SelectedPorts
     {
         // Selected port scan method
-        public static bool SelectedPortScan(string strippedIp, string scanType, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
+        public static bool SelectedPortScan(string strippedIp, string scanType, string Username, string Password, string domainURL, string nekoFolder)
         {
             if (scanType == "1")
             {
@@ -59,9 +59,9 @@ namespace Neko.Discovery.PortScanning
                                         {
                                             Console.WriteLine("Port 135 confirmed");
                                             // Launch WMI recon
-                                            GatherInfoUsingWMI.Parameters(Username, Password, domainURL, strippedIp + Convert.ToString(i), nekoFolder, wmiHost);
+                                            GatherInfoUsingWMI.Parameters(strippedIp + Convert.ToString(i), Username, Password, domainURL, nekoFolder, wmiHost);
                                             // Add host to WMI list
-                                            wmiList.Add(strippedIp + Convert.ToString(i));
+                                            UserChoices.UserScanSelection.WMITargets.Add(strippedIp + Convert.ToString(i));
                                         }
                                     }
                                 }

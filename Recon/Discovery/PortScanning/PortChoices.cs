@@ -23,15 +23,10 @@ namespace Neko.Discovery.PortScanning
                 // Get stripped IP from ip Choice
                 var strippedIp = Subnet.StripIP(ipChoice);
 
-                // Get ScanType
-
-                // Create list for WMI hosts if user opts to do WMI attacks
-                List<string> wmiList = new List<string>();
-
                 // Full Scan
                 if (portChoice == "1" || portChoice == "2")
                 {
-                    while (Scanner.Scan(strippedIp, portChoice, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList) == true)
+                    while (Scanner.Scan(strippedIp, portChoice, UserScanSelection.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder) == true)
                     {
 
                     }
@@ -41,7 +36,7 @@ namespace Neko.Discovery.PortScanning
                 // Selected port scan
                 else if (portChoice == "3")
                 {
-                    while (SelectedPorts.SelectedPortScan(strippedIp, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList) == true)
+                    while (SelectedPorts.SelectedPortScan(strippedIp, UserScanSelection.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder) == true)
                     {
 
                     }
@@ -71,7 +66,7 @@ namespace Neko.Discovery.PortScanning
                     // Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
 
                     // Attack targets
-                    foreach (string target in wmiList)
+                    foreach (string target in UserScanSelection.WMITargets)
                     {
                         WMIAttack.Parameters(DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, target, commandFile);
                     }
