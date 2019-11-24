@@ -101,6 +101,9 @@ namespace Neko.UserChoices
                 // Get type of scan
                 var scanType = UserSelections.ScanSelection();
 
+                // Conduct scan
+                Discovery.PortScanning.PortChoices.Selections();
+
                 // Get WMI User Info
                 if (scanType == "1")
                 {

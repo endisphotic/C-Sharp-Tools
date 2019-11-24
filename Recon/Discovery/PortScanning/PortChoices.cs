@@ -23,32 +23,27 @@ namespace Neko.Discovery.PortScanning
                 // Get stripped IP from ip Choice
                 var strippedIp = Subnet.StripIP(ipChoice);
 
-                // Create list for WMI hosts
+                // Get ScanType
+
+                // Create list for WMI hosts if user opts to do WMI attacks
                 List<string> wmiList = new List<string>();
 
-                //Initiate scanning functions
+                // Initiate scanning functions
                 if (portChoice == "1" || portChoice == "2")
                 {
-                    bool scanning = (WellKnownPorts.MultithreadScan(strippedIp, portChoice, UserSelections.ScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList));
-                    {
-                        while (scanning == true)
-                        {
+                    WellKnownPorts.MultithreadScan(strippedIp, portChoice, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList);
 
-                        }
-                    }
+                    Console.WriteLine("Scanning finished");
                 }
-                //Selected port scan
+                // Selected port scan
                 else if (portChoice == "3")
                 {
-                    while (SelectedPorts.SelectedPortScan(strippedIp, UserSelections.ScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList) == true)
-                    {
+                    SelectedPorts.SelectedPortScan(strippedIp, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList);
 
-                    }
+                    Console.WriteLine("Scanning finished");
                 }
 
-                Console.WriteLine("Scanning finished");
-
-                //See if user wants to drop payloads via WMI
+                // See if user wants to drop payloads via WMI
                 Console.WriteLine("\r\n" +
                     "Drop payload to found WMI targets? Enter 'y' or 'n' or 'exit':");
                 string targetWmi = Console.ReadLine();
@@ -65,9 +60,9 @@ namespace Neko.Discovery.PortScanning
                     string commandFile = "";
                     Console.WriteLine("\r\n" +
                         "Enter remote command, for example, Notepad.exe, Dir, Shutdown -r:");
-                    //Get command from user
+                    // Get command from user
                     commandFile = Console.ReadLine();
-                    //Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
+                    // Need to add - options for deploying payload from local machine and installing it on the targets' admin$ or c$
 
                     // Attack targets
                     foreach (string target in wmiList)

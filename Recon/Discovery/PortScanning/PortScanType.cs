@@ -8,10 +8,10 @@ namespace Neko
 {
     class PortScanType
     {
-        //Function for port selection
+        // Function for port selection
         public static string PortSelection()
         {
-            //Get user selection for type of scan
+            // Get user selection for type of scan
             Console.WriteLine("\r\nPlease enter 1 for full port scan, 2 for well-known port scan, 3 for selected port scan:");
             string portChoice = Console.ReadLine();
             while (portChoice != "1" && portChoice != "2" && portChoice != "3")

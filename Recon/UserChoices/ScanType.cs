@@ -1,12 +1,11 @@
 ﻿using System;
-using Neko.Discovery.PortScanning;
 
 namespace Neko
 {
     class UserSelections
     {
-        static string DiscoveryScanType = string.Empty;
-        
+        public static string DiscoveryScanType = string.Empty;
+
         // Function for what type of scan
         public static string ScanSelection()
         {
@@ -19,11 +18,6 @@ namespace Neko
                 DiscoveryScanType = Console.ReadLine();
             }
             return DiscoveryScanType;
-
-            // Conduct scan
-            PortChoices.Selections();
         } 
-
-        public static readonly string ScanType = ScanSelection();
     }
 }

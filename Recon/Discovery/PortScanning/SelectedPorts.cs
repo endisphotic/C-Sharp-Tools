@@ -124,7 +124,7 @@ namespace Neko.Discovery.PortScanning
                     }
                 }
             }
-            return false;
+            return true;
         }
     }
 }
