@@ -6,12 +6,11 @@ using System.Threading;
 
 namespace Neko.Discovery.PortScanning
 {
-    class WellKnownPorts
+    class Scanner
     {
-        // well known ports methods
-        public static bool MultithreadScan(string strippedIP, string portChoice, string type, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
+        // Scan without WMI
+        public static bool Scan(string strippedIP, string portChoice, string type, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
         {
-
             // Full port scan
             if (portChoice == "1")
             {
@@ -35,7 +34,6 @@ namespace Neko.Discovery.PortScanning
                     {
 
                     }
-
                 }
                 catch
                 {
@@ -65,7 +63,6 @@ namespace Neko.Discovery.PortScanning
                     {
 
                     }
-
                 }
                 catch
                 {
@@ -75,7 +72,7 @@ namespace Neko.Discovery.PortScanning
             return false;
         }
 
-        // well known ports
+        // Ports
         public static void Ports(string strippedIP, int startIp, int stopIp, int portStart, int portStop, string type, string Username, string Password, string domainURL, string nekoFolder, List<string> wmiList)
         {
             // WMI Scan

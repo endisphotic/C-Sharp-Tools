@@ -50,7 +50,7 @@
     <Compile Include="Delivery\PowerShellDownload.cs" />
     <Compile Include="Discovery\LDAP.cs" />
     <Compile Include="Discovery\PortScanning\PortChoices.cs" />
-    <Compile Include="Discovery\PortScanning\WellKnownPorts.cs" />
+    <Compile Include="Discovery\PortScanning\Scan.cs" />
     <Compile Include="Discovery\PortScanning\SelectedPorts.cs" />
     <Compile Include="Discovery\GatherInfoUsingWMI.cs" />
     <Compile Include="Exfiltration\SaveLocations.cs" />

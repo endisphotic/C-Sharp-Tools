@@ -28,17 +28,23 @@ namespace Neko.Discovery.PortScanning
                 // Create list for WMI hosts if user opts to do WMI attacks
                 List<string> wmiList = new List<string>();
 
-                // Initiate scanning functions
+                // Full Scan
                 if (portChoice == "1" || portChoice == "2")
                 {
-                    WellKnownPorts.MultithreadScan(strippedIp, portChoice, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList);
+                    while (Scanner.Scan(strippedIp, portChoice, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList) == true)
+                    {
+
+                    }
 
                     Console.WriteLine("Scanning finished");
                 }
                 // Selected port scan
                 else if (portChoice == "3")
                 {
-                    SelectedPorts.SelectedPortScan(strippedIp, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList);
+                    while (SelectedPorts.SelectedPortScan(strippedIp, UserSelections.DiscoveryScanType, DomainAuthentication.Username, DomainAuthentication.Password, GetDomainInfo.DomainURL, SaveLocations.NekoFolder, wmiList) == true)
+                    {
+
+                    }
 
                     Console.WriteLine("Scanning finished");
                 }
