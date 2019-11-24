@@ -56,9 +56,9 @@ namespace Neko.Discovery
                         }
                     }
                 }
-                catch (UnauthorizedAccessException e)
+                catch (UnauthorizedAccessException)
                 {
-                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                    Console.WriteLine("Access Denied, insufficient privileges");
                 }
                 catch (Exception e)
                 {
@@ -75,7 +75,6 @@ namespace Neko.Discovery
                 // Get user info
                 try
                 {
-
                     using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
                     {
                         foreach (ManagementObject user in userCollection)
@@ -94,53 +93,52 @@ namespace Neko.Discovery
                         }
                     }
                 }
-                catch (UnauthorizedAccessException e)
+                catch (UnauthorizedAccessException)
                 {
-                    Console.WriteLine(e + "Access Denied, insufficient privileges");
+                    Console.WriteLine("Access Denied, insufficient privileges");
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
 
-                // Logon Info
-                ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_LogonSession Where (LogonType = 2) OR (LogonType = 3)");
-                ManagementObjectSearcher logonInfo = new ManagementObjectSearcher(scope, logonQuery);
+                // Not working yet
+                //// Logon Info
+                //ObjectQuery logonQuery = new ObjectQuery("Select * FROM Win32_LogonSession Where (LogonType = 2) OR (LogonType = 3)");
+                //ManagementObjectSearcher logonInfo = new ManagementObjectSearcher(scope, logonQuery);
 
-                // User collection
-                ManagementObjectCollection logonCollection = logonInfo.Get();
+                //// User collection
+                //ManagementObjectCollection logonCollection = logonInfo.Get();
 
-                // Get logon info
-                try
-                {
+                //// Get logon info
+                //try
+                //{
+                //    using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
+                //    {
+                //        foreach (ManagementObject logon in logonCollection)
+                //        {
+                //            string logonResults = "Logon info: " + logon["Name"] + "\r\n" + "UserName: " + logon["UserName"] +
+                //                "Start: " + Convert.ToString(DateTime.FromFileTime((long)logon["StartTime"])) + "\r\n" +
+                //                "Status: " + logon["Status"] + "\r\n" +
+                //                "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
+                //                "Logon ID: " + logon["LogonId"] + "\r\n" +
+                //                "Logon Type: " + logon["LogonType"] + "\r\n\r\n";
 
-                    using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
-                    {
-                        foreach (ManagementObject logon in logonCollection)
-                        {
-                            string logonResults = "Logon info: " + logon["Name"] + "\r\n" + "UserName: " + logon["UserName"] +
-                                "Start: " + Convert.ToString(DateTime.FromFileTime((long)logon["StartTime"])) + "\r\n" +
-                                "Status: " + logon["Status"] + "\r\n" +
-                                "Authentication: " + logon["AuthenticationPackage"] + "\r\n" +
-                                "Logon ID: " + logon["LogonId"] + "\r\n" +
-                                "Logon Type: " + logon["LogonType"] + "\r\n\r\n";
-
-                            //Write results
-                            writer.WriteLine(logonResults + Environment.NewLine);
-                            writer.Flush();
-                            Console.WriteLine(logonResults);
-                        }
-                    }
-                }
-                catch (UnauthorizedAccessException e)
-                {
-                    Console.WriteLine(e + "Access Denied, insufficient privileges");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
+                //            //Write results
+                //            writer.WriteLine(logonResults + Environment.NewLine);
+                //            writer.Flush();
+                //            Console.WriteLine(logonResults);
+                //        }
+                //    }
+                //}
+                //catch (UnauthorizedAccessException)
+                //{
+                //    Console.WriteLine("Access Denied, insufficient privileges");
+                //}
+                //catch (Exception e)
+                //{
+                //    Console.WriteLine(e);
+                //}
 
                 // Computer System
                 ObjectQuery computerQuery = new ObjectQuery("Select * FROM Win32_ComputerSystem");
@@ -153,7 +151,6 @@ namespace Neko.Discovery
                 try
                 {
                     //File.AppendAllText(nekoFolder + "\\Network Scan Reults.txt", results + Environment.NewLine + Environment.NewLine);
-
                     using (var writer = new StreamWriter(nekoFolder + wmiHost, append: true))
                     {
                         foreach (ManagementObject User in computerCollection)
@@ -184,9 +181,9 @@ namespace Neko.Discovery
                 }
             }
             // Catch access denied error
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
-                Console.WriteLine(e + "Access Denied, insufficient privileges. Confirm domain admin privileges.");
+                Console.WriteLine("Access Denied, insufficient privileges. Confirm domain admin privileges.");
             }
             // Catch local machine error
             catch (ManagementException e)
