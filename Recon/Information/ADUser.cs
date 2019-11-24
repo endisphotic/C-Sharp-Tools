@@ -130,16 +130,16 @@ namespace Neko
             //using (DirectoryEntry searchRoot = new DirectoryEntry(domainURL))
             DirectoryEntry searchRoot = new DirectoryEntry(domainURL);
 
-            //Set user and password
+            // Set user and password
             searchRoot.Username = UserName;
             searchRoot.Password = Password;
 
             using (DirectorySearcher directorySearcher = new DirectorySearcher(searchRoot))
             {
-                //Set filter
+                // Set filter
                 directorySearcher.Filter = "(&(objectCategory=person)(objectClass=user))";
 
-                //Set properties to load based on above strings
+                // Set properties to load based on above strings
                 directorySearcher.PropertiesToLoad.Add(CanonicalNameProperty);
                 directorySearcher.PropertiesToLoad.Add(SamAccountNameProperty);
                 directorySearcher.PropertiesToLoad.Add(SidProperty);
@@ -156,43 +156,43 @@ namespace Neko
                 {
                     foreach (SearchResult searchResult in searchResultCollection)
                     {
-                        //Create new AD user instance
+                        // Create new AD user instance
                         var user = new ADUser();
 
-                        //Set CN if avail
+                        // Set CN if avail
                         if (searchResult.Properties[CanonicalNameProperty].Count > 0) user.CN = searchResult.Properties[CanonicalNameProperty][0].ToString();
 
-                        //Set samaccount if available
+                        // Set samaccount if available
                         if (searchResult.Properties[SamAccountNameProperty].Count > 0) user.SamAccountName = searchResult.Properties[SamAccountNameProperty][0].ToString();
 
-                        //Set first name info
+                        // Set first name info
                         if (searchResult.Properties[FirstNameProperty].Count > 0) user.FirstName = searchResult.Properties[FirstNameProperty][0].ToString();
 
-                        //Sets last name info
+                        // Sets last name info
                         if (searchResult.Properties[LastNameProperty].Count > 0) user.LastName = searchResult.Properties[LastNameProperty][0].ToString();
 
-                        //Sets member of info
+                        // Sets member of info
                         if (searchResult.Properties[MemberOfProperty].Count > 0) user.MemberOf = searchResult.Properties[MemberOfProperty][0].ToString();
 
-                        //Sets direct reports info if there
+                        // Sets direct reports info if there
                         if (searchResult.Properties[DirectReportsProperty].Count > 0) user.DirectReports = searchResult.Properties[DirectReportsProperty][0].ToString();
 
                         //Sets street address info
                         if (searchResult.Properties[StreetAddressProperty].Count > 0) user.StreetAddress = searchResult.Properties[StreetAddressProperty][0].ToString();
 
-                        //Sets last logoff info
+                        // Sets last logoff info
                         if (searchResult.Properties[LastLogoffProperty].Count > 0) user.LastLogoff = searchResult.Properties[LastLogoffProperty][0].ToString();
 
-                        //Sets last logon info
+                        // Sets last logon info
                         if (searchResult.Properties[LastLogonProperty].Count > 0) user.LastLogon = Convert.ToString(DateTime.FromFileTime((long)searchResult.Properties[LastLogonProperty][0]));
 
-                        //Gets admin count
+                        // Gets admin count
                         if (searchResult.Properties[AdminCountProperty].Count > 0) user.AdminCount = searchResult.Properties[AdminCountProperty][0].ToString();
 
-                        //Get SID if available
+                        // Get SID if available
                         if (searchResult.Properties[SidProperty].Count > 0) user.SID = (new SecurityIdentifier((byte[])searchResult.Properties[SidProperty][0], 0).Value);
 
-                        //Add use to users list
+                        // Add use to users list
                         users.Add(user);
                     }
                 }
