@@ -11,19 +11,19 @@ namespace Neko.Discovery.PortScanning
         public static void Selections()
         {
             {
-                //Get Default gateway
+                // Get Default gateway
                 string localIp = Convert.ToString(Subnet.GetDefaultGateway());
 
-                //Get choice whether user wants to use default gateway or different subnet, then valid
+                // Get choice whether user wants to use default gateway or different subnet, then valid
                 var ipChoice = Subnet.UserIpChoice(localIp);
 
-                //Get port type selection
+                // Get port type selection
                 var portChoice = PortScanType.PortSelection();
 
-                //Get stripped IP from ip Choice
+                // Get stripped IP from ip Choice
                 var strippedIp = Subnet.StripIP(ipChoice);
 
-                //Create list for WMI hosts
+                // Create list for WMI hosts
                 List<string> wmiList = new List<string>();
 
                 //Initiate scanning functions

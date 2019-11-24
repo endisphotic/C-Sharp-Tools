@@ -6,6 +6,8 @@ namespace Neko.UserChoices
     {
         static string DiscoverySelection = string.Empty;
 
+        static string conductAdditionalDisocvery = string.Empty;
+
         // Have user pick what type of discovery they want to do
         public static string Selections()
         {
@@ -20,7 +22,10 @@ namespace Neko.UserChoices
             }
             while(Options(DiscoverySelection) == false)
             {
-
+                if (conductAdditionalDisocvery == "n")
+                {
+                    break;
+                }
             }
             return DiscoverySelection;
         }
@@ -32,19 +37,24 @@ namespace Neko.UserChoices
             {
                 Console.WriteLine("\r\n" +
                     "Conduct local system discovery? Enter 'y' or 'n' or 'exit':");
-                string machineInfo = Console.ReadLine();
-                while (machineInfo != "y" && machineInfo != "n")
+                string localRecon = Console.ReadLine();
+                while (localRecon != "y" && localRecon != "n")
                 {
                     Console.WriteLine("\r\n" +
                         "Invalid selection. Do you want to do network discovery via LDAP? Enter 'y' or 'n':");
-                    machineInfo = Console.ReadLine();
+                    localRecon = Console.ReadLine();
                 }
 
                 // Conduct local recon
-                LocalMachineRecon.LocalMachine(Exfiltration.SaveLocations.NekoFolder);
+                if (localRecon == "y")
+                {
+                    LocalMachineRecon.LocalMachine(Exfiltration.SaveLocations.NekoFolder);
+                }
 
                 // Check if user wants to do additional discovery
-                if (ContinueDiscovery() == "y")
+                ContinueDiscovery();
+
+                if (conductAdditionalDisocvery == "y")
                 {
                     Selections();
                 }
@@ -74,7 +84,9 @@ namespace Neko.UserChoices
                 }
 
                 // Check if user wants to do additional discovery
-                if (ContinueDiscovery() == "y")
+                ContinueDiscovery();
+
+                if (conductAdditionalDisocvery == "y")
                 {
                     Selections();
                 }
@@ -140,7 +152,9 @@ namespace Neko.UserChoices
                     }
                 }
                 // Check if user wants to do additional discovery
-                if (ContinueDiscovery() == "y")
+                ContinueDiscovery();
+
+                if (conductAdditionalDisocvery == "y")
                 {
                     Selections();
                 }
@@ -154,7 +168,9 @@ namespace Neko.UserChoices
                 RemoteRegistry.RegQuery(Exfiltration.SaveLocations.NekoFolder, GetDomainInfo.DomainURL, DomainAuthentication.Username, DomainAuthentication.Password);
 
                 // Check if user wants to do additional discovery
-                if (ContinueDiscovery() == "y")
+                ContinueDiscovery();
+
+                if (conductAdditionalDisocvery == "y")
                 {
                     Selections();
                 }
@@ -168,14 +184,14 @@ namespace Neko.UserChoices
 
         private static string ContinueDiscovery()
         {
-            Console.WriteLine("Conduct additional discovery? Enter 'y' or 'n'");
-            string additionalDiscovery = Console.ReadLine();
-            while (additionalDiscovery != "y" && additionalDiscovery != "n")
+            Console.WriteLine("\r\nConduct additional discovery? Enter 'y' or 'n'");
+            conductAdditionalDisocvery = Console.ReadLine();
+            while (conductAdditionalDisocvery != "y" && conductAdditionalDisocvery != "n")
             {
-                Console.WriteLine("Invalid options. Conduct additional discovery?");
-                additionalDiscovery = Console.ReadLine();
+                Console.WriteLine("\r\nInvalid options. Conduct additional discovery?");
+                conductAdditionalDisocvery = Console.ReadLine();
             }
-            return additionalDiscovery;
+            return conductAdditionalDisocvery;
         }
     }
 }
