@@ -52,7 +52,8 @@ namespace Neko.Discovery
                             // Write out results
                             writer.WriteLine(wmiScanResults + Environment.NewLine);
                             writer.Flush();
-                            Console.WriteLine(wmiScanResults);
+                            Console.WriteLine(wmiScanResults, Console.ForegroundColor = ConsoleColor.Cyan);
+                            Console.ResetColor();
                         }
                     }
                 }
@@ -89,7 +90,8 @@ namespace Neko.Discovery
                             //Write results
                             writer.WriteLine(userResults + Environment.NewLine);
                             writer.Flush();
-                            Console.WriteLine(userResults);
+                            Console.WriteLine(userResults, Console.ForegroundColor = ConsoleColor.Cyan);
+                            Console.ResetColor();
                         }
                     }
                 }
@@ -127,7 +129,8 @@ namespace Neko.Discovery
                 //            //Write results
                 //            writer.WriteLine(logonResults + Environment.NewLine);
                 //            writer.Flush();
-                //            Console.WriteLine(logonResults);
+                //            Console.WriteLine(logonResults, Console.ForegroundColor = ConsoleColor.Cyan);
+                //Console.ResetColor();
                 //        }
                 //    }
                 //}
@@ -167,7 +170,8 @@ namespace Neko.Discovery
                             //Write results
                             writer.WriteLine(UserResults + Environment.NewLine);
                             writer.Flush();
-                            Console.WriteLine(UserResults);
+                            Console.WriteLine(UserResults, Console.ForegroundColor = ConsoleColor.Cyan);
+                            Console.ResetColor();
                         }
                     }
                 }

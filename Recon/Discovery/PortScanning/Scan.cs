@@ -15,7 +15,8 @@ namespace Neko.Discovery.PortScanning
             // Full port scan
             if (portChoice == "1")
             {
-                Console.WriteLine("Starting full port scan, this will take a while, please wait for scan finished message...");
+                Console.WriteLine("Starting full port scan, this will take a while, please wait for scan finished message...", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
                 // Spool up multiple threads split by ports
                 try
                 {
@@ -44,7 +45,8 @@ namespace Neko.Discovery.PortScanning
             // Well-known scan
             else if (portChoice == "2")
             {
-                Console.WriteLine("Starting well-known scan, this will take a while, please wait for scan finished message...");
+                Console.WriteLine("Starting well-known scan, this will take a while, please wait for scan finished message...", Console.ForegroundColor = ConsoleColor.Red);
+                Console.ResetColor();
                 // Spool up multiple threads based on ports
                 try
                 {
@@ -104,7 +106,8 @@ namespace Neko.Discovery.PortScanning
                                     string wmiHost = "\\Network IP Scan " + strippedIP + Convert.ToString(i) + ".txt";
                                     if (results.Contains("succeeded") && (j) == 135)
                                     {
-                                        Console.WriteLine("Port 135 confirmed");
+                                        Console.WriteLine("Port 135 confirmed", Console.ForegroundColor = ConsoleColor.DarkRed);
+                                        Console.ResetColor();
                                         // Launch WMI recon info
                                         GatherInfoUsingWMI.Parameters(strippedIP + Convert.ToString(i), Username, Password, domainURL, nekoFolder, wmiHost);
                                         // Add to WMI list

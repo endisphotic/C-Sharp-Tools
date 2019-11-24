@@ -10,7 +10,7 @@ namespace Neko.Discovery
         {
             // Confirm that it is correct
             Console.WriteLine("\r\n" +
-                "Recon will begin on: " + GetDomainInfo.DomainURL + "." + " Is this correct? Enter 'y' or 'n':");
+                "Discovery will begin on: " + GetDomainInfo.DomainURL + "." + " Is this correct? Enter 'y' or 'n':");
             string ldapConfirmation = Console.ReadLine();
             while (ldapConfirmation != "y" && ldapConfirmation != "n")
             {
@@ -61,7 +61,6 @@ namespace Neko.Discovery
 
                     }
                 }
-
             }
             catch (Exception e)
             {

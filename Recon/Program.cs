@@ -1,7 +1,6 @@
 ﻿using System;
 using Neko;
 using Neko.UserChoices;
-using Neko.Exfiltration;
 
 namespace Recon
 {
@@ -10,7 +9,26 @@ namespace Recon
         static void Main(string[] args)
         {
 
-            Console.WriteLine("Welcome to Neko. \r\n");
+            Console.WriteLine("Welcome to Neko \r\n", Console.ForegroundColor = ConsoleColor.Green);
+            Console.ResetColor();
+            Console.Write(@"                      _                        
+                      \`*-.
+                       )  _`-.
+                      .  : `. .                
+                      : _   '  \               
+                      ; *` _.   `*-._
+                      `-.- '          `-.       
+                        ;       `       `.     
+                        :.       .        \    
+                        . \  .   :   .-'   .   
+                        '  `+.;  ;  '      :   
+                        :  '  |    ;       ;-. 
+                        ; '   : :`-:     _.`* ;
+                      .* ' /  .*'; .*`-+'  `*'
+                     `*-*   `*-*  `*-*'    ");
+            Console.WriteLine("\r\n\r\nThis is a tool designed for various pen-testing activities on the local machine and remote machines if Active Directory components are selected.",
+                Console.ForegroundColor = ConsoleColor.Magenta);
+            Console.ResetColor();
 
             bool infoConfirmed = false;
 
@@ -19,7 +37,7 @@ namespace Recon
 
             while (infoConfirmed == false)
             {
-                Console.WriteLine("Will you be using any Active Directory components, such as LDAP recon, remote registry, or lateral movement via WMI? \r\n\r\nEnter 'y' or 'n':");
+                Console.WriteLine("\r\nWill you be using any Active Directory components, such as LDAP recon, remote registry, or lateral movement via WMI? \r\n\r\nEnter 'y' or 'n':");
                 string adCheck = Console.ReadLine();
                 while (adCheck != "y" && adCheck != "n")
                 {

@@ -23,7 +23,8 @@ namespace Neko.Discovery.PortScanning
                     {
                         ports.Replace(" ", "");
                     }
-                    Console.WriteLine("\r\nStarting selected scan on port(s): " + Convert.ToString(ports) + Environment.NewLine);
+                    Console.WriteLine("\r\nStarting selected scan on port(s): " + Convert.ToString(ports) + Environment.NewLine, Console.ForegroundColor = ConsoleColor.Red);
+                    Console.ResetColor();
                     // Add ports to list
                     List<int> portList = new List<int>();
                     // Split out data by comma values
@@ -57,7 +58,8 @@ namespace Neko.Discovery.PortScanning
                                         string wmiHost = "\\Network IP Scan " + strippedIp + Convert.ToString(i) + ".txt";
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
-                                            Console.WriteLine("Port 135 confirmed");
+                                            Console.WriteLine("Port 135 confirmed", Console.ForegroundColor = ConsoleColor.DarkRed);
+                                            Console.ResetColor();
                                             // Launch WMI recon
                                             GatherInfoUsingWMI.Parameters(strippedIp + Convert.ToString(i), Username, Password, domainURL, nekoFolder, wmiHost);
                                             // Add host to WMI list
