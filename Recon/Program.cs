@@ -42,9 +42,6 @@ namespace Recon
                 }
             }
 
-            // Set save location for data exfiltration
-            string nekoFolder = SaveLocations.SetPath();
-
             // Get attack type
             AttackType.Selection();
 

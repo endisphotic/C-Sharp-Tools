@@ -6,6 +6,7 @@ namespace Neko.UserChoices
     {
         static string DiscoverySelection = string.Empty;
 
+        // Have user pick what type of discovery they want to do
         public static string Selections()
         {
             Console.WriteLine("\r\nDiscovery options: \r\n\r\n 1: Local machine \r\n\r\n 2: Domain via LDAP \r\n\r\n 3: Network Scan with Option of WMI" +
@@ -51,7 +52,6 @@ namespace Neko.UserChoices
                 {
                     return true;
                 }
-
             }
             // Domain recon via LDAP
             else if (DiscoverySelection == "2")
@@ -139,7 +139,6 @@ namespace Neko.UserChoices
                         }
                     }
                 }
-
                 // Check if user wants to do additional discovery
                 if (ContinueDiscovery() == "y")
                 {
