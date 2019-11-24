@@ -5,7 +5,7 @@ namespace Neko.UserChoices
 {
     class WMIAttack
     {
-        // For attacking found WMI targets later
+        // Attacking found WMI targets later
         public static void Parameters(string Username, string Password, string domainURL, string hostname, string commandFile)
         {
             try

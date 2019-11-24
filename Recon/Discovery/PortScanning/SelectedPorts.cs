@@ -52,16 +52,15 @@ namespace Neko.Discovery.PortScanning
                                     {
                                         Console.WriteLine("Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.");
                                         results = "Connection to " + strippedIp + Convert.ToString(i) + " on port: " + Convert.ToInt32(portNumber) + " succeeded.";
-                                        //Append results to text file
+                                        // Append results to text file
                                         File.AppendAllText(nekoFolder + "\\Network IP Scan " + strippedIp + Convert.ToString(i) + ".txt", results + Environment.NewLine + Environment.NewLine);
                                         string wmiHost = "\\Network IP Scan " + strippedIp + Convert.ToString(i) + ".txt";
                                         if (results.Contains("succeeded") && Convert.ToInt32(portNumber) == 135)
                                         {
                                             Console.WriteLine("Port 135 confirmed");
-                                            //Launch WMI recon
-                                            // Need to fix
-                                            //UserChoices.WMIAttack.Parameters(strippedIp + Convert.ToString(i), Username, Password, domainURL, nekoFolder, wmiHost);
-                                            //Add host to WMI list
+                                            // Launch WMI recon
+                                            GatherInfoUsingWMI.Parameters(Username, Password, domainURL, strippedIp + Convert.ToString(i), nekoFolder, wmiHost);
+                                            // Add host to WMI list
                                             wmiList.Add(strippedIp + Convert.ToString(i));
                                         }
                                     }
