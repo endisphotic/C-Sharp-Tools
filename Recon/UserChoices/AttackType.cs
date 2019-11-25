@@ -48,8 +48,8 @@ namespace Neko.UserChoices
                     RemoteRegistry.RegModification(Exfiltration.SaveLocations.NekoFolder, GetDomainInfo.DomainURL, DomainAuthentication.Username, DomainAuthentication.Password);
                     break;
                 case "6":
-                    Credential_Access.Selections.SaveSAMSecurity();
                     Credential_Access.Selections.EnableWDigest();
+                    Credential_Access.Selections.SaveSAMSecurity();
                     break;
             }
         }
