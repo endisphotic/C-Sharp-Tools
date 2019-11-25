@@ -84,6 +84,10 @@ namespace Recon
                 {
                     // Clear console
                     Console.Clear();
+                    // Reset attack type
+                    AttackType.attackType = null;
+
+                    // Get attack type again
                     AttackType.Selection();
                 }
             }

